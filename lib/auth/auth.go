@@ -449,6 +449,8 @@ type certRequest struct {
 	appPublicAddr string
 	// appClusterName is the name of the cluster this application is in.
 	appClusterName string
+	// routeToDatabase specifies the name of the database to encode.
+	routeToDatabase string
 }
 
 // GenerateUserTestCerts is used to generate user certificate, used internally for tests
@@ -633,6 +635,10 @@ func (a *Server) generateUserCert(req certRequest) (*certs, error) {
 			ClusterName: req.appClusterName,
 		},
 		TeleportCluster: clusterName,
+		RouteToDatabase: tlsca.RouteToDatabase{
+			DatabaseName: req.routeToDatabase,
+			ClusterName:  req.routeToCluster,
+		},
 	}
 	subject, err := identity.Subject()
 	if err != nil {
@@ -1827,6 +1833,11 @@ func (a *Server) GetAppServers(ctx context.Context, namespace string, opts ...se
 // GetAppSession is a part of the auth.AccessPoint implementation.
 func (a *Server) GetAppSession(ctx context.Context, req services.GetAppSessionRequest) (services.WebSession, error) {
 	return a.GetCache().GetAppSession(ctx, req)
+}
+
+// GetDatabaseServers returns all registers database proxy servers.
+func (a *Server) GetDatabaseServers(ctx context.Context, namespace string, opts ...services.MarshalOption) ([]services.Server, error) {
+	return a.GetCache().GetDatabaseServers(ctx, namespace, opts...)
 }
 
 // authKeepAliver is a keep aliver using auth server directly

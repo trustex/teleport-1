@@ -170,9 +170,11 @@ var (
 		"kube_cluster_name":       false,
 		"kube_listen_addr":        false,
 		"app_service":             true,
+		"db_service":              true,
 		"protocol":                false,
 		"uri":                     false,
 		"apps":                    false,
+		"databases":               false,
 		"https_keypairs":          true,
 		"key_file":                false,
 		"insecure_skip_verify":    false,
@@ -204,6 +206,10 @@ type FileConfig struct {
 	// Apps is the "app_service" section in Teleport file configuration which
 	// defines application access configuration.
 	Apps Apps `yaml:"app_service,omitempty"`
+
+	// Databases is the "db_service" section in Teleport configuration file
+	// that defined database access configuration.
+	Databases Databases `yaml:"db_service,omitempty"`
 }
 
 type YAMLMap map[interface{}]interface{}
@@ -818,6 +824,54 @@ func (b *BPF) Parse() *bpf.Config {
 		NetworkBufferSize: b.NetworkBufferSize,
 		CgroupPath:        b.CgroupPath,
 	}
+}
+
+// Databases represents the database proxy service configuration.
+//
+// In the configuration file this section will be "db_service".
+type Databases struct {
+	// Service contains common service fields.
+	Service `yaml:",inline"`
+	// Databases is a list of databases proxied by the service.
+	Databases []*Database `yaml:"databases"`
+}
+
+// Database represents a single database proxied by the service.
+type Database struct {
+	// Name is the name for the database proxy service.
+	Name string `yaml:"name"`
+	// Description is an optional free-form database description.
+	Description string `yaml:"description,omitempty"`
+	// Protocol is the database type e.g. postgres, mysql, etc.
+	Protocol string `yaml:"protocol"`
+	// URI is the database address to connect to.
+	URI string `yaml:"uri"`
+	// CAPath is an optional path to the database CA certificate.
+	CAPath string `yaml:"ca_path,omitempty"`
+	// Region is an optional database cloud region e.g. when using AWS RDS.
+	Region string `yaml:"region,omitempty"`
+	// Auth is database authentication type e.g. aws-iam.
+	Auth string `yaml:"auth,omitempty"`
+	// Labels is a map of database static labels.
+	StaticLabels map[string]string `yaml:"static_labels,omitempty"`
+	// Commands is a list of database dynamic labels.
+	DynamicLabels []CommandLabel `yaml:"dynamic_labels,omitempty"`
+}
+
+// Check validates the database proxy configuration.
+func (d *Database) Check() error {
+	if d.Name == "" {
+		return trace.BadParameter("empty database name")
+	}
+	if !utils.SliceContainsStr(defaults.DatabaseProtocols, d.Protocol) {
+		return trace.BadParameter("unsupported database %q protocol %q, supported are: %v",
+			d.Name, d.Protocol, defaults.DatabaseProtocols)
+	}
+	if _, _, err := net.SplitHostPort(d.URI); err != nil {
+		return trace.BadParameter("invalid database %q address %q: %v",
+			d.Name, d.URI, err)
+	}
+	return nil
 }
 
 // Apps represents the configuration for the collection of applications this

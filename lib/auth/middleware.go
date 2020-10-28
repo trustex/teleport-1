@@ -526,6 +526,22 @@ func (a *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	a.Handler.ServeHTTP(w, requestWithContext)
 }
 
+// WrapContext enriches the provided context with the identity information
+// extracted from the provided TLS connection.
+func (a *Middleware) WrapContext(ctx context.Context, conn net.Conn) (context.Context, error) {
+	tlsConn, ok := conn.(*tls.Conn)
+	if !ok {
+		log.Warnf("Expected tls connection, got %T.", conn)
+		return nil, trace.AccessDenied("missing authentication")
+	}
+	user, err := a.GetUser(tlsConn.ConnectionState())
+	if err != nil {
+		return nil, trace.Wrap(err)
+	}
+	requestWithContext := context.WithValue(ctx, ContextUser, user)
+	return requestWithContext, nil
+}
+
 // ClientCertPool returns trusted x509 cerificate authority pool
 func ClientCertPool(client AccessCache, clusterName string) (*x509.CertPool, error) {
 	pool := x509.NewCertPool()

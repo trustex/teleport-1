@@ -98,6 +98,8 @@ type Identity struct {
 	// originated from. For TLS certs this may not be the same as cert issuer,
 	// in case of multi-hop requests that originate from a remote cluster.
 	TeleportCluster string
+	// RouteToDatabase contains routing information for databases.
+	RouteToDatabase RouteToDatabase
 }
 
 // RouteToApp holds routing information for applications.
@@ -115,6 +117,14 @@ type RouteToApp struct {
 
 	// ClusterName (and PublicAddr) are used to route requests issued with this
 	// certificate to the appropriate application proxy/cluster.
+	ClusterName string
+}
+
+// RouteToDatabase contains routing information for databases.
+type RouteToDatabase struct {
+	// DatabaseName is the name of the database to route requests to.
+	DatabaseName string
+	// ClusterName is the cluster the database is connected to.
 	ClusterName string
 }
 
@@ -175,6 +185,12 @@ var (
 	// TeleportClusterASN1ExtensionOID is an extension ID used when encoding/decoding
 	// origin teleport cluster name into certificates.
 	TeleportClusterASN1ExtensionOID = asn1.ObjectIdentifier{1, 3, 9999, 1, 7}
+
+	//
+	DatabaseNameASN1ExtensionOID = asn1.ObjectIdentifier{1, 3, 9999, 2, 1}
+
+	//
+	DatabaseClusterNameASN1ExtensionOID = asn1.ObjectIdentifier{1, 3, 9999, 2, 2}
 )
 
 // Subject converts identity to X.509 subject name
@@ -256,6 +272,22 @@ func (id *Identity) Subject() (pkix.Name, error) {
 			})
 	}
 
+	// Encode routing metadata for databases.
+	if id.RouteToDatabase.DatabaseName != "" {
+		subject.ExtraNames = append(subject.ExtraNames,
+			pkix.AttributeTypeAndValue{
+				Type:  DatabaseNameASN1ExtensionOID,
+				Value: id.RouteToDatabase.DatabaseName,
+			})
+	}
+	if id.RouteToDatabase.ClusterName != "" {
+		subject.ExtraNames = append(subject.ExtraNames,
+			pkix.AttributeTypeAndValue{
+				Type:  DatabaseClusterNameASN1ExtensionOID,
+				Value: id.RouteToDatabase.ClusterName,
+			})
+	}
+
 	return subject, nil
 }
 
@@ -315,6 +347,16 @@ func FromSubject(subject pkix.Name, expires time.Time) (*Identity, error) {
 			if ok {
 				id.TeleportCluster = val
 			}
+		case attr.Type.Equal(DatabaseNameASN1ExtensionOID):
+			val, ok := attr.Value.(string)
+			if ok {
+				id.RouteToDatabase.DatabaseName = val
+			}
+		case attr.Type.Equal(DatabaseClusterNameASN1ExtensionOID):
+			val, ok := attr.Value.(string)
+			if ok {
+				id.RouteToDatabase.ClusterName = val
+			}
 		}
 	}
 
@@ -349,7 +391,7 @@ type CertificateRequest struct {
 // CheckAndSetDefaults checks and sets default values
 func (c *CertificateRequest) CheckAndSetDefaults() error {
 	if c.Clock == nil {
-		return trace.BadParameter("missing parameter Clock")
+		c.Clock = clockwork.NewRealClock()
 	}
 	if c.PublicKey == nil {
 		return trace.BadParameter("missing parameter PublicKey")

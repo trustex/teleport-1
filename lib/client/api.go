@@ -208,6 +208,10 @@ type Config struct {
 	// cluster every time) but unspecified logic.
 	KubernetesCluster string
 
+	// DatabaseName specifies name of the database proxy server to issue
+	// certificate for.
+	DatabaseName string
+
 	// LocalForwardPorts are the local ports tsh listens on for port forwarding
 	// (parameters to -L ssh flag).
 	LocalForwardPorts ForwardedPorts
@@ -294,6 +298,12 @@ func MakeDefaultConfig() *Config {
 // ProfileStatus combines metadata from the logged in profile and associated
 // SSH certificate.
 type ProfileStatus struct {
+	// Name is the profile name.
+	Name string
+
+	// Dir is the directory where profile is located.
+	Dir string
+
 	// ProxyURL is the URL the web client is accessible at.
 	ProxyURL url.URL
 
@@ -318,6 +328,9 @@ type ProfileStatus struct {
 
 	// KubeGroups are the kubernetes groups used by this profile.
 	KubeGroups []string
+
+	// Database is the database the user is logged into.
+	Database string
 
 	// ValidUntil is the time at which this SSH certificate will expire.
 	ValidUntil time.Time
@@ -484,6 +497,8 @@ func readProfile(profileDir string, profileName string) (*ProfileStatus, error) 
 	}
 
 	return &ProfileStatus{
+		Name: profileName,
+		Dir:  profileDir,
 		ProxyURL: url.URL{
 			Scheme: "https",
 			Host:   profile.WebProxyAddr,
@@ -500,6 +515,7 @@ func readProfile(profileDir string, profileName string) (*ProfileStatus, error) 
 		KubeCluster:    tlsID.KubernetesCluster,
 		KubeUsers:      tlsID.KubernetesUsers,
 		KubeGroups:     tlsID.KubernetesGroups,
+		Database:       tlsID.RouteToDatabase.DatabaseName,
 	}, nil
 }
 
@@ -1461,6 +1477,26 @@ func (tc *TeleportClient) ListAppServers(ctx context.Context) ([]services.Server
 	return proxyClient.GetAppServers(ctx, tc.Namespace)
 }
 
+// ListDatabaseServers returns all registered database proxy servers.
+func (tc *TeleportClient) ListDatabaseServers(ctx context.Context) ([]services.Server, error) {
+	proxyClient, err := tc.ConnectToProxy(ctx)
+	if err != nil {
+		return nil, trace.Wrap(err)
+	}
+	defer proxyClient.Close()
+	return proxyClient.GetDatabaseServers(ctx, tc.Namespace)
+}
+
+// ListDatabaseServersFor returns all servers that proxy the specified database.
+func (tc *TeleportClient) ListDatabaseServersFor(ctx context.Context, dbName string) ([]services.Server, error) {
+	proxyClient, err := tc.ConnectToProxy(ctx)
+	if err != nil {
+		return nil, trace.Wrap(err)
+	}
+	defer proxyClient.Close()
+	return proxyClient.GetDatabaseServersFor(ctx, tc.Namespace, dbName)
+}
+
 // ListAllNodes is the same as ListNodes except that it ignores labels.
 func (tc *TeleportClient) ListAllNodes(ctx context.Context) ([]services.Server, error) {
 	proxyClient, err := tc.ConnectToProxy(ctx)
@@ -2116,6 +2152,7 @@ func (tc *TeleportClient) directLogin(ctx context.Context, secondFactorType stri
 			Compatibility:     tc.CertificateFormat,
 			RouteToCluster:    tc.SiteName,
 			KubernetesCluster: tc.KubernetesCluster,
+			RouteToDatabase:   tc.DatabaseName,
 		},
 		User:     tc.Config.Username,
 		Password: password,
@@ -2139,6 +2176,7 @@ func (tc *TeleportClient) ssoLogin(ctx context.Context, connectorID string, pub 
 			Compatibility:     tc.CertificateFormat,
 			RouteToCluster:    tc.SiteName,
 			KubernetesCluster: tc.KubernetesCluster,
+			RouteToDatabase:   tc.DatabaseName,
 		},
 		ConnectorID: connectorID,
 		Protocol:    protocol,
@@ -2171,6 +2209,7 @@ func (tc *TeleportClient) u2fLogin(ctx context.Context, pub []byte) (*auth.SSHLo
 			Compatibility:     tc.CertificateFormat,
 			RouteToCluster:    tc.SiteName,
 			KubernetesCluster: tc.KubernetesCluster,
+			RouteToDatabase:   tc.DatabaseName,
 		},
 		User:     tc.Config.Username,
 		Password: password,

@@ -84,6 +84,7 @@ var DefaultImplicitRules = []Rule{
 	NewRule(KindAppServer, RO()),
 	NewRule(KindRemoteCluster, RO()),
 	NewRule(KindKubeService, RO()),
+	NewRule(KindDatabaseServer, RO()),
 }
 
 // DefaultCertAuthorityRules provides access the minimal set of resources
@@ -138,6 +139,9 @@ func NewAdminRole() Role {
 				NodeLabels:       Labels{Wildcard: []string{Wildcard}},
 				AppLabels:        Labels{Wildcard: []string{Wildcard}},
 				KubernetesLabels: Labels{Wildcard: []string{Wildcard}},
+				DatabaseLabels:   Labels{Wildcard: []string{Wildcard}},
+				DatabaseNames:    []string{Wildcard},
+				DatabaseUsers:    []string{Wildcard},
 				Rules:            adminRules,
 			},
 		},
@@ -196,6 +200,9 @@ func RoleForUser(u User) Role {
 				NodeLabels:       Labels{Wildcard: []string{Wildcard}},
 				AppLabels:        Labels{Wildcard: []string{Wildcard}},
 				KubernetesLabels: Labels{Wildcard: []string{Wildcard}},
+				DatabaseLabels:   Labels{Wildcard: []string{Wildcard}},
+				DatabaseNames:    []string{Wildcard},
+				DatabaseUsers:    []string{Wildcard},
 				Rules:            CopyRulesSlice(AdminUserRules),
 			},
 		},
@@ -220,6 +227,7 @@ func RoleForCertAuthority(ca CertAuthority) Role {
 				NodeLabels:       Labels{Wildcard: []string{Wildcard}},
 				AppLabels:        Labels{Wildcard: []string{Wildcard}},
 				KubernetesLabels: Labels{Wildcard: []string{Wildcard}},
+				DatabaseLabels:   Labels{Wildcard: []string{Wildcard}},
 				Rules:            CopyRulesSlice(DefaultCertAuthorityRules),
 			},
 		},
@@ -315,6 +323,21 @@ type Role interface {
 	// SetKubernetesLabels sets the map of kubernetes labels this role is
 	// allowed or denied access to.
 	SetKubernetesLabels(RoleConditionType, Labels)
+
+	// GetDatabaseLabels gets the map of db labels this role is allowed or denied access to.
+	GetDatabaseLabels(RoleConditionType) Labels
+	// SetDatabaseLabels sets the map of db labels this role is allowed or denied access to.
+	SetDatabaseLabels(RoleConditionType, Labels)
+
+	// GetDatabaseNames gets a list of database names this role is allowed or denied access to.
+	GetDatabaseNames(RoleConditionType) []string
+	// SetDatabasenames sets a list of database names this role is allowed or denied access to.
+	SetDatabaseNames(RoleConditionType, []string)
+
+	// GetDatabaseUsers gets a list of database users this role is allowed or denied access to.
+	GetDatabaseUsers(RoleConditionType) []string
+	// SetDatabaseUsers sets a list of database users this role is allowed or denied access to.
+	SetDatabaseUsers(RoleConditionType, []string)
 
 	// GetRules gets all allow or deny rules.
 	GetRules(rct RoleConditionType) []Rule
@@ -531,6 +554,9 @@ func (r *RoleV3) Equals(other Role) bool {
 			return false
 		}
 		if !r.GetAppLabels(condition).Equals(other.GetAppLabels(condition)) {
+			return false
+		}
+		if !r.GetDatabaseLabels(condition).Equals(other.GetDatabaseLabels(condition)) {
 			return false
 		}
 		if !RuleSlicesEqual(r.GetRules(condition), other.GetRules(condition)) {
@@ -758,6 +784,57 @@ func (r *RoleV3) SetKubernetesLabels(rct RoleConditionType, labels Labels) {
 	}
 }
 
+// GetDatabaseLabels gets the map of db labels this role is allowed or denied access to.
+func (r *RoleV3) GetDatabaseLabels(rct RoleConditionType) Labels {
+	if rct == Allow {
+		return r.Spec.Allow.DatabaseLabels
+	}
+	return r.Spec.Deny.DatabaseLabels
+}
+
+// SetDatabaseLabels sets the map of db labels this role is allowed or denied access to.
+func (r *RoleV3) SetDatabaseLabels(rct RoleConditionType, labels Labels) {
+	if rct == Allow {
+		r.Spec.Allow.DatabaseLabels = labels.Clone()
+	} else {
+		r.Spec.Deny.DatabaseLabels = labels.Clone()
+	}
+}
+
+// GetDatabaseNames gets a list of database names this role is allowed or denied access to.
+func (r *RoleV3) GetDatabaseNames(rct RoleConditionType) []string {
+	if rct == Allow {
+		return r.Spec.Allow.DatabaseNames
+	}
+	return r.Spec.Deny.DatabaseNames
+}
+
+// SetDatabaseNames sets a list of database names this role is allowed or denied access to.
+func (r *RoleV3) SetDatabaseNames(rct RoleConditionType, values []string) {
+	if rct == Allow {
+		r.Spec.Allow.DatabaseNames = values
+	} else {
+		r.Spec.Deny.DatabaseNames = values
+	}
+}
+
+// GetDatabaseUsers gets a list of database users this role is allowed or denied access to.
+func (r *RoleV3) GetDatabaseUsers(rct RoleConditionType) []string {
+	if rct == Allow {
+		return r.Spec.Allow.DatabaseUsers
+	}
+	return r.Spec.Deny.DatabaseUsers
+}
+
+// SetDatabaseUsers sets a list of database users this role is allowed or denied access to.
+func (r *RoleV3) SetDatabaseUsers(rct RoleConditionType, values []string) {
+	if rct == Allow {
+		r.Spec.Allow.DatabaseUsers = values
+	} else {
+		r.Spec.Deny.DatabaseUsers = values
+	}
+}
+
 // GetRules gets all allow or deny rules.
 func (r *RoleV3) GetRules(rct RoleConditionType) []Rule {
 	if rct == Allow {
@@ -817,6 +894,10 @@ func (r *RoleV3) CheckAndSetDefaults() error {
 		r.Spec.Allow.KubernetesLabels = Labels{Wildcard: []string{Wildcard}}
 	}
 
+	if r.Spec.Allow.DatabaseLabels == nil {
+		r.Spec.Allow.DatabaseLabels = Labels{Wildcard: []string{Wildcard}}
+	}
+
 	if r.Spec.Deny.Namespaces == nil {
 		r.Spec.Deny.Namespaces = []string{defaults.Namespace}
 	}
@@ -869,6 +950,11 @@ func (r *RoleV3) CheckAndSetDefaults() error {
 			return trace.BadParameter("selector *:<val> is not supported")
 		}
 	}
+	for key, val := range r.Spec.Allow.DatabaseLabels {
+		if key == Wildcard && !(len(val) == 1 && val[0] == Wildcard) {
+			return trace.BadParameter("select *:<val> is not supported")
+		}
+	}
 	for i := range r.Spec.Allow.Rules {
 		err := r.Spec.Allow.Rules[i].CheckAndSetDefaults()
 		if err != nil {
@@ -918,6 +1004,9 @@ func (r *RoleConditions) Equals(o RoleConditions) bool {
 		return false
 	}
 	if !r.KubernetesLabels.Equals(o.KubernetesLabels) {
+		return false
+	}
+	if !r.DatabaseLabels.Equals(o.DatabaseLabels) {
 		return false
 	}
 	if len(r.Rules) != len(o.Rules) {
@@ -1264,6 +1353,13 @@ type AccessChecker interface {
 
 	// CheckAccessToKubernetes checks access to a kubernetes cluster.
 	CheckAccessToKubernetes(string, *KubernetesCluster) error
+
+	// CheckAccessToDatabaseService checks access to the specified database
+	// proxy service.
+	CheckAccessToDatabaseService(namespace string, db *Database) error
+	// CheckAccessToDatabase checks whether a user can log into a particular
+	// database as a particular user within the specified database proxy.
+	CheckAccessToDatabase(namespace string, dbName string, dbUser string, db *Database) error
 }
 
 // FromSpec returns new RoleSet created from spec
@@ -1461,6 +1557,26 @@ func MatchLogin(selectors []string, login string) (bool, string) {
 		}
 	}
 	return false, fmt.Sprintf("no match, role selectors %v, login: %v", selectors, login)
+}
+
+// MatchDatabaseName returns true if provided database name matches selectors.
+func MatchDatabaseName(selectors []string, name string) (bool, string) {
+	for _, n := range selectors {
+		if n == name || n == Wildcard {
+			return true, "matched"
+		}
+	}
+	return false, fmt.Sprintf("no match, role selectors %v, database name: %v", selectors, name)
+}
+
+// MatchDatabaseUser returns true if provided database user matches selectors.
+func MatchDatabaseUser(selectors []string, user string) (bool, string) {
+	for _, u := range selectors {
+		if u == user || u == Wildcard {
+			return true, "matched"
+		}
+	}
+	return false, fmt.Sprintf("no match, role selectors %v, database user: %v", selectors, user)
 }
 
 // MatchLabels matches selector against target. Empty selector matches
@@ -1917,6 +2033,91 @@ func (set RoleSet) CheckAccessToKubernetes(namespace string, kube *KubernetesClu
 		}).Debugf("Access to kubernetes cluster %v denied, no allow rule matched; %v", kube.Name, errs)
 	}
 	return trace.AccessDenied("access to kubernetes cluster denied")
+}
+
+// CheckAccessToDatabaseService checks is a role has access to the specified
+// database proxy service.
+//
+// Used to filter available databases a user sees with "tsh db ls" command.
+func (set RoleSet) CheckAccessToDatabaseService(namespace string, db *Database) error {
+	var errs []error
+	// Check deny rules.
+	for _, role := range set {
+		matchNamespace, namespaceMessage := MatchNamespace(role.GetNamespaces(Deny), namespace)
+		matchLabels, labelsMessage, err := MatchLabels(role.GetDatabaseLabels(Deny), CombineLabels(db.StaticLabels, db.DynamicLabels))
+		if err != nil {
+			return trace.Wrap(err)
+		}
+		if matchNamespace && matchLabels {
+			log.WithField(trace.Component, teleport.ComponentRBAC).Debugf(
+				"Access to database %q denied, deny rule in %q matched; match(namespace=%v, label=%v).",
+				db.Name, role.GetName(), namespaceMessage, labelsMessage)
+			return trace.AccessDenied("access to database denied")
+		}
+	}
+	// Check allow rules.
+	for _, role := range set {
+		matchNamespace, namespaceMessage := MatchNamespace(role.GetNamespaces(Allow), namespace)
+		matchLabels, labelsMessage, err := MatchLabels(role.GetDatabaseLabels(Allow), CombineLabels(db.StaticLabels, db.DynamicLabels))
+		if err != nil {
+			return trace.Wrap(err)
+		}
+		if matchNamespace && matchLabels {
+			log.WithField(trace.Component, teleport.ComponentRBAC).Debugf(
+				"Access to database %q granted, allow rule in %q matched; match(namespace=%v, label=%v).",
+				db.Name, role.GetName(), namespaceMessage, labelsMessage)
+			return nil
+		}
+		if log.GetLevel() == log.DebugLevel {
+			deniedError := trace.AccessDenied("role=%v, match(namespace=%v, label=%v)",
+				role.GetName(), namespaceMessage, labelsMessage)
+			errs = append(errs, deniedError)
+		}
+	}
+	log.WithField(trace.Component, teleport.ComponentRBAC).Debugf(
+		"Access to database %q denied, no allow rule matched; %v.", db.Name, errs)
+	return trace.AccessDenied("access to database denied")
+}
+
+// CheckAccessToDatabase checks is a role has access to a particular database
+// and database user within the specified database proxy.
+func (set RoleSet) CheckAccessToDatabase(namespace, dbName, dbUser string, db *Database) error {
+	// Check access to the service first.
+	err := set.CheckAccessToDatabaseService(namespace, db)
+	if err != nil {
+		return trace.Wrap(err)
+	}
+	var errs []error
+	// Check deny rules.
+	for _, role := range set {
+		matchName, nameMessage := MatchDatabaseName(role.GetDatabaseNames(Deny), dbName)
+		matchUser, userMessage := MatchDatabaseUser(role.GetDatabaseUsers(Deny), dbUser)
+		if matchName || matchUser {
+			log.WithField(trace.Component, teleport.ComponentRBAC).Debugf(
+				"Access to database %q denied, deny rule in %q matched; match(dbname=%v, dbuser=%v).",
+				db.Name, role.GetName(), nameMessage, userMessage)
+			return trace.AccessDenied("access to database denied")
+		}
+	}
+	// Check allow rules.
+	for _, role := range set {
+		matchName, nameMessage := MatchDatabaseName(role.GetDatabaseNames(Allow), dbName)
+		matchUser, userMessage := MatchDatabaseUser(role.GetDatabaseUsers(Allow), dbUser)
+		if matchName && matchUser {
+			log.WithField(trace.Component, teleport.ComponentRBAC).Debugf(
+				"Access to database %q granted, allow rule in %q matched; match(dbname=%v, dbuser=%v).",
+				db.Name, role.GetName(), nameMessage, userMessage)
+			return nil
+		}
+		if log.GetLevel() == log.DebugLevel {
+			deniedError := trace.AccessDenied("role=%v, match(dbname=%v, dbuser=%v)",
+				role.GetName(), nameMessage, userMessage)
+			errs = append(errs, deniedError)
+		}
+	}
+	log.WithField(trace.Component, teleport.ComponentRBAC).Debugf(
+		"Access to database %q denied, no allow rule matched; %v.", db.Name, errs)
+	return trace.AccessDenied("access to database denied")
 }
 
 // CanForwardAgents returns true if role set allows forwarding agents.

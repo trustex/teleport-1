@@ -33,9 +33,8 @@ import (
 	"github.com/gravitational/teleport/lib/tlsca"
 	"github.com/gravitational/teleport/lib/utils"
 
-	"github.com/gravitational/trace"
-
 	"github.com/gravitational/kingpin"
+	"github.com/gravitational/trace"
 )
 
 // TokenCommand implements `tctl token` group of commands
@@ -58,6 +57,16 @@ type TokenCommand struct {
 
 	// appURI is the URI (target address) of the application to add.
 	appURI string
+
+	// appPublicAddr is the public address of the application to add.
+	appPublicAddr string
+
+	// dbName is the database name to add.
+	dbName string
+	// dbProtocol is the database protocol.
+	dbProtocol string
+	// dbAddress is the address the databaes is reachable at.
+	dbAddress string
 
 	// ttl is how long the token will live for.
 	ttl time.Duration
@@ -91,6 +100,13 @@ func (c *TokenCommand) Initialize(app *kingpin.Application, config *service.Conf
 		Default(fmt.Sprintf("%v", defaults.SignupTokenTTL)).DurationVar(&c.ttl)
 	c.tokenAdd.Flag("app-name", "Name of the application to add").Default("example-app").StringVar(&c.appName)
 	c.tokenAdd.Flag("app-uri", "URI of the application to add").Default("http://localhost:8080").StringVar(&c.appURI)
+	c.tokenAdd.Flag("app-name", "Name of the application to add").Default("<Application Name>").StringVar(&c.appName)
+	c.tokenAdd.Flag("app-uri", "URI of the application to add").Default("<URI of Application>").StringVar(&c.appURI)
+	c.tokenAdd.Flag("app-public-addr", "Public address of the application to add").Default("<Public Address of Application>").StringVar(&c.appPublicAddr)
+	c.tokenAdd.Flag("db-name", "Name of the database to add").StringVar(&c.dbName)
+	// TODO(r0mant): Add supported protocols here.
+	c.tokenAdd.Flag("db-protocol", "Database protocol to use, e.g. postgresql or mysql").StringVar(&c.dbProtocol)
+	c.tokenAdd.Flag("db-address", "Address the database is reachable at").StringVar(&c.dbAddress)
 
 	// "tctl tokens rm ..."
 	c.tokenDel = tokens.Command("rm", "Delete/revoke an invitation token").Alias("del")
@@ -187,6 +203,19 @@ func (c *TokenCommand) Add(client auth.ClientI) error {
 			proxies[0].GetPublicAddr(),
 			appPublicAddr,
 			appPublicAddr)
+	case roles.Include(teleport.RoleDatabase):
+		fmt.Printf(dbMessage,
+			token,
+			int(c.ttl.Minutes()),
+			strings.ToLower(roles.String()),
+			token,
+			caPin,
+			authServers[0].GetAddr(),
+			c.dbName,
+			c.dbProtocol,
+			c.dbAddress,
+			int(c.ttl.Minutes()),
+			c.dbAddress)
 	case roles.Include(teleport.RoleTrustedCluster), roles.Include(teleport.LegacyClusterTokenType):
 		fmt.Printf(trustedClusterMessage,
 			token,
