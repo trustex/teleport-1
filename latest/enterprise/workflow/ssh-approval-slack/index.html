@@ -1,0 +1,1499 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="This guide explains how to setup a Slack plugin for Teleport for privilege elevation approvals.">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/enterprise/workflow/ssh-approval-slack/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../../../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Teleport integration with Slack - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#teleport-slack-plugin-setup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Teleport integration with Slack
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1">
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../.." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../user-manual/" class="md-nav__link">
+      User Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../admin-guide/" class="md-nav__link">
+      Admin Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../production/" class="md-nav__link">
+      Production Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../aws-oss-guide/" class="md-nav__link">
+      AWS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../kubernetes-ssh/" class="md-nav__link">
+      Kubernetes Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5" checked>
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Teleport Slack Plugin Setup
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Teleport Slack Plugin Setup
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-slack-app" class="md-nav__link">
+    Create Slack App
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-the-teleport-slack-plugin" class="md-nav__link">
+    Installing the Teleport Slack Plugin
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing the Teleport Slack Plugin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-teleport-slack" class="md-nav__link">
+    Configuring Teleport Slack
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-run" class="md-nav__link">
+    Test Run
+  </a>
+  
+    <nav class="md-nav" aria-label="Test Run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testing-the-approval-workflow" class="md-nav__link">
+    Testing the approval workflow
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tsh-user-login-and-request-admin-role" class="md-nav__link">
+    TSH User Login and Request Admin Role.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup-with-systemd" class="md-nav__link">
+    Setup with SystemD
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-log" class="md-nav__link">
+    Audit Log
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feedback" class="md-nav__link">
+    Feedback
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../ssh-rbac/" class="md-nav__link">
+      RBAC
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../features/enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../features/ssh-pam/" class="md-nav__link">
+      Using Teleport with PAM
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../config-reference/" class="md-nav__link">
+      YAML
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../cli-docs/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    Setup
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-slack-app" class="md-nav__link">
+    Create Slack App
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-the-teleport-slack-plugin" class="md-nav__link">
+    Installing the Teleport Slack Plugin
+  </a>
+  
+    <nav class="md-nav" aria-label="Installing the Teleport Slack Plugin">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-teleport-slack" class="md-nav__link">
+    Configuring Teleport Slack
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#test-run" class="md-nav__link">
+    Test Run
+  </a>
+  
+    <nav class="md-nav" aria-label="Test Run">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#testing-the-approval-workflow" class="md-nav__link">
+    Testing the approval workflow
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tsh-user-login-and-request-admin-role" class="md-nav__link">
+    TSH User Login and Request Admin Role.
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#setup-with-systemd" class="md-nav__link">
+    Setup with SystemD
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-log" class="md-nav__link">
+    Audit Log
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#feedback" class="md-nav__link">
+    Feedback
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/enterprise/workflow/ssh-approval-slack.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="teleport-slack-plugin-setup">Teleport Slack Plugin Setup</h1>
+<p>This guide will talk through how to setup Teleport with Slack. Teleport to Slack integration allows you to treat Teleport access and permission requests via Slack message and inline interactive components.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The Approval Workflow only works with Teleport Enterprise as it requires several roles.</p>
+</div>
+<h4>Example Slack Request</h4>
+<video style="width:100%" controls>
+  <source src="../../../img/enterprise/plugins/slack/slack.mp4" type="video/mp4">
+  <source src="../../../img/enterprise/plugins/slack/slack.webm" type="video/webm">
+Your browser does not support the video tag.
+</video>
+
+<h2 id="setup">Setup</h2>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>This guide assumes that you have:</p>
+<ul>
+<li>Teleport Enterprise 4.2.8 or newer</li>
+<li>Admin privileges with access to <code>tctl</code></li>
+<li>Slack Admin Privileges to create an app and install it to your workspace.</li>
+</ul>
+<h4>Create User and Role for access.</h4>
+<p>Log into Teleport Authentication Server, this is where you normally run <code>tctl</code>. Create a
+new user and role that only has API access to the <code>access_request</code> API. The below script
+will create a yaml resource file for a new user and role.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Copy and Paste the below on the Teleport Auth server.</span>
+$ cat &gt; rscs.yaml <span class="s">&lt;&lt;EOF</span>
+<span class="s">kind: user</span>
+<span class="s">metadata:</span>
+<span class="s">  name: access-plugin-slack</span>
+<span class="s">spec:</span>
+<span class="s">  roles: [&#39;access-plugin-slack&#39;]</span>
+<span class="s">version: v2</span>
+<span class="s">---</span>
+<span class="s">kind: role</span>
+<span class="s">metadata:</span>
+<span class="s">  name: access-plugin-slack</span>
+<span class="s">spec:</span>
+<span class="s">  allow:</span>
+<span class="s">    rules:</span>
+<span class="s">      - resources: [&#39;access_request&#39;]</span>
+<span class="s">        verbs: [&#39;list&#39;,&#39;read&#39;,&#39;update&#39;]</span>
+<span class="s">    # teleport currently refuses to issue certs for a user with 0 logins,</span>
+<span class="s">    # this restriction may be lifted in future versions.</span>
+<span class="s">    logins: [&#39;access-plugin-slack&#39;]</span>
+<span class="s">version: v3</span>
+<span class="s">EOF</span>
+
+<span class="c1"># Use tctl to create the user and role within Teleport.</span>
+$ tctl create -f rscs.yaml
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you're using other plugins, you might want to create different users and roles for different plugins</p>
+</div>
+<h4>Export access-plugin Certificate</h4>
+<p>Teleport Plugin use the <code>access-plugin-slack</code> role and user to perform the approval. We export the identity files, using <a href="https://gravitational.com/teleport/docs/cli-docs/#tctl-auth-sign"><code>tctl auth sign</code></a>.</p>
+<div class="highlight"><pre><span></span><code>$ tctl auth sign --format<span class="o">=</span>tls --user<span class="o">=</span>access-plugin-slack --out<span class="o">=</span>auth --ttl<span class="o">=</span>8760h
+<span class="c1"># ...</span>
+</code></pre></div>
+<p>The above sequence should result in three PEM encoded files being generated: auth.crt, auth.key, and auth.cas (certificate, private key, and CA certs respectively).  We'll reference the auth.crt, auth.key, and auth.cas files later when <a href="#configuring-teleport-slack">configuring the plugins</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Certificate Lifetime</p>
+<p>By default, <a href="https://gravitational.com/teleport/docs/cli-docs/#tctl-auth-sign"><code>tctl auth sign</code></a> produces certificates with a relatively short lifetime. For production deployments, the <code>--ttl</code> flag can be used to ensure a more practical certificate lifetime. <code>--ttl=8760h</code> exports a 1 year token</p>
+</div>
+<h3 id="create-slack-app">Create Slack App</h3>
+<p>We'll create a new Slack app and setup auth tokens and callback URLs, so that Slack knows how to notify the Teleport plugin when Approve / Deny buttons are clicked.</p>
+<p>You'll need to:</p>
+<ol>
+<li>Create a new app, pick a name and select a workspace it belongs to.</li>
+<li>Select “app features”: we'll enable interactivity and setup the callback URL here.</li>
+<li>Add OAuth Scopes. This is required by Slack for the app to be installed — we'll only need a single scope to post messages to your Slack account.</li>
+<li>Obtain OAuth token and callback signing secret for the Teleport plugin config.</li>
+</ol>
+<h4>Creating a New Slack app</h4>
+<p>Visit <a href="https://api.slack.com/apps">https://api.slack.com/apps</a> to create a new Slack App.</p>
+<p><strong>App Name:</strong> Teleport<br>
+<strong>Development Slack Workspace:</strong> Pick the workspace you'd like the requests to show up in. </br>
+<strong>App Icon:</strong> <a href="https://gravitational.com/teleport/docs/img/enterprise/plugins/teleport_bot@2x.png" download>Download Teleport Bot Icon</a></p>
+<p><img alt="Create Slack App" src="../../../img/enterprise/plugins/slack/Create-a-Slack-App.png" /></p>
+<h4>Setup Interactive Components</h4>
+<p>This URL must match the URL setting in Teleport Plugin settings file (we'll cover that later), and be publicly accessible.</p>
+<p>For now, just think of the URL you'll use and set it in the Slack App's settings screen in Features &gt; Interactive Components &gt; Request URL.</p>
+<p><img alt="Interactive Components" src="../../../img/enterprise/plugins/slack/setup-interactive-component.png" /></p>
+<h4>Selecting OAuth Scopes</h4>
+<p>On the App screen, go to “OAuth and Permissions” under Features in the sidebar menu. Then scroll to Scopes, and add <code>chat:write, incoming-webhook, users:read, users:read.email</code> scopes so that our plugin can post messages to your Slack channels.</p>
+<p><img alt="API Scopes" src="../../../img/enterprise/plugins/slack/api-scopes.png" /></p>
+<h4>Obtain OAuth Token</h4>
+<p><img alt="OAuth Tokens" src="../../../img/enterprise/plugins/slack/OAuth.png" /></p>
+<h4>Getting the secret signing token</h4>
+<p>In the sidebar of the app screen, click on Basic. Scroll to App Credentials section, and grab the app's Signing Secret. We'll use it in the config file later.</p>
+<p><img alt="Secret Signing Token" src="../../../img/enterprise/plugins/slack/SlackSigningSecret.png" /></p>
+<h4>Add to Workspace</h4>
+<p><img alt="OAuth Tokens" src="../../../img/enterprise/plugins/slack/Slackbot-Permissions.png" />
+After adding to the workspace, you still need to invite the bot to the channel. Do this by using the @ command,
+and inviting them to the channel.
+<img alt="Invite bot to channel" src="../../../img/enterprise/plugins/slack/invite-user-to-team.png" /></p>
+<h2 id="installing-the-teleport-slack-plugin">Installing the Teleport Slack Plugin</h2>
+<p>We recommend installing the Teleport Plugins alongside the Teleport Proxy. This is an ideal
+location as plugins have a low memory footprint, and will require both public internet access
+and Teleport Auth access.  We currently only provide linux-amd64 binaries, you can also
+compile these plugins from <a href="https://github.com/gravitational/teleport-plugins/tree/master/access/slack">source</a>.</p>
+<div class="highlight"><pre><span></span><code>$ wget https://get.gravitational.com/teleport-access-slack-v<span class="o">{{</span> teleport.plugin.version <span class="o">}}</span>-linux-amd64-bin.tar.gz
+$ tar -xzf teleport-access-slack-v<span class="o">{{</span> teleport.plugin.version <span class="o">}}</span>-linux-amd64-bin.tar.gz
+$ <span class="nb">cd</span> teleport-access-slack/
+$ ./install
+$ which teleport-slack
+/usr/local/bin/teleport-slack
+</code></pre></div>
+<p>Run <code>./install</code> in from 'teleport-slack' or place the executable in the appropriate <code>/usr/bin</code> or <code>/usr/local/bin</code> on the server installation.</p>
+<h3 id="configuring-teleport-slack">Configuring Teleport Slack</h3>
+<p>Teleport Slack uses a config file in TOML format. Generate a boilerplate config by
+running the following command:</p>
+<div class="highlight"><pre><span></span><code>$ teleport-slack configure &gt; teleport-slack.toml
+$ sudo mv teleport-slack.toml /etc
+</code></pre></div>
+<p>Then, edit the config as needed.</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">{</span><span class="kt">!examples/resources/plugins/teleport-slack.toml!</span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<h4>Editing the config file</h4>
+<p>In the Teleport section, use the certificates you've generated with <code>tctl auth sign</code> before. The plugin installer creates a folder for those certificates in <code>/var/lib/teleport/plugins/slack/</code> — so just move the certificates there and make sure the config points to them.</p>
+<p>In Slack section, use the OAuth token, signing token, setup the desired channel name. The listen URL is the URL the plugin will listen for Slack callbacks.</p>
+<p>Then set the plugin callback (where Slack sends its requests) to an address you like, and provide the TLS certificates for that http server to use.</p>
+<p>By default, Teleport Slack plugin will run with TLS on.</p>
+<div class="highlight"><pre><span></span><code>{!examples/resources/plugins/teleport-slack.toml!}
+</code></pre></div>
+<h2 id="test-run">Test Run</h2>
+<p>Assuming that Teleport is running, and you've created the Slack app, the plugin config,
+and provided all the certificates — you can now run the plugin and test the workflow!</p>
+<p><div class="highlight"><pre><span></span><code>$ teleport-slack start
+</code></pre></div>
+If everything works fine, the log output should look like this:</p>
+<div class="highlight"><pre><span></span><code>$ teleport-slack start
+INFO   Starting Teleport Access Slack <span class="o">{{</span> teleport.plugin.version <span class="o">}}</span>.1-0-slack/main.go:145
+INFO   Starting a request watcher... slack/main.go:330
+INFO   Starting insecure HTTP server on <span class="m">0</span>.0.0.0:8081 utils/http.go:64
+INFO   Watcher connected slack/main.go:298
+</code></pre></div>
+<h3 id="testing-the-approval-workflow">Testing the approval workflow</h3>
+<p>You can create a test permissions request with <code>tctl</code> and check if the plugin works as expected like this:</p>
+<h4>Create a test permissions request behalf of a user.</h4>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># Replace USERNAME with a Teleport local user, and TARGET_ROLE with a Teleport Role</span>
+$ tctl request create USERNAME --roles<span class="o">=</span>TARGET_ROLE
+</code></pre></div>
+A user can also try using <code>--request-roles</code> flag.
+<div class="highlight"><pre><span></span><code><span class="c1"># Example with a user trying to request a role DBA.</span>
+$ tsh login --request-roles<span class="o">=</span>dba
+</code></pre></div></p>
+<h4>Approve or deny the request on Slack</h4>
+<p>The messages should automatically get updated to reflect the action you just clicked. You can also check the request status with <code>tctl</code>:</p>
+<div class="highlight"><pre><span></span><code>$ tctl request ls
+</code></pre></div>
+<h3 id="tsh-user-login-and-request-admin-role">TSH User Login and Request Admin Role.</h3>
+<p>You can also test the full workflow from the user's perspective using <code>tsh</code>:</p>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># tsh login --request-roles=REQUESTED_ROLE</span>
+Seeking request approval... <span class="o">(</span>id: 8f77d2d1-2bbf-4031-a300-58926237a807<span class="o">)</span>
+</code></pre></div>
+You should now see a new request in Teleport, and a message about the request on Slack. You can
+approve or deny it and <code>tsh</code> should login successfully or error out right after you click an action button on Slack.</p>
+<h3 id="setup-with-systemd">Setup with SystemD</h3>
+<p>In production, we recommend starting teleport plugin daemon via an init system like systemd .
+Here's the recommended Teleport Plugin service unit file for systemd:</p>
+<p><div class="highlight"><pre><span></span><code><span class="o">{</span>!examples/systemd/plugins/teleport-slack.service!<span class="o">}</span>
+</code></pre></div>
+Save this as <code>teleport-slack.service</code>.</p>
+<h2 id="audit-log">Audit Log</h2>
+<p>The plugin will let anyone with access to the Slack Channel so it's
+important to review Teleport' audit log.</p>
+<h2 id="feedback">Feedback</h2>
+<p>If you have any issues with this plugin please create an <a href="https://github.com/gravitational/teleport-plugins/issues/new">issue here</a>.</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../ssh-approval-pagerduty/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Teleport Pagerduty Plugin Setup
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../../ssh-kubernetes-fedramp/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                FedRAMP for SSH & K8s
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "../../..",
+          features: [],
+          search: Object.assign({
+            worker: "../../../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../../../js/version-select.js"></script>
+      
+    
+  </body>
+</html>

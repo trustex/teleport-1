@@ -1,0 +1,2118 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How to install and configure Gravitational Teleport on AWS for SSH and Kubernetes access.">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/aws-oss-guide/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Running Teleport on AWS - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#running-teleport-on-aws" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Running Teleport on AWS
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1">
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../user-manual/" class="md-nav__link">
+      User Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../admin-guide/" class="md-nav__link">
+      Admin Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../production/" class="md-nav__link">
+      Production Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        AWS
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      AWS
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-on-aws-faq" class="md-nav__link">
+    Teleport on AWS FAQ
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-introduction" class="md-nav__link">
+    Teleport Introduction
+  </a>
+  
+    <nav class="md-nav" aria-label="Teleport Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec2-autoscale" class="md-nav__link">
+    EC2 / Autoscale
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamodb" class="md-nav__link">
+    DynamoDB
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s3" class="md-nav__link">
+    S3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#route53" class="md-nav__link">
+    Route53
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nlb-network-load-balancer" class="md-nav__link">
+    NLB: Network Load Balancer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iam" class="md-nav__link">
+    IAM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acm" class="md-nav__link">
+    ACM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws-systems-manager-parameter-store" class="md-nav__link">
+    AWS Systems Manager Parameter Store
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-a-ha-teleport-cluster" class="md-nav__link">
+    Setting up a HA Teleport Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-with-cloudformation" class="md-nav__link">
+    Deploying with CloudFormation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-with-terraform" class="md-nav__link">
+    Deploying with Terraform
+  </a>
+  
+    <nav class="md-nav" aria-label="Deploying with Terraform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-teleport-to-ec2-server" class="md-nav__link">
+    Installing Teleport to EC2 Server
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrading" class="md-nav__link">
+    Upgrading
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-teleport-with-eks" class="md-nav__link">
+    Using Teleport with EKS
+  </a>
+  
+    <nav class="md-nav" aria-label="Using Teleport with EKS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-cluster-role-and-role-binding" class="md-nav__link">
+    Create cluster role and role binding
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-iam-trust-policy-document" class="md-nav__link">
+    Create IAM trust policy document
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-iam-policy-granting-list-clusters-and-describe-cluster-permissions-optional" class="md-nav__link">
+    Create IAM policy granting list-clusters and describe-cluster permissions (optional)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map-iam-role-to-kubernetes-group" class="md-nav__link">
+    Map IAM role to Kubernetes group
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installing-teleport" class="md-nav__link">
+    Installing Teleport
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-teleport-enterprise-on-aws" class="md-nav__link">
+    Running Teleport Enterprise on AWS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-aws-tips-tricks" class="md-nav__link">
+    Teleport AWS Tips &amp; Tricks
+  </a>
+  
+    <nav class="md-nav" aria-label="Teleport AWS Tips &amp; Tricks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-labels-from-aws-tags" class="md-nav__link">
+    Generating labels from AWS tags
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../kubernetes-ssh/" class="md-nav__link">
+      Kubernetes Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5">
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-slack/" class="md-nav__link">
+      Teleport Slack Plugin Setup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-rbac/" class="md-nav__link">
+      RBAC
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/ssh-pam/" class="md-nav__link">
+      Using Teleport with PAM
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../config-reference/" class="md-nav__link">
+      YAML
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cli-docs/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-on-aws-faq" class="md-nav__link">
+    Teleport on AWS FAQ
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-introduction" class="md-nav__link">
+    Teleport Introduction
+  </a>
+  
+    <nav class="md-nav" aria-label="Teleport Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec2-autoscale" class="md-nav__link">
+    EC2 / Autoscale
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamodb" class="md-nav__link">
+    DynamoDB
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#s3" class="md-nav__link">
+    S3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#route53" class="md-nav__link">
+    Route53
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#nlb-network-load-balancer" class="md-nav__link">
+    NLB: Network Load Balancer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#iam" class="md-nav__link">
+    IAM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#acm" class="md-nav__link">
+    ACM
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aws-systems-manager-parameter-store" class="md-nav__link">
+    AWS Systems Manager Parameter Store
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-a-ha-teleport-cluster" class="md-nav__link">
+    Setting up a HA Teleport Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-with-cloudformation" class="md-nav__link">
+    Deploying with CloudFormation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploying-with-terraform" class="md-nav__link">
+    Deploying with Terraform
+  </a>
+  
+    <nav class="md-nav" aria-label="Deploying with Terraform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#installing-teleport-to-ec2-server" class="md-nav__link">
+    Installing Teleport to EC2 Server
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrading" class="md-nav__link">
+    Upgrading
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-teleport-with-eks" class="md-nav__link">
+    Using Teleport with EKS
+  </a>
+  
+    <nav class="md-nav" aria-label="Using Teleport with EKS">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-cluster-role-and-role-binding" class="md-nav__link">
+    Create cluster role and role binding
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-iam-trust-policy-document" class="md-nav__link">
+    Create IAM trust policy document
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-iam-policy-granting-list-clusters-and-describe-cluster-permissions-optional" class="md-nav__link">
+    Create IAM policy granting list-clusters and describe-cluster permissions (optional)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#map-iam-role-to-kubernetes-group" class="md-nav__link">
+    Map IAM role to Kubernetes group
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#installing-teleport" class="md-nav__link">
+    Installing Teleport
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-teleport-enterprise-on-aws" class="md-nav__link">
+    Running Teleport Enterprise on AWS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-aws-tips-tricks" class="md-nav__link">
+    Teleport AWS Tips &amp; Tricks
+  </a>
+  
+    <nav class="md-nav" aria-label="Teleport AWS Tips &amp; Tricks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generating-labels-from-aws-tags" class="md-nav__link">
+    Generating labels from AWS tags
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/aws-oss-guide.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="running-teleport-on-aws">Running Teleport on AWS</h1>
+<p>We've created this guide to give customers a high level overview of how to use Teleport
+on Amazon Web Services (AWS). This guide provides a high level introduction leading to
+a deep dive into how to setup and run Teleport in production.</p>
+<p>We have split this guide into:</p>
+<ul>
+<li><a href="#teleport-on-aws-faq">Teleport on AWS FAQ</a></li>
+<li><a href="#using-teleport-with-eks">Authenticating to EKS Using GitHub Credentials with Teleport Community Edition</a></li>
+<li><a href="#running-teleport-enterprise-on-aws">Setting up Teleport Enterprise on AWS</a></li>
+<li><a href="#teleport-aws-tips-tricks">Teleport AWS Tips &amp; Tricks</a></li>
+<li><a href="../aws-terraform-guide/">AWS HA with Terraform</a></li>
+</ul>
+<h3 id="teleport-on-aws-faq">Teleport on AWS FAQ</h3>
+<p><strong>Why would you want to use Teleport with AWS?</strong></p>
+<p>At some point you'll want to log into the system using SSH
+to help test, debug and troubleshoot a problem box. For EC2, AWS recommends creating
+<a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html">'Key Pairs'</a>
+and has a range of <a href="https://aws.amazon.com/articles/tips-for-securing-your-ec2-instance/">other tips for securing EC2 instances</a>.</p>
+<p>This approach has a number of limitations:</p>
+<ol>
+<li>As your organization grows, keeping track of end users' public/private keys becomes
+  an administrative nightmare.</li>
+<li>Using SSH public/private keys has a number of limitations. Read why <a href="https://gravitational.com/blog/ssh-key-management/">SSH Certificates are better</a>.</li>
+<li>Once a machine has been bootstrapped with SSH Keys, there isn't an easy way to
+  add new keys and delegate access.</li>
+</ol>
+<p><strong>Which Services can I use Teleport with?</strong></p>
+<p>You can use Teleport for all the services that you would SSH into. This guide is focused
+on EC2. We have a short blog post on using Teleport with <a href="https://gravitational.com/blog/teleport-aws-eks/">EKS</a>. We plan to expand the guide based on feedback but will plan to add instructions
+for the below.</p>
+<ul>
+<li>RDS</li>
+<li>Detailed EKS</li>
+<li>Lightsail</li>
+<li>Fargate</li>
+<li>AWS ECS</li>
+</ul>
+<h2 id="teleport-introduction">Teleport Introduction</h2>
+<p>This guide will cover how to setup, configure and run Teleport on <a href="https://aws.amazon.com/">AWS</a>.</p>
+<h4>AWS Services required to run Teleport in HA</h4>
+<ul>
+<li><a href="#ec2-autoscale">EC2 / Autoscale</a></li>
+<li><a href="#dynamodb">DynamoDB</a></li>
+<li><a href="#s3">S3</a></li>
+<li><a href="#route53">Route53</a></li>
+<li><a href="#nlb-network-load-balancer">NLB</a></li>
+<li><a href="#iam">IAM</a></li>
+<li><a href="#acm">ACM</a></li>
+<li><a href="#aws-systems-manager-parameter-store">SSM</a></li>
+</ul>
+<p>We recommend setting up Teleport in high availability mode (HA). In HA mode DynamoDB
+stores the state of the system and S3 will store audit logs.</p>
+<p><img alt="AWS Intro Image" src="../img/aws/aws-intro.png" /></p>
+<h3 id="ec2-autoscale">EC2 / Autoscale</h3>
+<p>To run Teleport in a HA configuration we recommend using m4.large instances. It's best practice to separate the proxy and authentication server, using autoscaling groups for both machines. We have pre-built AMIs for both Teleport OSS and Enterprise editions. Instructions on using these <a href="#single-oss-teleport-amis-manual-gui-setup">AMIs are below</a>.</p>
+<h3 id="dynamodb">DynamoDB</h3>
+<p>DynamoDB is a key-value and document database that delivers single-digit millisecond
+performance at any scale. For large clusters you can provision usage but for smaller
+deployments you can leverage DynamoDB's autoscaling.</p>
+<p>Teleport 4.0 leverages <a href="https://github.com/gravitational/teleport/issues/2430">DynamoDB's streaming feature</a>. When turning this on, you'll need
+to specify <code>New Image</code> from the streaming options. DynamoDB back-end supports two
+types of Teleport data:</p>
+<ul>
+<li>Cluster state</li>
+<li>Cluster events</li>
+</ul>
+<p>See <a href="https://gravitational.com/teleport/docs/admin-guide/#using-dynamodb">DynamoDB Admin Guide for more information</a></p>
+<p><img alt="AWS DynamoDB Tables" src="../img/aws/dynamodb-tables.png" />
+<img alt="Setting Streams" src="../img/aws/setting-stream.png" />
+Setting Stream to <code>NEW IMAGE</code></p>
+<p>For maintainability and ease of use, we recommend following our <a href="https://github.com/gravitational/teleport/blob/master/examples/aws/terraform/ha-autoscale-cluster/dynamo.tf">Terraform example</a>
+but below are high level definitions for the tables required to run Teleport.</p>
+<p>DynamoDB Table A - Teleport Cluster State:</p>
+<table>
+<thead>
+<tr>
+<th>Table name</th>
+<th>teleport-cluster-name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primary partition key</td>
+<td>HashKey (String)</td>
+</tr>
+<tr>
+<td>Primary sort key</td>
+<td>FullPath (String)</td>
+</tr>
+</tbody>
+</table>
+<p>DynamoDB Table B - Teleport Cluster Events:</p>
+<table>
+<thead>
+<tr>
+<th>Table name</th>
+<th>teleport-cluster-name-events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primary partition key</td>
+<td>SessionID (String)</td>
+</tr>
+<tr>
+<td>Primary sort key</td>
+<td>EventIndex (Number)</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Indexes - <code>timesearch</code></th>
+<th>teleport-cluster-name-events</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Primary partition key</td>
+<td>EventNamespace (String)</td>
+</tr>
+<tr>
+<td>Primary sort key</td>
+<td>CreatedAt (Number)</td>
+</tr>
+<tr>
+<td>Attributes</td>
+<td>ALL</td>
+</tr>
+</tbody>
+</table>
+<h3 id="s3">S3</h3>
+<p>Amazon Simple Storage Service (Amazon S3) is an object storage service that offers
+industry-leading scalability, data availability, security, and performance. In this
+Teleport setup, S3 will provide storage for recorded sessions.</p>
+<p>We recommend using Amazon S3 Standard.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>S3 provides <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lock.html">Amazon S3 Object Lock</a>,
+which is useful for customers deploying Teleport in regulated environments.</p>
+</div>
+<h3 id="route53">Route53</h3>
+<p>Route53 is a highly available Domain Name System (DNS) provided by AWS. It'll be
+needed to setup a URL for the proxy - we recommend using a subdomain.</p>
+<p>e.g. <code>teleport.acmeinc.com</code></p>
+<h3 id="nlb-network-load-balancer">NLB: Network Load Balancer</h3>
+<p>AWS provides many different load balancers. To setup Teleport, we recommend
+using a Network Load Balancer.  Network Load Balancers provides TLS for the Teleport
+proxy and provides the TCP connections needed for Teleport proxy SSH connections.</p>
+<h3 id="iam">IAM</h3>
+<p>IAM is the recommended tool for creating service access. This guide will follow the
+best practice of principle of least privilege (PoLP).</p>
+<h4>IAM for Amazon S3</h4>
+<p>In order to grant an IAM user in your AWS account access to one of your buckets, <code>example.s3.bucket</code> you will need to grant the following permissions: <code>s3:ListBucket</code>, <code>s3:ListBucketVersions</code>, <code>s3:PutObject</code>, <code>s3:GetObject</code>, <code>s3:GetObjectVersion</code></p>
+<p>An example policy is shown below:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+   <span class="nt">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+   <span class="nt">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="s2">&quot;s3:ListBucket&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;s3:ListBucketVersions&quot;</span>
+        <span class="p">],</span>
+       <span class="nt">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;arn:aws:s3:::example.s3.bucket&quot;</span><span class="p">]</span>
+     <span class="p">},</span>
+     <span class="p">{</span>
+       <span class="nt">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+       <span class="nt">&quot;Action&quot;</span><span class="p">:</span> <span class="p">[</span>
+         <span class="s2">&quot;s3:PutObject&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;s3:GetObject&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;s3:GetObjectVersion&quot;</span>
+       <span class="p">],</span>
+       <span class="nt">&quot;Resource&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;arn:aws:s3:::example.s3.bucket/*&quot;</span><span class="p">]</span>
+     <span class="p">}</span>
+   <span class="p">]</span>
+ <span class="p">}</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>example.s3.bucket</code> will need to be replaced with your bucket name.</p>
+</div>
+<h4>IAM for DynamoDB</h4>
+<p>In order to grant an IAM user access to DynamoDB make sure that the IAM role assigned to Teleport is configured with proper permissions.</p>
+<p>An example policy is shown below:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="nt">&quot;Version&quot;</span><span class="p">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;Statement&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;AllAPIActionsOnTeleportClusterState&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;dynamodb:*&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Resource&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:dynamodb:REGION:ACCOUNTID:table/DYNAMODB-RESOURCE-A&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;AllAPIActionsOnTeleportClusterStateStreams&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;dynamodb:*&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Resource&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:dynamodb:REGION:ACCOUNTID:table/DYNAMODB-RESOURCE-A/stream/*&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;AllAPIActionsOnTeleportClusterEvents&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;dynamodb:*&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Resource&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:dynamodb:REGION:ACCOUNTID:table/DYNAMODB-RESOURCE-B&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;AllAPIActionsOnTeleportClusterEventsStreams&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;dynamodb:*&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Resource&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:dynamodb:REGION:ACCOUNTID:table/DYNAMODB-RESOURCE-B/stream/*&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;AllAPIActionsOnTeleportClusterEventIndex&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;dynamodb:*&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;Resource&quot;</span><span class="p">:</span> <span class="s2">&quot;arn:aws:dynamodb:REGION:ACCOUNTID:table/DYNAMODB-RESOURCE-B/index/*&quot;</span>
+        <span class="p">},</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code>arn:aws:dynamodb:REGION:ACCOUNTID:table/DYNAMODB-RESOURCE-A</code> and <code>RESOURCE-B</code> will need to be replaced with your two DynamoDB tables.</p>
+</div>
+<h3 id="acm">ACM</h3>
+<p>With AWS Certificate Manager, you can quickly request SSL/TLS certificates.</p>
+<ul>
+<li>TLS Cert: Used to provide SSL for the proxy.</li>
+<li>SSH Certs (not in ACM): Created and self signed by the <code>authentication server</code> and are used to
+  delegate access to Teleport nodes.</li>
+</ul>
+<h3 id="aws-systems-manager-parameter-store">AWS Systems Manager Parameter Store</h3>
+<p>To add new nodes to a Teleport Cluster, we recommend using a <a href="https://gravitational.com/teleport/docs/admin-guide/#example-configuration">strong static token</a>. SSM can be also used to store the
+enterprise licence.</p>
+<h2 id="setting-up-a-ha-teleport-cluster">Setting up a HA Teleport Cluster</h2>
+<p>Teleport's config based setup offers a wide range of customization for customers.
+This guide offers a range of setup options for AWS. If you have a very large account,
+multiple accounts, or over 10k users we would recommend getting in touch. We are
+more than happy to help you architect, setup and deploy Teleport into your environment.</p>
+<p>We have these options for you.</p>
+<ul>
+<li><a href="#deploying-with-cloudformation">Deploying with CloudFormation</a></li>
+<li><a href="#deploying-with-terraform">Deploying with Terraform HA + Monitoring</a></li>
+</ul>
+<h2 id="deploying-with-cloudformation">Deploying with CloudFormation</h2>
+<p>We are currently working on an updated CloudFormation guide but you can start with our
+<a href="https://github.com/gravitational/teleport/tree/master/examples/aws/cloudformation#aws-cloudformation-based-provisioning-example">AWS AMI example</a>. It requires a VPC, but
+we expect customers to deploy within an already existing VPC.</p>
+<h2 id="deploying-with-terraform">Deploying with Terraform</h2>
+<p>To deploy Teleport in AWS using Terraform look at our <a href="https://github.com/gravitational/teleport/tree/master/examples/aws/terraform/ha-autoscale-cluster#terraform-based-provisioning-example-amazon-single-ami">AWS Guide</a>.</p>
+<h3 id="installing-teleport-to-ec2-server">Installing Teleport to EC2 Server</h3>
+<p>Customers run many workloads within EC2 and depending on how you work there are many
+ways to integrate Teleport onto your servers. We recommend looking at our <a href="https://gravitational.com/teleport/docs/admin-guide/#installing">Admin manual</a>.</p>
+<p>In short, to add new nodes / EC2 servers that you can "SSH into" you'll need to</p>
+<ol>
+<li><a href="https://gravitational.com/teleport/docs/admin-guide/#installing">Install the Teleport Binary on the Server</a></li>
+<li><a href="https://gravitational.com/teleport/docs/admin-guide/#systemd-unit-file">Run Teleport, we recommend using SystemD</a></li>
+<li><a href="https://gravitational.com/teleport/docs/admin-guide/#configuration-file">Set the correct settings in /etc/teleport.yaml</a></li>
+<li><a href="https://gravitational.com/teleport/docs/admin-guide/#adding-nodes-to-the-cluster">Add EC2 nodes to the Teleport cluster</a></li>
+</ol>
+<h2 id="upgrading">Upgrading</h2>
+<p>To upgrade to a newer version of Teleport:</p>
+<ul>
+<li>Back up <code>/etc/teleport.yaml</code>, <code>/etc/teleport.d/</code> and the contents of <code>/var/lib/teleport</code></li>
+<li>Launch a new instance with the correct AMI for a newer version of Teleport</li>
+<li>Copy <code>/etc/teleport.yaml</code>, <code>/etc/teleport.d/</code> and <code>/var/lib/teleport</code> to the new instance, overwriting anything that already exists</li>
+<li>Backup the contents and copy them over to the new instance.</li>
+<li>Either restart the instance, or log in via SSH and run <code>sudo systemctl restart teleport.service</code></li>
+</ul>
+<h2 id="using-teleport-with-eks">Using Teleport with EKS</h2>
+<p>In this section, we will set Kubernetes RBAC permissions needed by Teleport and
+configure the EC2 instance running Teleport to map to those permissions.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<p>You’ll need a functioning EKS cluster, we recommend version 1.16.  If you’re unfamiliar
+with creating an EKS cluster, view <a href="https://aws.amazon.com/eks/getting-started/">AWS EKS getting started guide</a>.</p>
+<ul>
+<li>EKS Version: The below guide has been tested with <a href="https://docs.aws.amazon.com/eks/latest/userguide/kubernetes-versions.html">Kubernetes 1.16</a></li>
+<li><a href="https://eksctl.io"><code>eksctl</code></a>. Make sure you have eksctl version 0.22.0.</li>
+<li><a href="https://stedolan.github.io/jq/"><code>jq</code></a> installed on your local machine.</li>
+<li>An AWS Account with Root Access</li>
+</ul>
+<h3 id="create-cluster-role-and-role-binding">Create cluster role and role binding</h3>
+<p>The first step is to create a cluster role and role binding that will allow the Teleport
+EC2 instance to relay user requests to the Kubernetes API.</p>
+<p>The below command is ran on a machine with <code>kubectl</code> access to the cluster.</p>
+<p><div class="highlight"><pre><span></span><code>$ cat <span class="s">&lt;&lt; &#39;EOF&#39; | kubectl apply -f -</span>
+<span class="s">apiVersion: rbac.authorization.k8s.io/v1</span>
+<span class="s">kind: ClusterRole</span>
+<span class="s">metadata:</span>
+<span class="s">  name: teleport-impersonation</span>
+<span class="s">rules:</span>
+<span class="s">- apiGroups:</span>
+<span class="s">  - &quot;&quot;</span>
+<span class="s">  resources:</span>
+<span class="s">  - users</span>
+<span class="s">  - groups</span>
+<span class="s">  - serviceaccounts</span>
+<span class="s">  verbs:</span>
+<span class="s">  - impersonate</span>
+<span class="s">- apiGroups:</span>
+<span class="s">  - &quot;authorization.k8s.io&quot;</span>
+<span class="s">  resources:</span>
+<span class="s">  - selfsubjectaccessreviews</span>
+<span class="s">  verbs:</span>
+<span class="s">  - create</span>
+<span class="s">---</span>
+<span class="s">apiVersion: rbac.authorization.k8s.io/v1</span>
+<span class="s">kind: ClusterRoleBinding</span>
+<span class="s">metadata:</span>
+<span class="s">  name: teleport-crb</span>
+<span class="s">roleRef:</span>
+<span class="s">  apiGroup: rbac.authorization.k8s.io</span>
+<span class="s">  kind: ClusterRole</span>
+<span class="s">  name: teleport-impersonation</span>
+<span class="s">subjects:</span>
+<span class="s">- kind: Group</span>
+<span class="s">  name: teleport-group</span>
+<span class="s">EOF</span>
+</code></pre></div>
+If successful the terminal should output:
+<div class="highlight"><pre><span></span><code># clusterrole.rbac.authorization.k8s.io/teleport-impersonation created
+# clusterrolebinding.rbac.authorization.k8s.io/teleport-crb created
+</code></pre></div></p>
+<h3 id="create-iam-trust-policy-document">Create IAM trust policy document</h3>
+<p>This is the trust policy that allows the Teleport EC2 instance to assume a role.</p>
+<p><div class="highlight"><pre><span></span><code>$ cat &gt; teleport_assume_role.json <span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">{</span>
+<span class="s">  &quot;Version&quot;: &quot;2012-10-17&quot;,</span>
+<span class="s">  &quot;Statement&quot;: [</span>
+<span class="s">    {</span>
+<span class="s">      &quot;Effect&quot;: &quot;Allow&quot;,</span>
+<span class="s">      &quot;Principal&quot;: {</span>
+<span class="s">        &quot;Service&quot;: &quot;ec2.amazonaws.com&quot;</span>
+<span class="s">      },</span>
+<span class="s">      &quot;Action&quot;: &quot;sts:AssumeRole&quot;</span>
+<span class="s">    }</span>
+<span class="s">  ]</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+</code></pre></div>
+This will create a <code>.json</code> file locally, the below command should then be run to create the role.</p>
+<div class="highlight"><pre><span></span><code>$ aws iam create-role --role-name teleport-role --assume-role-policy-document file://teleport_assume_role.json
+</code></pre></div>
+<h3 id="create-iam-policy-granting-list-clusters-and-describe-cluster-permissions-optional">Create IAM policy granting list-clusters and describe-cluster permissions (optional)</h3>
+<p>This policy is necessary to create a <code>kubeconfig</code> file using the <code>aws eks update-kubeconfig</code>
+command. If you have another mechanism to create a kubeconfig file on the instance that runs
+Teleport, this step is not required.</p>
+<div class="highlight"><pre><span></span><code>cat &gt; teleport_eks_desc_and_list.json <span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">{</span>
+<span class="s">    &quot;Version&quot;: &quot;2012-10-17&quot;,</span>
+<span class="s">    &quot;Statement&quot;: [</span>
+<span class="s">        {</span>
+<span class="s">            &quot;Sid&quot;: &quot;VisualEditor0&quot;,</span>
+<span class="s">            &quot;Effect&quot;: &quot;Allow&quot;,</span>
+<span class="s">            &quot;Action&quot;: [</span>
+<span class="s">                &quot;eks:DescribeCluster&quot;,</span>
+<span class="s">                &quot;eks:ListClusters&quot;</span>
+<span class="s">            ],</span>
+<span class="s">            &quot;Resource&quot;: &quot;*&quot;</span>
+<span class="s">        }</span>
+<span class="s">    ]</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+<span class="nv">POLICY_ARN</span><span class="o">=</span><span class="k">$(</span>aws iam create-policy --policy-name teleport-policy --policy-document file://teleport_eks_desc_and_list.json <span class="p">|</span> jq -r <span class="s1">&#39;.Policy.Arn&#39;</span><span class="k">)</span>
+aws iam attach-role-policy --role-name teleport-role --policy-arn <span class="nv">$POLICY_ARN</span>
+</code></pre></div>
+<h3 id="map-iam-role-to-kubernetes-group">Map IAM role to Kubernetes group</h3>
+<p>This maps the IAM role <strong>teleport-role</strong> to the Kubernetes group <strong>teleport-group</strong>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you used eksctl to create your cluster, you may need to add the mapUsers section to the aws-auth ConfigMap before executing these commands.</p>
+<div class="highlight"><pre><span></span><code>eksctl create iamidentitymapping --cluster [cluster-name] --arn arn:aws:iam::[account-id]:role/teleport-role --group teleport-group --username teleport
+</code></pre></div>
+</div>
+<div class="highlight"><pre><span></span><code><span class="nv">ROLE</span><span class="o">=</span><span class="s2">&quot;    - userarn: arn:aws:iam::[account-id]:role/teleport-role\n      username: teleport\n      groups:\n        - teleport-group&quot;</span>
+kubectl get -n kube-system configmap/aws-auth -o yaml <span class="p">|</span> awk <span class="s2">&quot;/mapRoles: \|/{print;print \&quot;</span><span class="nv">$ROLE</span><span class="s2">\&quot;;next}1&quot;</span> &gt; /tmp/aws-auth-patch.yml
+kubectl patch configmap/aws-auth -n kube-system --patch <span class="s2">&quot;</span><span class="k">$(</span>cat /tmp/aws-auth-patch.yml<span class="k">)</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>To check, run <code>kubectl describe configmap -n kube-system aws-auth</code></p>
+<h3 id="installing-teleport">Installing Teleport</h3>
+<h4>Create EC2 instance</h4>
+<p>Create an EC2 instance using the <a href="https://aws.amazon.com/marketplace/pp/Gravitational-Teleport-Community-Edition/B07FYTZB9B">Teleport Community AMI</a> on a public subnet in your VPC.
+Modify the security group associated with that instance to allow port 22 inbound, so
+you can SSH to the instance after it’s running. You will need security group rules
+to allow access to ports <code>3080</code> and <code>3022-3026</code> so that users can access the Teleport
+server from the Internet.</p>
+<p>This will allow GitHub to post a response back to the Teleport server. You’ll
+need to open port 80 to allow Let’s Encrypt to complete HTTP validation when using
+SSL certificates/unless you provide pre-provisioned TLS certificates.</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Protocol</th>
+<th>Port Range</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Custom</td>
+<td>TCP</td>
+<td>3022-3026</td>
+<td>0.0.0.0/0</td>
+</tr>
+<tr>
+<td>Custom</td>
+<td>TCP</td>
+<td>3080</td>
+<td>0.0.0.0/0</td>
+</tr>
+<tr>
+<td>HTTP</td>
+<td>TCP</td>
+<td>80</td>
+<td>0.0.0.0/0</td>
+</tr>
+<tr>
+<td>SSH</td>
+<td>TCP</td>
+<td>22</td>
+<td>your IP</td>
+</tr>
+</tbody>
+</table>
+<p>You must modify the EKS control plane security group to allow port 443 inbound from
+the Teleport security group, to allow your Teleport instance to communicate with the Kubernetes API.</p>
+<p>Assign role to instance:</p>
+<div class="highlight"><pre><span></span><code>aws iam create-instance-profile --instance-profile-name teleport-role
+aws iam add-role-to-instance-profile --instance-profile-name teleport-role --role-name teleport-role
+aws ec2 associate-iam-instance-profile --iam-instance-profile <span class="nv">Name</span><span class="o">=</span>teleport-role --instance-id <span class="o">[</span>instance_id<span class="o">]</span>
+<span class="c1"># instance_id should be replaced with the instance id of the instance where you intend to install Teleport.</span>
+</code></pre></div>
+<h4>Install Teleport.</h4>
+<ol>
+<li><a href="../installation/">Download and Install Teleport</a></li>
+<li><a href="../production/#running-teleport-in-production">Setup systemd</a></li>
+<li>Setup Teleport config file. <code>sudo cp teleport.yaml /etc/teleport.yaml</code>. An example is below.</li>
+</ol>
+<div class="highlight"><pre><span></span><code>{!examples/aws/eks/teleport.yaml!}
+</code></pre></div>
+<h4>Download Kubectl on Teleport Server</h4>
+<p>Kubectl is required to obtain the correct kubeconfig, so Teleport can access the EKS Cluster.</p>
+<p>Instructions are below, or can be found on <a href="https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html">AWS Docs</a>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Download the Amazon EKS-vended kubectl binary for your cluster&#39;s Kubernetes version from Amazon S3:</span>
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.16.8/2020-04-16/bin/linux/amd64/kubectl
+<span class="c1"># (Optional) Verify the downloaded binary with the SHA-256 sum for your binary.</span>
+curl -o kubectl.sha256 https://amazon-eks.s3.us-west-2.amazonaws.com/1.16.8/2020-04-16/bin/linux/amd64/kubectl.sha256
+<span class="c1"># Check the SHA-256 sum for your downloaded binary.</span>
+openssl sha256 kubectl
+<span class="c1"># Apply execute permissions to the binary.</span>
+chmod +x ./kubectl
+<span class="c1"># Copy the binary to a folder in your PATH. If you have already installed a version of kubectl, then we recommend creating a $HOME/bin/kubectl and ensuring that $HOME/bin comes first in your $PATH.</span>
+sudo mv ./kubectl /usr/local/bin
+<span class="c1"># After you install kubectl, you can verify its version with the following command:</span>
+kubectl version --short --client
+</code></pre></div>
+<p>Create kubeconfig:
+<div class="highlight"><pre><span></span><code>aws eks update-kubeconfig --name <span class="o">[</span>teleport-cluster<span class="o">]</span> --region us-west-2
+<span class="c1"># Added new context arn:aws:eks:us-west-2:480176057099:cluster/teleport-eks-cluster to /home/ec2-user/.kube/config</span>
+</code></pre></div></p>
+<h4>Creating TLS certificate for Teleport</h4>
+<p>Create TLS certificate for HTTPs. It is absolutely crucial to properly configure TLS
+for HTTPS when you use Teleport Proxy in production. For simplicity, we are using Let’s
+Encrypt to issue certificates and simple DNS resolution.</p>
+<p>However, using an Elastic IP and a Route53 domain name would be appropriate for
+production use cases.</p>
+<p>Install certbot:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Install the EPEL release package for RHEL 7 and enable the EPEL repository.</span>
+sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+sudo yum install -y certbot python-certbot-nginx
+</code></pre></div>
+<p>Run Certbot
+<div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">TELEPORT_PUBLIC_DNS_NAME</span><span class="o">=[</span>teleport-proxy-url<span class="o">]</span>
+<span class="nb">echo</span> <span class="nv">$TELEPORT_PUBLIC_DNS_NAME</span>
+<span class="nb">export</span> <span class="nv">EMAIL</span><span class="o">=[</span>email-for-letsencrypt<span class="o">]</span>
+
+sudo certbot certonly --standalone <span class="se">\</span>
+             --preferred-challenges http <span class="se">\</span>
+                      -d <span class="nv">$TELEPORT_PUBLIC_DNS_NAME</span> <span class="se">\</span>
+                      -n <span class="se">\</span>
+                      --agree-tos <span class="se">\</span>
+                      --email<span class="o">=</span><span class="nv">$EMAIL</span>
+</code></pre></div></p>
+<h4>Setup Github Auth</h4>
+<p>Run this on the Teleport EC2 Host, see <a href="../admin-guide/#github-oauth-20">Github Auth</a> for more info.</p>
+<p><div class="highlight"><pre><span></span><code><span class="nb">export</span> <span class="nv">TELEPORT_PUBLIC_DNS_NAME</span><span class="o">=</span><span class="s2">&quot;[teleport-proxy-url]&quot;</span>
+<span class="nb">export</span> <span class="nv">GH_CLIENT_ID</span><span class="o">=</span><span class="s2">&quot;[github-client-id]&quot;</span>
+<span class="nb">export</span> <span class="nv">GH_SECRET</span><span class="o">=</span><span class="s2">&quot;[github-oauth-secret]&quot;</span>
+<span class="nb">export</span> <span class="nv">GH_ORG</span><span class="o">=</span><span class="s2">&quot;[github-org]&quot;</span>
+<span class="nb">export</span> <span class="nv">GH_TEAM</span><span class="o">=</span><span class="s2">&quot;[github-team]&quot;</span>
+
+cat &gt; github.yaml <span class="s">&lt;&lt; EOF</span>
+<span class="s">kind: github</span>
+<span class="s">version: v3</span>
+<span class="s">metadata:</span>
+<span class="s">  # connector name that will be used with &#39;tsh --auth=github login&#39;</span>
+<span class="s">  name: github</span>
+<span class="s">spec:</span>
+<span class="s">  # client ID of Github OAuth app</span>
+<span class="s">  client_id: $GH_CLIENT_ID</span>
+<span class="s">  # client secret of Github OAuth app</span>
+<span class="s">  client_secret: $GH_SECRET</span>
+<span class="s">  # connector display name that will be shown on web UI login screen</span>
+<span class="s">  display: Github</span>
+<span class="s">  # callback URL that will be called after successful authentication</span>
+<span class="s">  redirect_url: https://$TELEPORT_PUBLIC_DNS_NAME:3080/v1/webapi/github/callback</span>
+<span class="s">  # mapping of org/team memberships onto allowed logins and roles</span>
+<span class="s">  teams_to_logins:</span>
+<span class="s">  - kubernetes_groups:</span>
+<span class="s">  # change this to restrict the access of users logging in via GitHub;</span>
+<span class="s">  # system:masters gives everyone full access to the entire cluster</span>
+<span class="s">    - system:masters</span>
+<span class="s">    logins:</span>
+<span class="s">    - github</span>
+<span class="s">    - ec2-user</span>
+<span class="s">    organization: $GH_ORG</span>
+<span class="s">    team: $GH_TEAM</span>
+<span class="s">EOF</span>
+</code></pre></div>
+Use <code>tctl</code> to create the github auth connector.</p>
+<div class="highlight"><pre><span></span><code>sudo /usr/local/bin/tctl create -f ./github.yaml
+</code></pre></div>
+<h4>Testing Teleport &amp; EKS Setup</h4>
+<div class="highlight"><pre><span></span><code>➜  ~ tsh login --proxy=[teleport-proxy-url].practice.io:3080
+If browser window does not open automatically, open it by clicking on the link:
+ http://127.0.0.1:64467/54e5d06a-c509-4077-bf54-fb27fd1b8d50
+&gt; Profile URL:  https://[teleport-proxy-url].practice.io:3080
+  Logged in as: benarent
+  Cluster:      teleport-eks
+  Roles:        admin*
+  Logins:       github, ec2-user
+  Valid until:  2020-06-30 02:12:54 -0700 PDT [valid for 12h0m0s]
+  Extensions:   permit-agent-forwarding, permit-port-forwarding, permit-pty
+
+
+* RBAC is only available in Teleport Enterprise
+  https://gravitational.com/teleport/docs/enterprise
+</code></pre></div>
+<p>On your local machine test using <code>kubectl get pods --all-namespaces</code></p>
+<div class="highlight"><pre><span></span><code>➜  ~ kubectl get pods --all-namespaces
+NAMESPACE     NAME                       READY   STATUS    RESTARTS   AGE
+kube-system   aws-node-56p6g             <span class="m">1</span>/1     Running   <span class="m">0</span>          5h28m
+kube-system   aws-node-7dv5j             <span class="m">1</span>/1     Running   <span class="m">0</span>          5h28m
+kube-system   coredns-5c97f79574-69m6k   <span class="m">1</span>/1     Running   <span class="m">0</span>          5h36m
+kube-system   coredns-5c97f79574-dq54w   <span class="m">1</span>/1     Running   <span class="m">0</span>          5h36m
+kube-system   kube-proxy-7w4z4           <span class="m">1</span>/1     Running   <span class="m">0</span>          5h28m
+kube-system   kube-proxy-c5nv2           <span class="m">1</span>/1     Running   <span class="m">0</span>          5h28m
+</code></pre></div>
+<h2 id="running-teleport-enterprise-on-aws">Running Teleport Enterprise on AWS</h2>
+<p>Most of this guide has been designed for OSS Teleport. Most of this guide also applies
+to Teleport Enterprise with a few extra notes around adding a license and getting the
+correct binary.</p>
+<p>We've a few other resources for Enterprise customers such as our</p>
+<ul>
+<li><a href="../aws-terraform-guide/">Running Teleport Enterprise in HA mode on AWS using Terraform</a></li>
+<li><a href="../enterprise/quickstart-enterprise/">Teleport Enterprise Quickstart</a></li>
+</ul>
+<p>If you would like help setting up Teleport Enterprise on AWS, please mail us at <a href="mailto:info@gravitational.com">info@gravitational.com</a></p>
+<h2 id="teleport-aws-tips-tricks">Teleport AWS Tips &amp; Tricks</h2>
+<h3 id="generating-labels-from-aws-tags">Generating labels from AWS tags</h3>
+<p>Labels can be a useful addition to the Teleport UI.  Simply add some or all of the
+below to Teleport Nodes in <code>etc/teleport.yaml</code> to have helpful labels in the Teleport UI.</p>
+<div class="highlight"><pre><span></span><code>    <span class="nt">commands</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">arch</span>
+        <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">uname</span><span class="p p-Indicator">,</span> <span class="nv">-p</span><span class="p p-Indicator">]</span>
+        <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1h0m0s</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">kernel</span>
+        <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">uname</span><span class="p p-Indicator">,</span> <span class="nv">-r</span><span class="p p-Indicator">]</span>
+        <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1h0m0s</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">uptime</span>
+        <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">uptime</span><span class="p p-Indicator">,</span> <span class="nv">-p</span><span class="p p-Indicator">]</span>
+        <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1h0m0s</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">internal</span>
+        <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">curl</span><span class="p p-Indicator">,</span> <span class="s">&quot;http://169.254.169.254/latest/meta-data/local-ipv4&quot;</span><span class="p p-Indicator">]</span>
+        <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1h0m0s</span>
+      <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">external</span>
+        <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">curl</span><span class="p p-Indicator">,</span> <span class="s">&quot;http://169.254.169.254/latest/meta-data/public-ipv4&quot;</span><span class="p p-Indicator">]</span>
+        <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1h0m0s</span>
+</code></pre></div>
+<p>Create labels based on <a href="https://community.gravitational.com/t/setting-teleport-labels-based-on-ec2-tags-for-use-with-rbac/558">EC2 Tags</a>.</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../faq/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                FAQ
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../aws-terraform-guide/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                AWS Terraform
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../js/version-select.js"></script>
+      
+    
+  </body>
+</html>

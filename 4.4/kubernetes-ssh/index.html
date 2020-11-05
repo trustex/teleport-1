@@ -1,0 +1,1695 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How to set up and configure Teleport for Kubernetes access with SSO and RBAC">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/kubernetes-ssh/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Kubernetes Access Guide - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#teleport-kubernetes-access-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Kubernetes Access Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1">
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../user-manual/" class="md-nav__link">
+      User Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../admin-guide/" class="md-nav__link">
+      Admin Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../production/" class="md-nav__link">
+      Production Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2" checked>
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-oss-guide/" class="md-nav__link">
+      AWS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Kubernetes Guide
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Kubernetes Guide
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-proxy-service" class="md-nav__link">
+    Teleport Proxy Service
+  </a>
+  
+    <nav class="md-nav" aria-label="Teleport Proxy Service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connecting-the-teleport-proxy-to-kubernetes" class="md-nav__link">
+    Connecting the Teleport proxy to Kubernetes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-1-deploy-inside-kubernetes-as-a-pod" class="md-nav__link">
+    Option 1: Deploy Inside Kubernetes as a pod
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-2-deploy-outside-of-kubernetes" class="md-nav__link">
+    Option 2: Deploy Outside of Kubernetes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#impersonation" class="md-nav__link">
+    Impersonation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubernetes-rbac" class="md-nav__link">
+    Kubernetes RBAC
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubernetes-groups-and-users" class="md-nav__link">
+    Kubernetes Groups and Users
+  </a>
+  
+    <nav class="md-nav" aria-label="Kubernetes Groups and Users">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github-auth" class="md-nav__link">
+    Github Auth
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#okta-auth" class="md-nav__link">
+    Okta Auth
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-teleport-kubernetes-with-automation" class="md-nav__link">
+    Using Teleport Kubernetes with Automation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aws-eks" class="md-nav__link">
+    AWS EKS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-kubernetes-clusters" class="md-nav__link">
+    Multiple Kubernetes Clusters
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5">
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-slack/" class="md-nav__link">
+      Teleport Slack Plugin Setup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-rbac/" class="md-nav__link">
+      RBAC
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/ssh-pam/" class="md-nav__link">
+      Using Teleport with PAM
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../config-reference/" class="md-nav__link">
+      YAML
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cli-docs/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-proxy-service" class="md-nav__link">
+    Teleport Proxy Service
+  </a>
+  
+    <nav class="md-nav" aria-label="Teleport Proxy Service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connecting-the-teleport-proxy-to-kubernetes" class="md-nav__link">
+    Connecting the Teleport proxy to Kubernetes
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-1-deploy-inside-kubernetes-as-a-pod" class="md-nav__link">
+    Option 1: Deploy Inside Kubernetes as a pod
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#option-2-deploy-outside-of-kubernetes" class="md-nav__link">
+    Option 2: Deploy Outside of Kubernetes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#impersonation" class="md-nav__link">
+    Impersonation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubernetes-rbac" class="md-nav__link">
+    Kubernetes RBAC
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubernetes-groups-and-users" class="md-nav__link">
+    Kubernetes Groups and Users
+  </a>
+  
+    <nav class="md-nav" aria-label="Kubernetes Groups and Users">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#github-auth" class="md-nav__link">
+    Github Auth
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#okta-auth" class="md-nav__link">
+    Okta Auth
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-teleport-kubernetes-with-automation" class="md-nav__link">
+    Using Teleport Kubernetes with Automation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#aws-eks" class="md-nav__link">
+    AWS EKS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#multiple-kubernetes-clusters" class="md-nav__link">
+    Multiple Kubernetes Clusters
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/kubernetes-ssh.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="teleport-kubernetes-access-guide">Teleport Kubernetes Access Guide</h1>
+<p>Teleport has the ability to act as a compliance gateway for managing privileged
+access to Kubernetes clusters. This enables the following capabilities:</p>
+<ul>
+<li>A Teleport Proxy can act as a single authentication endpoint for both SSH and
+  Kubernetes. Users can authenticate against a Teleport proxy using Teleport's
+  <a href="../cli-docs/#tsh-login"><code>tsh login</code></a> command
+  and retrieve credentials for both SSH and Kubernetes API.</li>
+<li>Users RBAC roles are always synchronized between SSH and Kubernetes, making
+  it easier to implement policies like <em>developers must not access production
+  data</em>.</li>
+<li>Teleport's session recording and audit log extend to Kubernetes, as well.
+  Regular <code>kubectl exec</code> commands are logged into the audit log and the interactive
+  commands are recorded as regular sessions that can be stored and replayed in the
+  future.</li>
+</ul>
+<h2 id="teleport-proxy-service">Teleport Proxy Service</h2>
+<p>By default, the Kubernetes integration is turned off in Teleport. The configuration
+setting to enable the integration in the proxy service section in the <code>/etc/teleport.yaml</code>
+config file, as shown below:</p>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># snippet from /etc/teleport.yaml on the Teleport proxy service:</span>
+<span class="nt">proxy_service</span><span class="p">:</span>
+    <span class="c1"># create the &#39;kubernetes&#39; section and set &#39;enabled&#39; to &#39;yes&#39;:</span>
+    <span class="nt">kubernetes</span><span class="p">:</span>
+        <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+        <span class="nt">public_addr</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">teleport.example.com</span><span class="p p-Indicator">:</span><span class="nv">3026</span><span class="p p-Indicator">]</span>
+        <span class="nt">listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3026</span>
+</code></pre></div>
+Let's take a closer look at the available Kubernetes settings:</p>
+<ul>
+<li>
+<p><code>public_addr</code> defines the publicly accessible address which Kubernetes API clients
+  like <code>kubectl</code> will connect to. This address will be placed inside of kubeconfig on
+  a client's machine when a client executes tsh login command to retrieve its certificate.
+  If you intend to run multiple Teleport proxies behind a load balancer, this must
+  be the load balancer's public address.</p>
+</li>
+<li>
+<p><code>listen_addr</code> defines which network interface and port the Teleport proxy server
+  should bind to. It defaults to port 3026 on all NICs.</p>
+</li>
+</ul>
+<h3 id="connecting-the-teleport-proxy-to-kubernetes">Connecting the Teleport proxy to Kubernetes</h3>
+<p>There are two options for setting up Teleport to access Kubernetes:</p>
+<h2 id="option-1-deploy-inside-kubernetes-as-a-pod">Option 1: Deploy Inside Kubernetes as a pod</h2>
+<p>Deploy Teleport Proxy service as a Kubernetes pod inside the Kubernetes cluster
+you want the proxy to have access to.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># snippet from /etc/teleport.yaml on the Teleport proxy service:</span>
+<span class="nt">proxy_service</span><span class="p">:</span>
+    <span class="c1"># create the &#39;kubernetes&#39; section and set &#39;enabled&#39; to &#39;yes&#39;:</span>
+    <span class="nt">kubernetes</span><span class="p">:</span>
+        <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+</code></pre></div>
+<p>If you're using Helm, we've a chart that you can use. Run these commands:</p>
+<p><div class="highlight"><pre><span></span><code>$ helm repo add gravitational https://charts.gravitational.io
+$ helm install teleport gravitational/teleport
+</code></pre></div>
+You will still need a correctly configured <code>values.yaml</code> file for this to work. See
+our <a href="https://github.com/gravitational/teleport/tree/master/examples/chart/teleport#introduction">Helm Docs</a> for more information.</p>
+<p><img alt="teleport-kubernetes-inside" src="../img/teleport-k8s-pod.svg" /></p>
+<h2 id="option-2-deploy-outside-of-kubernetes">Option 2: Deploy Outside of Kubernetes</h2>
+<p>Deploy the Teleport proxy service outside of Kubernetes and update the Teleport
+Proxy configuration with Kubernetes credentials. Update the Teleport Proxy
+configuration with Kubernetes credentials.</p>
+<p>In this case, we need to update <code>/etc/teleport.yaml</code> for the proxy service as shown
+below:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># snippet from /etc/teleport.yaml on the Teleport proxy service:</span>
+<span class="nt">proxy_service</span><span class="p">:</span>
+  <span class="c1"># create the &#39;kubernetes&#39; section and set &#39;enabled&#39; to &#39;yes&#39;:</span>
+  <span class="nt">kubernetes</span><span class="p">:</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+    <span class="c1"># The address for the proxy process to accept k8s requests.</span>
+    <span class="nt">listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3026</span>
+    <span class="c1"># The address used by the clients after tsh login. If you run a load balancer</span>
+    <span class="c1"># in front of this proxy, use the address of that balancer here. Otherwise,</span>
+    <span class="c1"># use the address of the host running this proxy.</span>
+    <span class="nt">public_addr</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">teleport.example.com</span><span class="p p-Indicator">:</span><span class="nv">3026</span><span class="p p-Indicator">]</span>
+    <span class="nt">kubeconfig_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/path/to/.kube/config</span>
+</code></pre></div>
+<p><img alt="teleport-ssh-kubernetes-integration" src="../img/teleport-kubernetes-outside.svg" /></p>
+<p>To generate the <code>kubeconfig_file</code> for the Teleport proxy service:</p>
+<ol>
+<li>Configure your <code>kubectl</code> to point at the Kubernetes cluster and have admin-level access.</li>
+<li>Use <a href="https://github.com/gravitational/teleport/blob/master/examples/k8s-auth/get-kubeconfig.sh">this
+   script</a>
+   to generate <code>kubeconfig</code>:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1"># Download the script.</span>
+$ curl -o get-kubeconfig.sh https://raw.githubusercontent.com/gravitational/teleport/master/examples/k8s-auth/get-kubeconfig.sh
+
+<span class="c1"># Make it executable.</span>
+$ chmod +x get-kubeconfig.sh
+
+<span class="c1"># Run the script, it will write the generated kubeconfig to the current</span>
+<span class="c1"># directory.</span>
+$ ./get-kubeconfig.sh
+
+<span class="c1"># Check that the generated kubeconfig has the right permissions.</span>
+<span class="c1"># The output should look similar to this.</span>
+$ kubectl --kubeconfig kubeconfig auth can-i --list
+Resources                                       Non-Resource URLs   Resource Names   Verbs
+selfsubjectaccessreviews.authorization.k8s.io   <span class="o">[]</span>                  <span class="o">[]</span>               <span class="o">[</span>create create<span class="o">]</span>
+selfsubjectrulesreviews.authorization.k8s.io    <span class="o">[]</span>                  <span class="o">[]</span>               <span class="o">[</span>create create<span class="o">]</span>
+                                                <span class="o">[</span>/api/*<span class="o">]</span>            <span class="o">[]</span>               <span class="o">[</span>get<span class="o">]</span>
+                                                ...                 <span class="o">[]</span>               <span class="o">[</span>...<span class="o">]</span>
+groups                                          <span class="o">[]</span>                  <span class="o">[]</span>               <span class="o">[</span>impersonate<span class="o">]</span>
+serviceaccounts                                 <span class="o">[]</span>                  <span class="o">[]</span>               <span class="o">[</span>impersonate<span class="o">]</span>
+users                                           <span class="o">[]</span>                  <span class="o">[]</span>               <span class="o">[</span>impersonate<span class="o">]</span>
+</code></pre></div>
+<ol>
+<li>Copy the generated <code>kubeconfig</code> file to the host running the Teleport proxy
+   service.</li>
+<li>Update <code>kubeconfig_file</code> path in <code>teleport.yaml</code> to where you copied the
+   <code>kubeconfig</code>.</li>
+</ol>
+<p>Alternatively, you can use your existing local config from <code>~/.kube/config</code>.
+However, it will result in Teleport proxy using your personal Kubernetes
+credentials. This is risky: your credentials can expire or get revoked (such as
+when leaving your company).</p>
+<h2 id="impersonation">Impersonation</h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you used <a href="https://github.com/gravitational/teleport/blob/master/examples/k8s-auth/get-kubeconfig.sh">the script from Option
+2</a>
+above, you can skip this step. The script already configured impersonation permissions.</p>
+</div>
+<p>The next step is to configure the Teleport Proxy to be able to impersonate Kubernetes principals within a given group
+using <a href="https://kubernetes.io/docs/reference/access-authn-authz/authentication/#user-impersonation">Kubernetes Impersonation Headers</a>.</p>
+<p>If Teleport is running inside the cluster using a Kubernetes <code>ServiceAccount</code>,
+here's an example of the permissions that the <code>ServiceAccount</code> will need to be able
+to use impersonation (change <code>teleport-serviceaccount</code> to the name of the <code>ServiceAccount</code>
+that's being used):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rbac.authorization.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ClusterRole</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">teleport-impersonation</span>
+<span class="nt">rules</span><span class="p">:</span>
+<span class="p p-Indicator">-</span> <span class="nt">apiGroups</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="s">&quot;&quot;</span>
+  <span class="nt">resources</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">users</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">groups</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">serviceaccounts</span>
+  <span class="nt">verbs</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">impersonate</span>
+<span class="p p-Indicator">-</span> <span class="nt">apiGroups</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="s">&quot;authorization.k8s.io&quot;</span>
+  <span class="nt">resources</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">selfsubjectaccessreviews</span>
+  <span class="nt">verbs</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">create</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rbac.authorization.k8s.io/v1</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ClusterRoleBinding</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">teleport</span>
+<span class="nt">roleRef</span><span class="p">:</span>
+  <span class="nt">apiGroup</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">rbac.authorization.k8s.io</span>
+  <span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ClusterRole</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">teleport-impersonation</span>
+<span class="nt">subjects</span><span class="p">:</span>
+<span class="p p-Indicator">-</span> <span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ServiceAccount</span>
+  <span class="c1"># this should be changed to the name of the Kubernetes ServiceAccount being used</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">teleport-serviceaccount</span>
+  <span class="nt">namespace</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">default</span>
+</code></pre></div>
+<p>There is also an <a href="https://github.com/gravitational/teleport/blob/master/examples/chart/teleport/templates/clusterrole.yaml">example of this usage</a>
+within the <a href="https://github.com/gravitational/teleport/blob/master/examples/chart/teleport/">example Teleport Helm chart</a>.</p>
+<p>If Teleport is running outside of the Kubernetes cluster, you will need to ensure
+that the principal used to connect to Kubernetes via the <code>kubeconfig</code> file has the
+same impersonation permissions as are described in the <code>ClusterRole</code> above.</p>
+<h2 id="kubernetes-rbac">Kubernetes RBAC</h2>
+<p>Once you perform the steps above, your Teleport instance should become a fully
+functional Kubernetes API proxy. The next step is to configure Teleport to assign
+the correct Kubernetes groups to Teleport users.</p>
+<p>Mapping Kubernetes groups to Teleport users depends on how Teleport is
+configured. In this guide we'll look at two common configurations:</p>
+<ul>
+<li>
+<p><strong>Open source, Teleport Community edition</strong> configured to authenticate users via <a href="../admin-guide/#github-oauth-20">Github</a>.
+  In this case, we'll need to map Github teams to Kubernetes groups.</p>
+</li>
+<li>
+<p><strong>Commercial, Teleport Enterprise edition</strong> configured to authenticate users via <a href="../enterprise/sso/ssh-okta/">Okta SSO</a>.
+  In this case, we'll need to map users' groups that come from Okta to Kubernetes
+  groups.</p>
+</li>
+</ul>
+<h2 id="kubernetes-groups-and-users">Kubernetes Groups and Users</h2>
+<p>Teleport provides support for</p>
+<ul>
+<li>Kubernetes Groups, using <code>kubernetes_groups: ["system:masters"]</code>.</li>
+<li>Kubernetes Users, using <code>kubernetes_users: ['barent', 'jane']</code>. If a Kubernetes
+user isn't set the user will impersonate themselves.</li>
+</ul>
+<p>When adding new local users you have to specify which Kubernetes groups they
+belong to:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Adding a Teleport local user to map to a Kubernetes group.</span>
+$ tctl users add joe --k8s-groups<span class="o">=</span><span class="s2">&quot;system:masters&quot;</span>
+<span class="c1"># Adding a Teleport local user to map to a Kubernetes user.</span>
+$ tctl users add jenkins --k8s-users<span class="o">=</span><span class="s2">&quot;jenkins&quot;</span>
+<span class="c1"># Enterprise users should manage k8s-users and k8s-groups via RBAC, see Okta Auth</span>
+<span class="c1"># example below</span>
+</code></pre></div>
+<h3 id="github-auth">Github Auth</h3>
+<p>When configuring Teleport to authenticate against Github, you have to create a
+Teleport connector for Github, like the one shown below. Notice the <code>kubernetes_groups</code>
+setting which assigns Kubernetes groups to a given Github team:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">github</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v3</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="c1"># connector name that will be used with `tsh --auth=github login`</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">github</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="c1"># client ID of Github OAuth app</span>
+  <span class="nt">client_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;client-id&gt;</span>
+  <span class="c1"># client secret of Github OAuth app</span>
+  <span class="nt">client_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;client-secret&gt;</span>
+  <span class="c1"># connector display name that will be shown on web UI login screen</span>
+  <span class="nt">display</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Github</span>
+  <span class="c1"># callback URL that will be called after successful authentication</span>
+  <span class="nt">redirect_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://teleport.example.com:3080/v1/webapi/github/callback</span>
+  <span class="c1"># mapping of org/team memberships onto allowed logins and roles</span>
+  <span class="nt">teams_to_logins</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">organization</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">octocats</span> <span class="c1"># Github organization name</span>
+      <span class="nt">team</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">admin</span>           <span class="c1"># Github team name within that organization</span>
+      <span class="c1"># allowed UNIX logins for team octocats/admin:</span>
+      <span class="nt">logins</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">root</span>
+      <span class="c1"># list of Kubernetes groups this Github team is allowed to connect to</span>
+      <span class="nt">kubernetes_groups</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;system:masters&quot;</span><span class="p p-Indicator">]</span>
+      <span class="c1"># Optional: If not set, users will impersonate themselves.</span>
+      <span class="c1"># kubernetes_users: [&#39;barent&#39;]</span>
+</code></pre></div>
+<p>To obtain client ID and client secret from Github, please follow <a href="https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/">Github documentation</a> on how to create and register an OAuth
+app. Be sure to set the "Authorization callback URL" to the same value as <code>redirect_url</code>
+in the resource spec.</p>
+<p>Finally, create the Github connector with the command: <code>tctl create -f github.yaml</code>.
+Now, when Teleport users execute the Teleport's <code>tsh login</code> command, they will be
+prompted to login through the Github SSO and upon successful authentication, they
+have access to Kubernetes.</p>
+<div class="highlight"><pre><span></span><code># Login via Github SSO and retrieve SSH+Kubernetes certificates:
+$ tsh login --proxy=teleport.example.com --auth=github login
+
+# Use Kubernetes API!
+$ kubectl exec -ti &lt;pod-name&gt;
+</code></pre></div>
+<p>The <code>kubectl exec</code> request will be routed through the Teleport proxy and
+Teleport will log the audit record and record the session.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information on integrating Teleport with Github SSO, please see the
+<a href="../admin-guide/#github-oauth-20">Github section in the Admin Manual</a>.</p>
+</div>
+<h3 id="okta-auth">Okta Auth</h3>
+<p>With Okta (or any other SAML/OIDC/Active Directory provider), you must update
+Teleport's roles to include the mapping to Kubernetes groups.</p>
+<p>Let's assume you have the Teleport role called "admin". Add <code>kubernetes_groups</code>
+setting to it as shown below:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># NOTE: the role definition is edited to remove the unnecessary fields</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">role</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v3</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">allow</span><span class="p">:</span>
+    <span class="c1"># if kubernetes integration is enabled, this setting configures which</span>
+    <span class="c1"># kubernetes groups the users of this role will be assigned to.</span>
+    <span class="c1"># note that you can refer to a SAML/OIDC trait via the &quot;external&quot; property bag,</span>
+    <span class="c1"># this allows you to specify Kubernetes group membership in an identity manager:</span>
+    <span class="nt">kubernetes_groups</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;system:masters&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;{%</span><span class="nv"> </span><span class="s">raw</span><span class="nv"> </span><span class="s">%}{{external.trait_name}}{%</span><span class="nv"> </span><span class="s">endraw</span><span class="nv"> </span><span class="s">%}&quot;</span><span class="p p-Indicator">]</span><span class="err">]</span>
+</code></pre></div>
+<p>To add <code>kubernetes_groups</code> setting to an existing Teleport role, you can either
+use the Web UI or <code>tctl</code>:</p>
+<div class="highlight"><pre><span></span><code># Dump the &quot;admin&quot; role into a file:
+$ tctl get roles/admin &gt; admin.yaml
+# Edit the file, add kubernetes_groups setting
+# and then execute:
+$ tctl create -f admin.yaml
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Advanced Usage</p>
+<p><code>{% raw %}{{ external.trait_name }}{% endraw %}</code> example is shown to demonstrate how to fetch
+the Kubernetes groups dynamically from Okta during login. In this case, you
+need to define Kubernetes group membership in Okta (as a trait) and use
+that trait name in the Teleport role.</p>
+<p>Teleport 4.3 has an option to extract the local part from an email claim. This can be helpful
+since some operating systems don't support the @ symbol. This means by using <code>logins: ['{% raw %}{{email.local(external.email)}}{% endraw %}']</code> the resulting output will be <code>dave.smith</code> if the email was dave.smith@acme.com.</p>
+</div>
+<p>Once setup is complete, when users execute <code>tsh login</code> and go through the usual Okta login
+sequence, their <code>kubeconfig</code> will be updated with their Kubernetes credentials.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For more information on integrating Teleport with Okta, please see the
+<a href="../enterprise/sso/ssh-okta/">Okta integration guide</a>.</p>
+</div>
+<h2 id="using-teleport-kubernetes-with-automation">Using Teleport Kubernetes with Automation</h2>
+<p>Teleport can integrate with CI/CD tooling for greater visibility and auditability of
+these tools. For this we recommend creating a local Teleport user, then exporting
+a kubeconfig using <a href="../cli-docs/#tctl-auth-sign"><code>tctl auth sign</code></a></p>
+<p>An example setup is below.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create a new local user for Jenkins</span>
+$ tctl users add jenkins
+<span class="c1"># Option 1: Creates a token for 1 year</span>
+$ tctl auth sign --user<span class="o">=</span>jenkins --format<span class="o">=</span>kubernetes --out<span class="o">=</span>kubeconfig --ttl<span class="o">=</span>8760h
+<span class="c1"># Recommended Option 2: Creates a token for 25hrs</span>
+$ tctl auth sign --user<span class="o">=</span>jenkins --format<span class="o">=</span>kubernetes --out<span class="o">=</span>kubeconfig --ttl<span class="o">=</span>25h
+
+  The credentials have been written to kubeconfig
+
+$ cat kubeconfig
+  apiVersion: v1
+  clusters:
+  - cluster:
+      certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZ....
+<span class="c1"># This kubeconfig can now be exported and will provide access to the automation tooling.</span>
+
+<span class="c1"># Uses kubectl to get pods, using the provided kubeconfig.</span>
+$ kubectl --kubeconfig /path/to/kubeconfig get pods
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">How long should TTL be?</p>
+<p>In the above example we've provided two options. One with 1yr (8760h) time to live
+and one for just 25hrs. As proponents of short lived SSH certificates we recommend
+the same for automation.</p>
+<p>Handling secrets is out of scope of our docs, but at a high level we recommend
+using providers secrets managers. Such as <a href="https://aws.amazon.com/secrets-manager/">AWS Secrets Manager</a>,
+<a href="https://cloud.google.com/secret-manager">GCP Secrets Manager</a>, or on prem using
+a project like <a href="https://www.vaultproject.io/">Vault</a>.  Then running a nightly
+job on the auth server to sign and publish a new kubeconfig. In our example, we've
+added 1hr, and during this time both kubeconfigs will be valid.</p>
+<p>Taking this a step further you could build a system to request a very short lived
+token for each CI run. We plan to make this easier for operators to integrate in
+the future by exposing and documenting more of our API.</p>
+</div>
+<h2 id="aws-eks">AWS EKS</h2>
+<p>We've a complete guide on setting up Teleport with EKS. Please see the <a href="../aws-oss-guide/#using-teleport-with-eks">Using Teleport with EKS Guide</a>.</p>
+<h2 id="multiple-kubernetes-clusters">Multiple Kubernetes Clusters</h2>
+<p>You can take advantage of the <a href="../trustedclusters/">Trusted Clusters</a> feature of
+Teleport to federate trust across multiple Kubernetes clusters.</p>
+<p>When multiple trusted clusters are present behind a Teleport proxy, the
+<code>kubeconfig</code> generated by <a href="../cli-docs/#tsh-login"> <code>tsh login</code> </a> will contain the
+Kubernetes API endpoint determined by the <code>&lt;cluster&gt;</code> argument to <a href="../cli-docs/#tsh-login"><code>tsh
+login</code></a> .</p>
+<p>For example, consider the following setup:</p>
+<ul>
+<li>There are three Teleport/Kubernetes clusters: "main", "east" and "west". These
+  are the names set in <code>cluster_name</code> setting in their configuration files.</li>
+<li>The clusters "east" and "west" are trusted clusters for "main".</li>
+<li>Users always authenticate against "main" but use their certificates to access
+  SSH nodes and Kubernetes API in all three clusters.</li>
+<li>The DNS name of the main proxy server is "main.example.com"</li>
+</ul>
+<p>In this scenario, users usually login using this command:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Using login without arguments</span>
+$ tsh --proxy<span class="o">=</span>main.example.com login
+
+<span class="c1"># user&#39;s `kubeconfig` now contains one entry for the main Kubernetes</span>
+<span class="c1"># endpoint, i.e. `proxy.example.com` .</span>
+
+<span class="c1"># Receive a certificate for &quot;east&quot;:</span>
+$ tsh --proxy<span class="o">=</span>main.example.com login east
+
+<span class="c1"># user&#39;s `kubeconfig` now contains the entry for the &quot;east&quot; Kubernetes</span>
+<span class="c1"># endpoint, i.e. `east.proxy.example.com` .</span>
+</code></pre></div>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../ibm-cloud-guide/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                IBM
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../openssh-teleport/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                OpenSSH Guide
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../js/version-select.js"></script>
+      
+    
+  </body>
+</html>

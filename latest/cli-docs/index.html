@@ -1,0 +1,2532 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The detailed guide for Teleport command line (CLI) tools">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/cli-docs/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Teleport CLI Reference - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#command-line-cli-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Teleport CLI Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1">
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../user-manual/" class="md-nav__link">
+      User Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../admin-guide/" class="md-nav__link">
+      Admin Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../production/" class="md-nav__link">
+      Production Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-oss-guide/" class="md-nav__link">
+      AWS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../kubernetes-ssh/" class="md-nav__link">
+      Kubernetes Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5">
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-slack/" class="md-nav__link">
+      Teleport Slack Plugin Setup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-rbac/" class="md-nav__link">
+      RBAC
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/ssh-pam/" class="md-nav__link">
+      Using Teleport with PAM
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../config-reference/" class="md-nav__link">
+      YAML
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        CLI
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      CLI
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#teleport" class="md-nav__link">
+    teleport
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-start" class="md-nav__link">
+    teleport start
+  </a>
+  
+    <nav class="md-nav" aria-label="teleport start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#flags" class="md-nav__link">
+    Flags
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-status" class="md-nav__link">
+    teleport status
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-configure" class="md-nav__link">
+    teleport configure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-version" class="md-nav__link">
+    teleport version
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-help" class="md-nav__link">
+    teleport help
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#teleport" class="md-nav__link">
+    teleport
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-start" class="md-nav__link">
+    teleport start
+  </a>
+  
+    <nav class="md-nav" aria-label="teleport start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#flags" class="md-nav__link">
+    Flags
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-status" class="md-nav__link">
+    teleport status
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-configure" class="md-nav__link">
+    teleport configure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-version" class="md-nav__link">
+    teleport version
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-help" class="md-nav__link">
+    teleport help
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/cli-docs.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="command-line-cli-reference">Command Line (CLI) Reference</h1>
+<p>Teleport is made up of three CLI tools.</p>
+<ul>
+<li><a href="#teleport">teleport</a>: The Teleport daemon that runs the Teleport Service, and acts as a daemon on a node allowing SSH connections.</li>
+<li><a href="#tsh">tsh</a>: A tool that let's end users interact with Teleport nodes. This replaces <code>ssh</code>.</li>
+<li><a href="#tctl">tctl</a>: An administrative tool that can configure Teleport Auth Service.</li>
+</ul>
+<h2 id="teleport">teleport</h2>
+<p>The Teleport daemon is called <code>teleport</code> . It can be configured to run one or
+more "roles" with the <code>--roles</code> flags. The arguments to <code>--roles</code> correspond to
+the following services.</p>
+<table>
+<thead>
+<tr>
+<th>Service</th>
+<th>Role Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../architecture/nodes/">Node</a></td>
+<td><code>node</code></td>
+<td>Runs a daemon on a node which allows SSH connections from authenticated clients.</td>
+</tr>
+<tr>
+<td><a href="../architecture/authentication/">Auth</a></td>
+<td><code>auth</code></td>
+<td>Authenticates nodes and users who want access to Teleport Nodes or information about the cluster</td>
+</tr>
+<tr>
+<td><a href="../architecture/proxy/">Proxy</a></td>
+<td><code>proxy</code></td>
+<td>The gateway that clients use to connect to the Auth or Node Services</td>
+</tr>
+</tbody>
+</table>
+<h2 id="teleport-start">teleport start</h2>
+<h3 id="flags">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-d, --debug</code></td>
+<td>none</td>
+<td>none</td>
+<td>enable verbose logging to stderr</td>
+</tr>
+<tr>
+<td><code>--insecure-no-tls</code></td>
+<td><code>false</code></td>
+<td><code>true</code> or <code>false</code></td>
+<td>Tells proxy to not generate default self-signed TLS certificates. This is useful when running Teleport on kubernetes (behind reverse proxy) or behind things like AWS ELBs, GCP LBs or Azure Load Balancers where SSL termination is provided externally.</td>
+</tr>
+<tr>
+<td><code>-r, --roles</code></td>
+<td><code>proxy,node,auth</code></td>
+<td><strong>string</strong> comma-separated list of <code>proxy, node</code> or <code>auth</code></td>
+<td>start listed services/roles. These roles are explained in the <a href="../architecture/overview/">Teleport Architecture</a> document.</td>
+</tr>
+<tr>
+<td><code>--pid-file</code></td>
+<td>none</td>
+<td><strong>string</strong> filepath</td>
+<td>create a PID file at the path</td>
+</tr>
+<tr>
+<td><code>--advertise-ip</code></td>
+<td>none</td>
+<td><strong>string</strong> IP</td>
+<td>advertise IP to clients, often used behind NAT</td>
+</tr>
+<tr>
+<td><code>-l, --listen-ip</code></td>
+<td><code>0.0.0.0</code></td>
+<td><a href="https://golang.org/pkg/net/#IP"><strong>net. IP</strong></a></td>
+<td>binds services to IP</td>
+</tr>
+<tr>
+<td><code>--auth-server</code></td>
+<td>none</td>
+<td><strong>string</strong> IP</td>
+<td>proxy attempts to connect to a specified auth server instead of local auth, disables <code>--roles=auth</code> if set</td>
+</tr>
+<tr>
+<td><code>--token</code></td>
+<td>none</td>
+<td><strong>string</strong></td>
+<td>set invitation token to register with an auth server on start, used once and ignored afterwards. Obtain it by running <code>tctl nodes add</code> on the auth server.<em>We recommend to use tools like <code>pwgen</code> to generate sufficiently random tokens of 32+ byte length.</em></td>
+</tr>
+<tr>
+<td><code>--ca-pin</code></td>
+<td>none</td>
+<td><strong>string</strong> <code>sha256:&lt;hash&gt;</code></td>
+<td>set CA pin to validate the Auth Server. Generated by <code>tctl status</code></td>
+</tr>
+<tr>
+<td><code>--nodename</code></td>
+<td><code>hostname</code> command on the machine</td>
+<td><strong>string</strong></td>
+<td>assigns an alternative name for the node which can be used by clients to login. By default it's equal to the value returned by</td>
+</tr>
+<tr>
+<td><code>-c, --config</code></td>
+<td><code>/etc/teleport.yaml</code></td>
+<td><strong>string</strong> <code>.yaml</code> filepath</td>
+<td>starts services with config specified in the YAML file, overrides CLI flags if set</td>
+</tr>
+<tr>
+<td><code>--bootstrap</code></td>
+<td>none</td>
+<td><strong>string</strong> <code>.yaml</code> filepath</td>
+<td>bootstrap configured YAML resources <!--TODO link how to configure this file--></td>
+</tr>
+<tr>
+<td><code>--labels</code></td>
+<td>none</td>
+<td><strong>string</strong> comma-separated list</td>
+<td>assigns a set of labels to a node. See the explanation of labeling mechanism in the <a href="../admin-guide/#labeling-nodes">Labeling Nodes</a> section.</td>
+</tr>
+<tr>
+<td><code>--insecure</code></td>
+<td>none</td>
+<td>none</td>
+<td>disable certificate validation on Proxy Service, validation still occurs on Auth Service.</td>
+</tr>
+<tr>
+<td><code>--fips</code></td>
+<td>none</td>
+<td>none</td>
+<td>start Teleport in FedRAMP/FIPS 140-2 mode.</td>
+</tr>
+<tr>
+<td><code>--diag-addr</code></td>
+<td>none</td>
+<td>none</td>
+<td>Enable diagnostic endpoints</td>
+</tr>
+<tr>
+<td><code>--permit-user-env</code></td>
+<td>none</td>
+<td>none</td>
+<td>flag reads in environment variables from <code>~/.tsh/environment</code> when creating a session.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Token Generation</p>
+<p>We recommend the use of tools like <code>pwgen</code> to generate sufficiently random tokens of 32+ byte length.</p>
+</div>
+<h2 id="teleport-status">teleport status</h2>
+<p><code>teleport status</code> shows the status of a Teleport connection. This command is
+only available from inside of a recorded SSH session.</p>
+<h2 id="teleport-configure">teleport configure</h2>
+<p><code>teleport configure</code> dumps a <strong>sample</strong> configuration file in YAML format into
+standard output.</p>
+<p><strong>Caution</strong>: This sample config is <em>not</em> the default config and should be used
+for reference only.<!--TODO Link to Config Doc--></p>
+<h2 id="teleport-version">teleport version</h2>
+<p><code>teleport version</code> show the release version</p>
+<h2 id="teleport-help">teleport help</h2>
+<p><code>teleport help</code> shows help <code>teleport</code> and its subcommands like this <code>teleport
+help &lt;subcommand&gt;</code></p>
+<h1 id="tsh">tsh</h1>
+<p><code>tsh</code> is a CLI client used by Teleport Users. It allows users to interact with
+current and past sessions on the cluster, copy files to and from nodes, and list
+information about the cluster.</p>
+<h2 id="tsh-global-flags">tsh Global Flags</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-l, --login</code></td>
+<td>none</td>
+<td>an identity name</td>
+<td>the login identity that the Teleport User should use</td>
+</tr>
+<tr>
+<td><code>--proxy</code></td>
+<td>none</td>
+<td><code>host:https_port[,ssh_proxy_port]</code></td>
+<td>set SSH proxy address</td>
+</tr>
+<tr>
+<td><code>--user</code></td>
+<td><code>$USER</code></td>
+<td>none</td>
+<td>the Teleport User name</td>
+</tr>
+<tr>
+<td><code>--ttl</code></td>
+<td>none</td>
+<td>relative duration like 5s, 2m, or 3h</td>
+<td>set time to live for a SSH session, session ttl unrestricted if unset <!--TODO Check this--></td>
+</tr>
+<tr>
+<td><code>-i, --identity</code></td>
+<td>none</td>
+<td><strong>string</strong> filepath</td>
+<td>Identity file</td>
+</tr>
+<tr>
+<td><code>--cert-format</code></td>
+<td><code>file</code></td>
+<td><code>file</code> or <code>openssh</code></td>
+<td>SSH certificate format</td>
+</tr>
+<tr>
+<td><code>--insecure</code></td>
+<td>none</td>
+<td>none</td>
+<td>Do not verify server's certificate and host name. Use only in test environments</td>
+</tr>
+<tr>
+<td><code>--auth</code></td>
+<td><code>local</code></td>
+<td>any defined <a href="../admin-guide/#authentication">authentication connector</a></td>
+<td>Specify the type of authentication connector to use.</td>
+</tr>
+<tr>
+<td><code>--skip-version-check</code></td>
+<td>none</td>
+<td>none</td>
+<td>Skip version checking between server and client.</td>
+</tr>
+<tr>
+<td><code>-d, --debug</code></td>
+<td>none</td>
+<td>none</td>
+<td>Verbose logging to stdout</td>
+</tr>
+<tr>
+<td><code>-J, --jumphost</code></td>
+<td>none</td>
+<td>A jump host</td>
+<td>SSH jumphost</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tsh-help">tsh help</h2>
+<p>Prints help</p>
+<p><strong>Usage</strong> <code>tsh help</code></p>
+<h2 id="tsh-version">tsh version</h2>
+<p>Prints client version</p>
+<p><strong>Usage</strong> <code>tsh version</code></p>
+<h2 id="tsh-ssh">tsh ssh</h2>
+<p>Run shell or execute a command on a remote SSH node</p>
+<p><strong>Usage</strong>: <code>tsh ssh [&lt;flags&gt;] &lt;[user@]host&gt; [&lt;command&gt;...]</code></p>
+<h3 id="arguments">Arguments</h3>
+<p><code>&lt;[user@]host&gt; [&lt;command&gt;...]</code></p>
+<ul>
+<li>
+<p><code>user</code> The login identity to use on the remote host. If <code>[user]</code> is not specified
+   the user defaults to <code>$USER</code> or can be set with <code>--user</code> . If the flag <code>--user</code>
+   and positional argument <code>[user]</code> are specified the arg <code>[user]</code> takes precedence.</p>
+</li>
+<li>
+<p><code>host</code> A <code>nodename</code> of a cluster node or a</p>
+</li>
+<li><code>command</code> The command to execute on a remote host.</li>
+</ul>
+<h3 id="flags_1">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-p, --port</code></td>
+<td>none</td>
+<td>port</td>
+<td>SSH port on a remote host</td>
+</tr>
+<tr>
+<td><code>-A, --forward-agent</code></td>
+<td>none</td>
+<td>none</td>
+<td>Forward agent to target node like <code>ssh -A</code></td>
+</tr>
+<tr>
+<td><code>-L, --forward</code></td>
+<td>none</td>
+<td>none</td>
+<td>Forward localhost connections to remote server</td>
+</tr>
+<tr>
+<td><code>-D, --dynamic-forward</code></td>
+<td>none</td>
+<td>none</td>
+<td>Forward localhost connections to remote server using SOCKS5</td>
+</tr>
+<tr>
+<td><code>-N, -no-remote-exec</code></td>
+<td>none</td>
+<td>none</td>
+<td>Don't execute remote command, useful for port forwarding</td>
+</tr>
+<tr>
+<td><code>--local</code></td>
+<td>none</td>
+<td></td>
+<td>Execute command on localhost after connecting to SSH node</td>
+</tr>
+<tr>
+<td><code>-t, --tty</code></td>
+<td><code>file</code></td>
+<td></td>
+<td>Allocate TTY</td>
+</tr>
+<tr>
+<td><code>--cluster</code></td>
+<td>none</td>
+<td></td>
+<td>Specify the cluster to connect</td>
+</tr>
+<tr>
+<td><code>-o, --option</code></td>
+<td><code>local</code></td>
+<td></td>
+<td>OpenSSH options in the format used in the configuration file</td>
+</tr>
+<tr>
+<td><code>--enable-escape-sequences</code></td>
+<td></td>
+<td></td>
+<td>Enable support for SSH escape sequences. Type '~?' during an SSH session to list supported sequences.</td>
+</tr>
+<tr>
+<td><code>--no-use-local-ssh-agent</code></td>
+<td></td>
+<td></td>
+<td>Do not load generated SSH certificates into the local ssh-agent (specified via <code>$SSH_AUTH_SOCK</code>). Useful when using <code>gpg-agent</code> or Yubikeys. You can also set the <code>TELEPORT_USE_LOCAL_SSH_AGENT</code> environment variable to <code>false</code> (default <code>true</code>)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags"><a href="#tsh-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--login, --proxy, --user, --ttl,
+--identity, --cert-format, --insecure, --auth, --skip-version-check, --debug,
+--jumphost</code>. Run <code>tsh help &lt;subcommand&gt;</code> or see the <a href="#tsh-global-flags">Global Flags
+Section</a></p>
+<h3 id="examples">Examples</h3>
+<div class="highlight"><pre><span></span><code># Log in to node `grav-00` as OS User `root` with Teleport User `teleport`
+$ tsh ssh --proxy proxy.example.com --user teleport -d root@grav-00
+# `tsh ssh` takes the same arguments as OpenSSH client:
+$ tsh ssh -o ForwardAgent=yes root@grav-00
+$ tsh ssh -o AddKeysToAgent=yes root@grav-00
+</code></pre></div>
+<h2 id="tsh-join">tsh join</h2>
+<p>Joins an active session</p>
+<p><strong>Usage</strong>: <code>tsh join [&lt;flags&gt;] &lt;session-id&gt;</code></p>
+<h3 id="arguments_1">Arguments</h3>
+<p><code>&lt;session-id&gt;</code></p>
+<ul>
+<li><code>session-id</code> The UUID of the an active Teleport Session obtained by <code>teleport status</code> within
+    the session.</li>
+</ul>
+<h3 id="flags_2">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--cluster</code></td>
+<td>none</td>
+<td>a cluster_name</td>
+<td>Specify the cluster to connect</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_1"><a href="#tsh-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--login, --proxy, --user, --ttl,
+--identity, --cert-format, --insecure, --auth, --skip-version-check, --debug,
+--jumphost</code>. Run <code>tsh help &lt;subcommand&gt;</code> or see the <a href="#tsh-global-flags">Global Flags
+Section</a></p>
+<h3 id="examples_1">Examples</h3>
+<div class="highlight"><pre><span></span><code>tsh --proxy proxy.example.com join &lt;session-id&gt;
+</code></pre></div>
+<h2 id="tsh-play">tsh play</h2>
+<p>Plays back a prior session</p>
+<p><strong>Usage</strong>: <code>tsh play [&lt;flags&gt;] &lt;session-id&gt;</code></p>
+<h3 id="arguments_2">Arguments</h3>
+<p><code>&lt;session-id&gt;</code></p>
+<ul>
+<li><code>session-id</code> The UUID of the a past Teleport Session obtained by <code>teleport status</code> within
+     the session or from the Web UI.</li>
+</ul>
+<h3 id="flags_3">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--cluster</code></td>
+<td>none</td>
+<td>a cluster_name</td>
+<td>Specify the cluster to connect</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_2"><a href="#tsh-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--login, --proxy, --user, --ttl,
+--identity, --cert-format, --insecure, --auth, --skip-version-check, --debug,
+--jumphost</code>. Run <code>tsh help &lt;subcommand&gt;</code> or see the <a href="#tsh-global-flags">Global Flags
+Section</a></p>
+<h3 id="examples_2">Examples</h3>
+<div class="highlight"><pre><span></span><code>tsh --proxy proxy.example.com play &lt;session-id&gt;
+</code></pre></div>
+<h2 id="tsh-scp">tsh scp</h2>
+<p>Copies files from source to dest</p>
+<p><strong>Usage</strong> <code>usage: tsh scp [&lt;flags&gt;] &lt;source&gt;... &lt;dest&gt;</code></p>
+<!--TODO Confirm which flags are supported, and whether supports multiple sources-->
+
+<h3 id="arguments_3">Arguments</h3>
+<ul>
+<li><code>&lt;source&gt;</code> - filepath to copy</li>
+<li><code>&lt;dest&gt;</code> - target destination</li>
+</ul>
+<h3 id="flags_4">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--cluster</code></td>
+<td>none</td>
+<td>a cluster_name</td>
+<td>Specify the cluster to connect</td>
+</tr>
+<tr>
+<td><code>-r, --recursive</code></td>
+<td>none</td>
+<td>none</td>
+<td>Recursive copy of subdirectories</td>
+</tr>
+<tr>
+<td><code>-P, --port</code></td>
+<td>none</td>
+<td>port number</td>
+<td>Port to connect to on the remote host</td>
+</tr>
+<tr>
+<td><code>-q, --quiet</code></td>
+<td>none</td>
+<td>none</td>
+<td>Quiet mode</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_3"><a href="#tsh-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--login, --proxy, --user, --ttl,
+--identity, --cert-format, --insecure, --auth, --skip-version, --debug,
+--jumphost</code>. Run <code>tsh help &lt;subcommand&gt;</code> or see the <a href="#tsh-global-flags">Global Flags
+Section</a></p>
+<h3 id="examples_3">Examples</h3>
+<div class="highlight"><pre><span></span><code>$ tsh --proxy=proxy.example.com scp -P example.txt user@host/destination/dir
+</code></pre></div>
+<h2 id="tsh-ls">tsh ls</h2>
+<p>List cluster nodes</p>
+<p><strong>Usage</strong> <code>usage: tsh ls [&lt;flags&gt;] [&lt;label&gt;]</code> <!--TODO: label? or labels? seems
+like it only supports one label at a time--></p>
+<h3 id="arguments_4">Arguments</h3>
+<ul>
+<li><code>&lt;label&gt;</code> - <code>key=value</code> label to filer nodes by</li>
+</ul>
+<h3 id="flags_5">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-v, --verbose</code></td>
+<td>none</td>
+<td>none</td>
+<td>also print Node ID</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_4"><a href="#tsh-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--login, --proxy, --user, --ttl,
+--identity, --cert-format, --insecure, --auth, --skip-version, --debug,
+--jumphost</code>. Run <code>tsh help &lt;subcommand&gt;</code> or see the <a href="#tsh-global-flags">Global Flags
+Section</a></p>
+<h3 id="examples_4">Examples</h3>
+<div class="highlight"><pre><span></span><code>$ tsh ls
+Node Name Address            Labels
+--------- ------------------ ------
+grav-00   10.164.0.0:3022    os:linux
+grav-01   10.156.0.2:3022    os:linux
+grav-02   10.156.0.7:3022    os:osx
+$ tsh ls -v
+Node Name Node ID                              Address            Labels
+--------- ------------------------------------ ------------------ ------
+grav-00   52e3e46a-372f-494b-bdd9-a1d25b9d6dec 10.164.0.0:3022    os:linux
+grav-01   73d86fc7-7c4b-42e3-9a5f-c46e177a29e8 10.156.0.2:3022    os:linux
+grav-02  24503590-e8ae-4a0a-ad7a-dd1865c04e30 10.156.0.7:3022     os:osx
+
+# only show nodes with os label set to &#39;osx&#39;:
+$ tsh ls os=osx
+Node Name Address            Labels
+--------- ------------------ ------
+grav-02      10.156.0.7:3022    os:osx
+</code></pre></div>
+<h2 id="tsh-clusters">tsh clusters</h2>
+<p><strong>Usage</strong>: <code>tsh clusters [&lt;flags&gt;]</code></p>
+<h3 id="flags_6">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-q, --quiet</code></td>
+<td>none</td>
+<td>none</td>
+<td>no headers in output</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_5"><a href="#tsh-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--login, --proxy, --user, --ttl,
+--identity, --cert-format, --insecure, --auth, --skip-version, --debug,
+--jumphost</code>. Run <code>tsh help &lt;subcommand&gt;</code> or see the <a href="#tsh-global-flags">Global Flags
+Section</a></p>
+<h3 id="examples_5">Examples</h3>
+<div class="highlight"><pre><span></span><code>$ tsh clusters
+Cluster Name Status
+------------ ------
+staging          online
+production       offline
+$ tsh clusters --quiet
+staging online
+production offline
+</code></pre></div>
+<h2 id="tsh-login">tsh login</h2>
+<p>Logs in to the cluster. When <code>tsh</code> logs in, the auto-expiring key is stored in
+<code>~/.tsh</code> and is valid for 12 hours by default, unless you specify another
+interval via <code>--ttl</code> flag (capped by the server-side configuration).</p>
+<p><strong>Usage</strong>: <code>tsh login [&lt;flags&gt;] [&lt;cluster&gt;]</code></p>
+<h3 id="arguments_5">Arguments</h3>
+<ul>
+<li><code>&lt;cluster&gt;</code> - the name of the cluster,  see <a href="../trustedclusters/#introduction">Trusted Cluster</a> for more information.</li>
+</ul>
+<h3 id="flags_7">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--bind-addr</code></td>
+<td>none</td>
+<td>host:port</td>
+<td>Address in the form of host:port to bind to for login command webhook</td>
+</tr>
+<tr>
+<td><code>-o, --out</code></td>
+<td>none</td>
+<td>filepath</td>
+<td>Identity output filepath</td>
+</tr>
+<tr>
+<td><code>--format</code></td>
+<td><code>file</code></td>
+<td><code>file</code>, <code>openssh</code> or <code>kubernetes</code></td>
+<td>Identity format: file, openssh (for OpenSSH compatibility) or kubernetes (for kubeconfig)</td>
+</tr>
+<tr>
+<td><code>--browser</code></td>
+<td>none</td>
+<td><code>none</code></td>
+<td>Set to 'none' to suppress opening system default browser for <code>tsh login</code> commands</td>
+</tr>
+<tr>
+<td><code>--request-roles</code></td>
+<td>none</td>
+<td></td>
+<td>Request one or more extra roles</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_6"><a href="#tsh-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--login, --proxy, --user, --ttl,
+--identity, --cert-format, --insecure, --auth, --skip-version-check, --debug,
+--jumphost</code>. Run <code>tsh help &lt;subcommand&gt;</code> or see the <a href="#tsh-global-flags">Global Flags
+Section</a></p>
+<h3 id="examples_6">Examples</h3>
+<p><em>The proxy endpoint can take a https and ssh port in this format <code>host:https_port[,ssh_proxy_port]</code></em></p>
+<div class="highlight"><pre><span></span><code># Use ports 8080 and 8023 for https and SSH proxy:
+$ tsh --proxy=proxy.example.com:8080,8023 login
+
+# Use port 8080 and 3023 (default) for SSH proxy:
+$ tsh --proxy=proxy.example.com:8080 login
+
+# Use port 23 as custom SSH port, keep HTTPS proxy port as default
+$ tsh --proxy=work.example.com:,23 login
+
+# Login and select cluster &quot;two&quot;:
+$ tsh --proxy=proxy.example.com login two
+
+# Select cluster &quot;two&quot; using existing credentials and proxy:
+$ tsh login two
+
+# Login to the  cluster with a very short-lived certificate
+$ tsh --ttl=1 login
+
+# Login using the local Teleport &#39;admin&#39; user:
+$ tsh --proxy=proxy.example.com --auth=local --user=admin login
+
+# Login using Github as an SSO provider, assuming the Github connector is called &quot;github&quot;
+$ tsh --proxy=proxy.example.com --auth=github --user=admin login
+
+# Suppress the opening of the system default browser for external provider logins
+$ tsh --proxy=proxy.example.com --browser=none
+
+# Login to cluster and output a local kubeconfig
+$ tsh login --proxy=proxy.example.com --format=kubernetes -o kubeconfig
+</code></pre></div>
+<h2 id="tsh-logout">tsh logout</h2>
+<p>Deletes the client's cluster certificate</p>
+<p><strong>Usage</strong>: <code>tsh logout</code></p>
+<h2 id="tsh-status">tsh status</h2>
+<p>Display the list of proxy servers and retrieved certificates</p>
+<p><strong>Usage</strong>: <code>tsh status</code></p>
+<h3 id="examples_7">Examples</h3>
+<div class="highlight"><pre><span></span><code>$ tsh status
+
+&gt; Profile URL:  https://proxy.example.com:3080
+  Logged in as: johndoe
+  Roles:        admin*
+  Logins:       root, admin, guest
+  Valid <span class="k">until</span>:  <span class="m">2017</span>-04-25 <span class="m">15</span>:02:30 -0700 PDT <span class="o">[</span>valid <span class="k">for</span> 1h0m0s<span class="o">]</span>
+  Extensions:   permit-agent-forwarding, permit-port-forwarding, permit-pty
+</code></pre></div>
+<h1 id="tctl">tctl</h1>
+<p><code>tctl</code> is an admin CLI tool used to administer a Teleport cluster. It connects
+to an Auth Server, meaning that it must be run on the same host with the role
+<code>auth</code> . If you run <code>tctl</code> on a non- <code>auth</code> node it will show an error.</p>
+<p><code>tctl</code> allows a cluster administrator to manage all resources in a cluster
+including nodes, users, tokens, and certificates.</p>
+<p><code>tctl</code> can also be used to modify the dynamic configuration of the cluster, like
+creating new user roles or connecting trusted clusters.</p>
+<h2 id="tctl-global-flags">tctl Global Flags</h2>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-d, --debug</code></td>
+<td>none</td>
+<td>none</td>
+<td>Enable verbose logging to stderr</td>
+</tr>
+<tr>
+<td><code>-c, --config</code></td>
+<td><code>/etc/teleport.yaml</code></td>
+<td><strong>string</strong> filepath</td>
+<td>Path to a configuration file</td>
+</tr>
+</tbody>
+</table>
+<h2 id="tctl-help">tctl  help</h2>
+<p>Shows help.</p>
+<p><strong>Usage</strong> <code>tctl help</code></p>
+<h2 id="tctl-users-add">tctl users add</h2>
+<p>Generates a user invitation token.</p>
+<p><strong>Usage:</strong> <code>tctl users add [&lt;flags&gt;] &lt;account&gt; [&lt;local-logins&gt;]</code></p>
+<h3 id="arguments_6">Arguments</h3>
+<ul>
+<li><code>&lt;account&gt;</code> - The Teleport user account name.</li>
+<li><code>&lt;local-logins&gt;</code> - A comma-separated list of local UNIX users this account can
+  log in as. If unspecified the account will be mapped to an OS user of the same
+  name. See examples below.</li>
+</ul>
+<h3 id="flags_8">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--k8s-groups</code></td>
+<td>none</td>
+<td>a kubernetes group</td>
+<td>Kubernetes groups to assign to a user, e.g. <code>system:masters</code></td>
+</tr>
+<tr>
+<td><code>--k8s-users</code></td>
+<td>none</td>
+<td>a kubernetes user</td>
+<td>Kubernetes user to assign to a user, e.g. <code>jenkins</code></td>
+</tr>
+<tr>
+<td><code>--ttl</code></td>
+<td>1h</td>
+<td>relative duration like 5s, 2m, or 3h, <strong>maximum 48h</strong></td>
+<td>Set expiration time for token</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_7"><a href="#tctl-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--debug, --config</code> . Run <code>tctl help
+&lt;subcommand&gt;</code> or see the <a href="#tctl-global-flags">Global Flags Section</a></p>
+<h3 id="examples_8">Examples</h3>
+<div class="highlight"><pre><span></span><code># Adds teleport user &quot;joe&quot; with mappings to
+# OS users &quot;joe&quot; and &quot;root&quot;
+tctl users add joe joe,root
+# Adds teleport user &quot;joe&quot; with mappings to
+# OS users &quot;joe&quot; only
+tctl users add joe
+</code></pre></div>
+<h2 id="tctl-users-ls">tctl users ls</h2>
+<p>Lists all user accounts <strong>Usage:</strong> <code>tctl users ls [&lt;flags&gt;]</code></p>
+<h2 id="tctl-users-rm">tctl users rm</h2>
+<p>Deletes user accounts <strong>Usage</strong>: <code>tctl users rm &lt;logins&gt;</code></p>
+<h3 id="arguments_7">Arguments</h3>
+<ul>
+<li><code>&lt;logins&gt;</code> - comma-separated list of Teleport users</li>
+</ul>
+<h3 id="examples_9">Examples</h3>
+<div class="highlight"><pre><span></span><code>tctl users rm sally,tim
+# Removes users sally and tim
+</code></pre></div>
+<h2 id="tctl-request-ls">tctl request ls</h2>
+<p>List of open requests <strong>Usage</strong>: <code>tctl request ls</code></p>
+<h3 id="examples_10">Examples</h3>
+<div class="highlight"><pre><span></span><code>tctl request ls
+Token                                Requestor Metadata       Created At (UTC)    Status
+------------------------------------ --------- -------------- ------------------- -------
+request-id-1                         alice     roles=dictator 07 Nov 19 19:38 UTC PENDING
+</code></pre></div>
+<h2 id="tctl-request-approve">tctl request approve</h2>
+<p>Approve a user's request. <strong>Usage</strong>: <code>tctl request approve [token]</code></p>
+<h3 id="arguments_8">Arguments</h3>
+<ul>
+<li><code>&lt;tokens&gt;</code> - comma-separated list of Teleport tokens.</li>
+</ul>
+<h3 id="examples_11">Examples</h3>
+<div class="highlight"><pre><span></span><code>tctl request approve request-id-1, request-id-2
+</code></pre></div>
+<h2 id="tctl-request-deny">tctl request deny</h2>
+<p>Denies a user's request. <strong>Usage</strong>: <code>tctl request deny [token]</code></p>
+<h3 id="arguments_9">Arguments</h3>
+<ul>
+<li><code>&lt;tokens&gt;</code> - comma-separated list of Teleport tokens.</li>
+</ul>
+<h3 id="examples_12">Examples</h3>
+<div class="highlight"><pre><span></span><code>tctl request deny request-id-1, request-id-2
+</code></pre></div>
+<h2 id="tctl-request-rm">tctl request rm</h2>
+<p>Delete a users role request. <strong>Usage</strong>: <code>tctl request rm [token]</code></p>
+<h3 id="arguments_10">Arguments</h3>
+<ul>
+<li><code>&lt;tokens&gt;</code> - comma-separated list of Teleport tokens.</li>
+</ul>
+<h3 id="examples_13">Examples</h3>
+<div class="highlight"><pre><span></span><code>tctl request rm request-id-1
+</code></pre></div>
+<h2 id="tctl-nodes-add">tctl nodes add</h2>
+<p>Generate a node invitation token</p>
+<p><strong>Usage</strong>: <code>tctl nodes add [&lt;flags&gt;]</code></p>
+<h3 id="flags_9">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--roles</code></td>
+<td><code>node</code></td>
+<td><code>node,auth</code> or <code>proxy</code></td>
+<td>Comma-separated list of roles for the new node to assume</td>
+</tr>
+<tr>
+<td><code>--ttl</code></td>
+<td>30m</td>
+<td>relative duration like 5s, 2m, or 3h</td>
+<td>Time to live for a generated token</td>
+</tr>
+<tr>
+<td><code>--token</code></td>
+<td>none</td>
+<td><strong>string</strong> token value</td>
+<td>A custom token to use, auto-generated if not provided. Should match token set with <code>teleport start --token</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_8"><a href="#tctl-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--debug, --config</code> . Run <code>tctl help
+&lt;subcommand&gt;</code> or see the <a href="#tctl-global-flags">Global Flags Section</a></p>
+<h3 id="examples_14">Examples</h3>
+<div class="highlight"><pre><span></span><code># Generates a token which can be used by a node to join the cluster, default ttl is 30 minutes
+$ tctl nodes add
+# Generates a token which can be used to add an SSH node to the cluster
+# The node will run the proxy service in addition is the node (ssh) service.
+# This token can be used within an hour.
+$ tctl nodes add --roles=node,proxy --ttl=1h
+</code></pre></div>
+<h2 id="tctl-nodes-ls">tctl nodes ls</h2>
+<p>List all active SSH nodes within the cluster</p>
+<p><strong>Usage</strong>: <code>tctl nodes ls [&lt;flags&gt;]</code></p>
+<h3 id="flags_10">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--namespace</code></td>
+<td>none</td>
+<td><strong>string</strong> namespace</td>
+<td>Namespace of the nodes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_9"><a href="#tctl-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--debug, --config</code> . Run <code>tctl help
+&lt;subcommand&gt;</code> or see the <a href="#tctl-global-flags">Global Flags Section</a></p>
+<h2 id="tctl-tokens-add">tctl tokens add</h2>
+<p>Create an invitation token</p>
+<p><strong>Usage</strong>: <code>tctl tokens add --type=TYPE [&lt;flags&gt;]</code></p>
+<h3 id="flags_11">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--type</code></td>
+<td>none</td>
+<td><code>trusted_cluster</code>, <code>node</code>, <code>proxy</code></td>
+<td>Type of token to add</td>
+</tr>
+<tr>
+<td><code>--value</code></td>
+<td>none</td>
+<td><strong>string</strong> token value</td>
+<td>Value of token to add</td>
+</tr>
+<tr>
+<td><code>--ttl</code></td>
+<td>1h</td>
+<td>relative duration like 5s, 2m, or 3h, <strong>maximum 48h</strong></td>
+<td>Set expiration time for token</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_10"><a href="#tctl-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--debug, --config</code> . Run <code>tctl help
+&lt;subcommand&gt;</code> or see the <a href="#tctl-global-flags">Global Flags Section</a></p>
+<h3 id="examples_15">Examples</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Generate an invite token for a trusted_cluster</span>
+$ tctl tokens add --type<span class="o">=</span>trusted_cluster --ttl<span class="o">=</span>5m
+<span class="c1"># Generate an invite token for a node</span>
+<span class="c1"># This is equivalent to `tctl nodes add`</span>
+$ tctl tokens add --type node
+</code></pre></div>
+<h2 id="tctl-tokens-rm">tctl tokens rm</h2>
+<p>Delete/revoke an invitation token</p>
+<p><strong>Usage</strong>: <code>tctl tokens rm [&lt;token&gt;]</code></p>
+<h3 id="arguments_11">Arguments</h3>
+<ul>
+<li><code>&lt;token&gt;</code> The full-length token string to delete</li>
+</ul>
+<h2 id="tctl-tokens-ls">tctl tokens ls</h2>
+<p>List node and user invitation tokens</p>
+<p><strong>Usage</strong>: <code>tctl tokens ls [&lt;flags&gt;]</code></p>
+<h3 id="example">Example</h3>
+<div class="highlight"><pre><span></span><code>$ tctl tokens ls
+Token                            Type            Expiry Time (UTC)
+-------------------------------- --------------- -------------------
+ecce46d19bb4144716e5984269db1ac0 Node            11 Oct 19 22:17 UTC
+fcbf269ca26440f35865ec29994f0fb4 trusted_cluster 11 Oct 19 22:19 UTC
+6fd001d4200348deec9b50c4479ba07d User signup     11 Oct 19 22:20 UTC
+</code></pre></div>
+<h2 id="tctl-auth-export">tctl auth export</h2>
+<p>Export public cluster (CA) keys to stdout</p>
+<p><strong>Usage</strong>: <code>tctl auth export [&lt;flags&gt;]</code></p>
+<h3 id="flags_12">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--keys</code></td>
+<td>none</td>
+<td>none</td>
+<td>if set, will print private keys</td>
+</tr>
+<tr>
+<td><code>--fingerprint</code></td>
+<td>none</td>
+<td><strong>string</strong> e.g. <code>SHA265:&lt;fingerprint&gt;</code></td>
+<td>filter authority by fingerprint</td>
+</tr>
+<tr>
+<td><code>--compat</code></td>
+<td>none</td>
+<td>version number</td>
+<td>export certificates compatible with specific version of Teleport</td>
+</tr>
+<tr>
+<td><code>--type</code></td>
+<td>none</td>
+<td><code>user, host</code> or <code>tls</code></td>
+<td>certificate type</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_11"><a href="#tctl-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--debug, --config</code> . Run <code>tctl help
+&lt;subcommand&gt;</code> or see the <a href="#tctl-global-flags">Global Flags Section</a></p>
+<h3 id="examples_16">Examples</h3>
+<div class="highlight"><pre><span></span><code># Export all keys
+$ tctl auth export
+# Filter by fingerprint
+$ tctl auth export --fingerprint=SHA256:8xu5kh1CbHCZRrGuitbQd4hM+d9V+I7YA1mUwA/2tAo
+# Export tls certs only
+$ tctl auth export --type tls
+</code></pre></div>
+<h2 id="tctl-auth-sign">tctl auth sign</h2>
+<p>Create an identity file(s) for a given user</p>
+<p><strong>Usage</strong>: <code>tctl auth sign -o &lt;filepath&gt; [--user &lt;user&gt; | --host
+&lt;host&gt;][--format] [&lt;flags&gt;]</code></p>
+<h3 id="flags_13">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--user</code></td>
+<td>none</td>
+<td>existing user</td>
+<td>Teleport user name</td>
+</tr>
+<tr>
+<td><code>--host</code></td>
+<td>none</td>
+<td>auth host</td>
+<td>Teleport host name</td>
+</tr>
+<tr>
+<td><code>-o, --out</code></td>
+<td>none</td>
+<td>filepath</td>
+<td>identity output</td>
+</tr>
+<tr>
+<td><code>--format</code></td>
+<td><code>file</code></td>
+<td><code>file</code>, <code>openssh</code>, <code>tls</code> or <code>kubernetes</code></td>
+<td>identity format</td>
+</tr>
+<tr>
+<td><code>--identity</code></td>
+<td><code>file</code></td>
+<td><code>file</code></td>
+<td>identity format</td>
+</tr>
+<tr>
+<td><code>--auth-server</code></td>
+<td>none</td>
+<td>auth host &amp; port</td>
+<td>Remote Teleport host name</td>
+</tr>
+<tr>
+<td><code>--ttl</code></td>
+<td>none</td>
+<td>relative duration like 5s, 2m, or 3h</td>
+<td>TTL (time to live) for the generated certificate</td>
+</tr>
+<tr>
+<td><code>--compat</code></td>
+<td><code>""</code></td>
+<td><code>standard</code> or <code>oldssh</code></td>
+<td>OpenSSH compatibility flag</td>
+</tr>
+<tr>
+<td><code>--proxy</code></td>
+<td><code>""</code></td>
+<td>Address of the teleport proxy.</td>
+<td>When --format is set to "kubernetes", this address will be set as cluster address in the generated kubeconfig file</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_12"><a href="#tctl-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--debug, --config</code> . Run <code>tctl help
+&lt;subcommand&gt;</code> or see the <a href="#tctl-global-flags">Global Flags Section</a></p>
+<h3 id="examples_17">Examples</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Export identity file to teleport_id.pem</span>
+<span class="c1"># for user `teleport` with a ttl set to 5m</span>
+$ tctl auth sign --format file --ttl<span class="o">=</span>5m --user teleport -o teleport_id.pem
+<span class="c1"># Export identity formatted for openssh to teleport_id.pem</span>
+$ tctl auth sign --format openssh --user teleport -o teleport_id.pem
+<span class="c1"># Export host identity, `--format openssh` must be set with `--host`</span>
+<span class="c1"># Generates grav-01 (private key) and grav-01-cert.pub in the current directory</span>
+$ tctl auth sign --format openssh --host grav-00
+<span class="c1"># Invalid command, only one of --user or --host should be set</span>
+$ tctl auth sign --format openssh --host grav-00 --user teleport -o grav_host
+error: --user or --host must be specified
+<span class="c1"># create a certificate with a TTL of 10 years for the jenkins user</span>
+<span class="c1"># the jenkins.pem file can later be used with `tsh`</span>
+$ tctl auth sign --ttl<span class="o">=</span>87600h --user<span class="o">=</span>jenkins --out<span class="o">=</span>jenkins.pem
+<span class="c1"># create a certificate with a TTL of 1 day for the jenkins user</span>
+<span class="c1"># the jenkins.pem file can later be used with `tsh`</span>
+$ tctl auth sign --ttl<span class="o">=</span>24h --user<span class="o">=</span>jenkins --out<span class="o">=</span>jenkins.pem
+<span class="c1"># create a certificate with a TTL of 1 day for the jenkins user</span>
+<span class="c1"># The kubeconfig file can later be used with `kubectl` or compatible tooling.</span>
+$ tctl auth sign --ttl<span class="o">=</span>24h --user<span class="o">=</span>jenkins --out<span class="o">=</span>kubeconfig --format<span class="o">=</span>kubernetes
+<span class="c1"># Exports an identity from the Auth Server in preparation for remote</span>
+<span class="c1"># tctl execution.</span>
+$ tctl auth sign --user<span class="o">=</span>admin --out<span class="o">=</span>identity.pem
+</code></pre></div>
+<h2 id="tctl-auth-rotate">tctl auth rotate</h2>
+<p>Rotate certificate authorities in the cluster</p>
+<p><strong>Usage</strong>: <code>tctl auth rotate [&lt;flags&gt;]</code></p>
+<h3 id="flags_14">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--grace-period</code></td>
+<td>none</td>
+<td>relative duration like 5s, 2m, or 3h</td>
+<td>Grace period keeps previous certificate authorities signatures valid, if set to 0 will force users to login again and nodes to re-register.</td>
+</tr>
+<tr>
+<td><code>--manual</code></td>
+<td>none</td>
+<td>none</td>
+<td>Activate manual rotation, set rotation phases manually</td>
+</tr>
+<tr>
+<td><code>--type</code></td>
+<td><code>user,host</code></td>
+<td><code>user</code> or <code>host</code></td>
+<td>Certificate authority to rotate</td>
+</tr>
+<tr>
+<td><code>--phase</code></td>
+<td></td>
+<td><code>init, standby, update_clients, update_servers, rollback</code></td>
+<td>Target rotation phase to set, used in manual rotation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_13"><a href="#tctl-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--debug, --config</code> . Run <code>tctl help &lt;subcommand&gt;</code> or see the <a href="#tctl-global-flags">Global Flags Section</a></p>
+<h3 id="examples_18">Examples</h3>
+<div class="highlight"><pre><span></span><code># rotate only user certificates with a grace period of 200 hours:
+$ tctl auth rotate --type=user --grace-period=200h
+
+# rotate only host certificates with a grace period of 8 hours:
+$ tctl auth rotate --type=host --grace-period=8h
+</code></pre></div>
+<h2 id="tctl-create">tctl create</h2>
+<p>Create or update a Teleport resource from a YAML file.</p>
+<p>The supported resource types are: user, node, cluster, role, connector.
+See the <a href="../admin-guide/#resources">Resource Guide</a> for complete docs on how to build these yaml files.</p>
+<p><strong>Usage</strong>: <code>tctl create [&lt;flags&gt;] &lt;filename&gt;</code></p>
+<h3 id="arguments_12">Arguments</h3>
+<ul>
+<li><code>&lt;filename&gt;</code> resource definition file</li>
+</ul>
+<h3 id="flags_15">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-f, --force</code></td>
+<td>none</td>
+<td>none</td>
+<td>Overwrite the resource if already exists</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_14"><a href="#tctl-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--debug, --config</code> . Run <code>tctl help &lt;subcommand&gt;</code> or see the <a href="#tctl-global-flags">Global Flags Section</a></p>
+<h3 id="examples_19">Examples</h3>
+<div class="highlight"><pre><span></span><code># Update a user record
+$ tctl create -f joe.yaml
+# Add a trusted cluster
+$ tctl create cluster.yaml $ Update a trusted cluster $ tctl create -f
+cluster.yaml
+</code></pre></div>
+<h2 id="tctl-rm">tctl rm</h2>
+<p>Delete a resource</p>
+<p><strong>Usage</strong>: <code>tctl rm [&lt;resource-type/resource-name&gt;]</code></p>
+<h3 id="arguments_13">Arguments</h3>
+<ul>
+<li><code>[&lt;resource-type/resource-name&gt;]</code> Resource to delete<ul>
+<li><code>&lt;resource type&gt;</code> Type of a resource [for example: <code>saml,oidc,github,user,cluster,token</code> ]</li>
+<li><code>&lt;resource name&gt;</code> Resource name to delete</li>
+</ul>
+</li>
+</ul>
+<h3 id="examples_20">Examples</h3>
+<div class="highlight"><pre><span></span><code># delete a SAML connector called &quot;okta&quot;:
+$ tctl rm saml/okta
+
+# delete a local user called &quot;admin&quot;:
+$ tctl rm users/admin
+</code></pre></div>
+<h2 id="tctl-get">tctl get</h2>
+<p>Print a YAML declaration of various Teleport resources</p>
+<p><strong>Usage</strong>: <code>tctl get [&lt;flags&gt;] [&lt;resource-type/resource-name&gt;],...</code></p>
+<h3 id="arguments_14">Arguments</h3>
+<ul>
+<li><code>[&lt;resource-type/resource-name&gt;]</code> Resource to delete<ul>
+<li><code>&lt;resource type&gt;</code> Type of a resource [for example: <code>user,cluster,token</code> ]</li>
+<li><code>&lt;resource name&gt;</code> Resource name to delete</li>
+</ul>
+</li>
+</ul>
+<h3 id="flags_16">Flags</h3>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Default Value(s)</th>
+<th>Allowed Value(s)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--format</code></td>
+<td></td>
+<td><code>yaml, json</code> or <code>text</code></td>
+<td>Output format</td>
+</tr>
+<tr>
+<td><code>--with-secrets</code></td>
+<td>none</td>
+<td>none</td>
+<td>Include secrets in resources like certificate authorities or OIDC connectors</td>
+</tr>
+</tbody>
+</table>
+<h3 id="global-flags_15"><a href="#tctl-global-flags">Global Flags</a></h3>
+<p>These flags are available for all commands <code>--debug, --config</code> . Run <code>tctl help &lt;subcommand&gt;</code> or see the <a href="#tctl-global-flags">Global Flags Section</a></p>
+<h3 id="examples_21">Examples</h3>
+<div class="highlight"><pre><span></span><code>$ tctl get users
+# dump the user definition into a file:
+$ tctl get user/joe &gt; joe.yaml
+# prints the trusted cluster &#39;east&#39;
+$ tctl get cluster/east
+# prints all trusted clusters and all users
+$ tctl get clusters,users
+# Dump all resources for backup into state.yaml
+$ tctl get all &gt; state.yaml
+</code></pre></div>
+<h2 id="tctl-status">tctl status</h2>
+<p>Report cluster status</p>
+<p><strong>Usage</strong> <code>tctl status</code></p>
+<h3 id="examples_22">Examples</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Checks status of cluster.</span>
+$ tctl status Cluster  grav-00 User CA  never updated Host CA  never updated CA
+pin   sha256:1146cdd2b887772dcc2e879232c8f60012a839f7958724ce5744005474b15b9d
+<span class="c1"># Checks remote auth status using exported identity.</span>
+$ tctl status <span class="se">\</span>
+                --auth-server<span class="o">=</span><span class="m">192</span>.168.99.102:3025 <span class="se">\</span>
+                --identity<span class="o">=</span>identity.pem
+</code></pre></div>
+<h2 id="tctl-top">tctl top</h2>
+<p>Reports diagnostic information.</p>
+<p>The diagnostic metrics endpoint must be enabled with <code>teleport start --diag-addr=&lt;bind-addr&gt;</code> for <code>tctl top</code> to work.</p>
+<p><strong>Usage</strong> <code>tctl top [&lt;diag-addr&gt;] [&lt;refresh&gt;]</code></p>
+<h3 id="argument">Argument</h3>
+<ul>
+<li><code>[&lt;diag-addr&gt;]</code> Diagnostic HTTP URL (HTTPS not supported)</li>
+<li><code>[&lt;refresh&gt;]</code> Refresh period e.g.5s, 2m, or 3h</li>
+</ul>
+<h3 id="example_1">Example</h3>
+<div class="highlight"><pre><span></span><code>$ teleport start --diag-addr=127.0.0.1:3434
+# View stats with refresh period of 5 seconds
+$ tctl top http://127.0.0.1:3434 5s
+</code></pre></div>
+<h2 id="tctl-version">tctl version</h2>
+<p>Print cluster version</p>
+<p><strong>Usage:</strong> <code>tctl version</code></p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../config-reference/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                YAML
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../api-reference/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                API
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../js/version-select.js"></script>
+      
+    
+  </body>
+</html>

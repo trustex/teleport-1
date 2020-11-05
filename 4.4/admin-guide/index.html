@@ -1,0 +1,4010 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Admin manual for how to configure identity-aware SSH, certificate-based SSH authentication, set up SSO for SSH, SSO for Kubernetes, and more.">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/admin-guide/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Teleport Admin Manual - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#teleport-admin-manual" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Teleport Admin Manual
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1" checked>
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../user-manual/" class="md-nav__link">
+      User Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Admin Manual
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Admin Manual
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installing" class="md-nav__link">
+    Installing
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#definitions" class="md-nav__link">
+    Definitions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-daemon" class="md-nav__link">
+    Teleport Daemon
+  </a>
+  
+    <nav class="md-nav" aria-label="Teleport Daemon">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#systemd-unit-file" class="md-nav__link">
+    Systemd Unit File
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graceful-restarts" class="md-nav__link">
+    Graceful Restarts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ports" class="md-nav__link">
+    Ports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filesystem-layout" class="md-nav__link">
+    Filesystem Layout
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-file" class="md-nav__link">
+    Configuration File
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    Authentication
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#local-connector" class="md-nav__link">
+    Local Connector
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-oauth-20-connector" class="md-nav__link">
+    Github OAuth 2.0 Connector
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saml" class="md-nav__link">
+    SAML
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oidc" class="md-nav__link">
+    OIDC
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hardware-keys-yubikey-fido-u2f" class="md-nav__link">
+    Hardware Keys - YubiKey FIDO U2F
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-and-deleting-users" class="md-nav__link">
+    Adding and Deleting Users
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-users" class="md-nav__link">
+    Editing Users
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-nodes-to-the-cluster" class="md-nav__link">
+    Adding Nodes to the Cluster
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding Nodes to the Cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#static-tokens" class="md-nav__link">
+    Static Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#short-lived-tokens" class="md-nav__link">
+    Short-lived Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-node-invitation-tokens" class="md-nav__link">
+    Using Node Invitation Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#untrusted-auth-servers" class="md-nav__link">
+    Untrusted Auth Servers
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revoking-invitations" class="md-nav__link">
+    Revoking Invitations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-node-located-behind-nat" class="md-nav__link">
+    Adding a node located behind NAT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labeling-nodes" class="md-nav__link">
+    Labeling Nodes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-log" class="md-nav__link">
+    Audit Log
+  </a>
+  
+    <nav class="md-nav" aria-label="Audit Log">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssh-events" class="md-nav__link">
+    SSH Events
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recorded-sessions" class="md-nav__link">
+    Recorded Sessions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    Resources
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trusted-clusters" class="md-nav__link">
+    Trusted Clusters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#github-oauth-20" class="md-nav__link">
+    Github OAuth 2.0
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#http-connect-proxies" class="md-nav__link">
+    HTTP CONNECT Proxies
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pam-integration" class="md-nav__link">
+    PAM Integration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-teleport-with-openssh" class="md-nav__link">
+    Using Teleport with OpenSSH
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#certificate-rotation" class="md-nav__link">
+    Certificate Rotation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ansible-integration" class="md-nav__link">
+    Ansible Integration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubernetes-integration" class="md-nav__link">
+    Kubernetes Integration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-availability" class="md-nav__link">
+    High Availability
+  </a>
+  
+    <nav class="md-nav" aria-label="High Availability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auth-server-ha" class="md-nav__link">
+    Auth Server HA
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teleport-proxy-ha" class="md-nav__link">
+    Teleport Proxy HA
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teleport-scalability-tweaks" class="md-nav__link">
+    Teleport Scalability Tweaks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-etcd" class="md-nav__link">
+    Using etcd
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-amazon-s3" class="md-nav__link">
+    Using Amazon S3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-dynamodb" class="md-nav__link">
+    Using DynamoDB
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-gcs" class="md-nav__link">
+    Using GCS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-firestore" class="md-nav__link">
+    Using Firestore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrading-teleport" class="md-nav__link">
+    Upgrading Teleport
+  </a>
+  
+    <nav class="md-nav" aria-label="Upgrading Teleport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#production-releases" class="md-nav__link">
+    Production Releases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-compatibility" class="md-nav__link">
+    Component Compatibility
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backup-before-upgrading" class="md-nav__link">
+    Backup Before Upgrading
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade-sequence" class="md-nav__link">
+    Upgrade Sequence
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backing-up-teleport" class="md-nav__link">
+    Backing Up Teleport
+  </a>
+  
+    <nav class="md-nav" aria-label="Backing Up Teleport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teleport-resources" class="md-nav__link">
+    Teleport Resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gitops" class="md-nav__link">
+    GitOps
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migrating-backends" class="md-nav__link">
+    Migrating Backends.
+  </a>
+  
+    <nav class="md-nav" aria-label="Migrating Backends.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#daemon-restarts" class="md-nav__link">
+    Daemon Restarts
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-file" class="md-nav__link">
+    License File
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    Getting Help
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../production/" class="md-nav__link">
+      Production Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-oss-guide/" class="md-nav__link">
+      AWS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../kubernetes-ssh/" class="md-nav__link">
+      Kubernetes Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5">
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-slack/" class="md-nav__link">
+      Teleport Slack Plugin Setup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-rbac/" class="md-nav__link">
+      RBAC
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/ssh-pam/" class="md-nav__link">
+      Using Teleport with PAM
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../config-reference/" class="md-nav__link">
+      YAML
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cli-docs/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#installing" class="md-nav__link">
+    Installing
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#definitions" class="md-nav__link">
+    Definitions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#teleport-daemon" class="md-nav__link">
+    Teleport Daemon
+  </a>
+  
+    <nav class="md-nav" aria-label="Teleport Daemon">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#systemd-unit-file" class="md-nav__link">
+    Systemd Unit File
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#graceful-restarts" class="md-nav__link">
+    Graceful Restarts
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ports" class="md-nav__link">
+    Ports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#filesystem-layout" class="md-nav__link">
+    Filesystem Layout
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    Configuration
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuration-file" class="md-nav__link">
+    Configuration File
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#authentication" class="md-nav__link">
+    Authentication
+  </a>
+  
+    <nav class="md-nav" aria-label="Authentication">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#local-connector" class="md-nav__link">
+    Local Connector
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#github-oauth-20-connector" class="md-nav__link">
+    Github OAuth 2.0 Connector
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#saml" class="md-nav__link">
+    SAML
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oidc" class="md-nav__link">
+    OIDC
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hardware-keys-yubikey-fido-u2f" class="md-nav__link">
+    Hardware Keys - YubiKey FIDO U2F
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-and-deleting-users" class="md-nav__link">
+    Adding and Deleting Users
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#editing-users" class="md-nav__link">
+    Editing Users
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-nodes-to-the-cluster" class="md-nav__link">
+    Adding Nodes to the Cluster
+  </a>
+  
+    <nav class="md-nav" aria-label="Adding Nodes to the Cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#static-tokens" class="md-nav__link">
+    Static Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#short-lived-tokens" class="md-nav__link">
+    Short-lived Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-node-invitation-tokens" class="md-nav__link">
+    Using Node Invitation Tokens
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#untrusted-auth-servers" class="md-nav__link">
+    Untrusted Auth Servers
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#revoking-invitations" class="md-nav__link">
+    Revoking Invitations
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-node-located-behind-nat" class="md-nav__link">
+    Adding a node located behind NAT
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#labeling-nodes" class="md-nav__link">
+    Labeling Nodes
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#audit-log" class="md-nav__link">
+    Audit Log
+  </a>
+  
+    <nav class="md-nav" aria-label="Audit Log">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssh-events" class="md-nav__link">
+    SSH Events
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recorded-sessions" class="md-nav__link">
+    Recorded Sessions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resources" class="md-nav__link">
+    Resources
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#trusted-clusters" class="md-nav__link">
+    Trusted Clusters
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#github-oauth-20" class="md-nav__link">
+    Github OAuth 2.0
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#http-connect-proxies" class="md-nav__link">
+    HTTP CONNECT Proxies
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pam-integration" class="md-nav__link">
+    PAM Integration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-teleport-with-openssh" class="md-nav__link">
+    Using Teleport with OpenSSH
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#certificate-rotation" class="md-nav__link">
+    Certificate Rotation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ansible-integration" class="md-nav__link">
+    Ansible Integration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#kubernetes-integration" class="md-nav__link">
+    Kubernetes Integration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#high-availability" class="md-nav__link">
+    High Availability
+  </a>
+  
+    <nav class="md-nav" aria-label="High Availability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#auth-server-ha" class="md-nav__link">
+    Auth Server HA
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teleport-proxy-ha" class="md-nav__link">
+    Teleport Proxy HA
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teleport-scalability-tweaks" class="md-nav__link">
+    Teleport Scalability Tweaks
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-etcd" class="md-nav__link">
+    Using etcd
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-amazon-s3" class="md-nav__link">
+    Using Amazon S3
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-dynamodb" class="md-nav__link">
+    Using DynamoDB
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-gcs" class="md-nav__link">
+    Using GCS
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#using-firestore" class="md-nav__link">
+    Using Firestore
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#upgrading-teleport" class="md-nav__link">
+    Upgrading Teleport
+  </a>
+  
+    <nav class="md-nav" aria-label="Upgrading Teleport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#production-releases" class="md-nav__link">
+    Production Releases
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-compatibility" class="md-nav__link">
+    Component Compatibility
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#backup-before-upgrading" class="md-nav__link">
+    Backup Before Upgrading
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#upgrade-sequence" class="md-nav__link">
+    Upgrade Sequence
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#backing-up-teleport" class="md-nav__link">
+    Backing Up Teleport
+  </a>
+  
+    <nav class="md-nav" aria-label="Backing Up Teleport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#teleport-resources" class="md-nav__link">
+    Teleport Resources
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gitops" class="md-nav__link">
+    GitOps
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migrating-backends" class="md-nav__link">
+    Migrating Backends.
+  </a>
+  
+    <nav class="md-nav" aria-label="Migrating Backends.">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#daemon-restarts" class="md-nav__link">
+    Daemon Restarts
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#license-file" class="md-nav__link">
+    License File
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    Getting Help
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/admin-guide.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="teleport-admin-manual">Teleport Admin Manual</h1>
+<p>This manual covers the installation and configuration of Teleport and the
+ongoing management of a Teleport cluster. It assumes that the reader has good
+understanding of Linux administration.</p>
+<h2 id="installing">Installing</h2>
+<p>Please visit our <a href="../installation/">installation page</a> for instructions on downloading and installing Teleport.</p>
+<h2 id="definitions">Definitions</h2>
+<p>Before diving into configuring and running Teleport, it helps to take a look at
+the <a href="../architecture/overview/">Teleport Architecture</a> and review the key concepts this
+document will be referring to:</p>
+<table>
+<thead>
+<tr>
+<th>Concept</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node</td>
+<td>Synonym to "server" or "computer", something one can "SSH to". A node must be running the <a href="../cli-docs/#teleport"> <code>teleport</code> </a> daemon with "node" role/service turned on.</td>
+</tr>
+<tr>
+<td>Certificate Authority (CA)</td>
+<td>A pair of public/private keys Teleport uses to manage access. A CA can sign a public key of a user or node, establishing their cluster membership.</td>
+</tr>
+<tr>
+<td>Teleport Cluster</td>
+<td>A Teleport Auth Service contains two CAs. One is used to sign user keys and the other signs node keys. A collection of nodes connected to the same CA is called a "cluster".</td>
+</tr>
+<tr>
+<td>Cluster Name</td>
+<td>Every Teleport cluster must have a name. If a name is not supplied via <code>teleport.yaml</code> configuration file, a GUID will be generated.<strong>IMPORTANT:</strong> renaming a cluster invalidates its keys and all certificates it had created.</td>
+</tr>
+<tr>
+<td>Trusted Cluster</td>
+<td>Teleport Auth Service can allow 3rd party users or nodes to connect if their public keys are signed by a trusted CA. A "trusted cluster" is a pair of public keys of the trusted CA. It can be configured via <code>teleport.yaml</code> file.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="teleport-daemon">Teleport Daemon</h2>
+<p>The Teleport daemon is called <a href="../cli-docs/#teleport"> <code>teleport</code> </a> and it supports
+the following commands:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>start</td>
+<td>Starts the Teleport daemon.</td>
+</tr>
+<tr>
+<td>configure</td>
+<td>Dumps a sample configuration file in YAML format into standard output.</td>
+</tr>
+<tr>
+<td>version</td>
+<td>Shows the Teleport version.</td>
+</tr>
+<tr>
+<td>status</td>
+<td>Shows the status of a Teleport connection. This command is only available from inside of an active SSH session.</td>
+</tr>
+<tr>
+<td>help</td>
+<td>Shows help.</td>
+</tr>
+</tbody>
+</table>
+<p>When experimenting, you can quickly start <a href="../cli-docs/#teleport"> <code>teleport</code> </a>
+with verbose logging by typing <a href="../cli-docs/#teleport-start"> <code>teleport start -d</code> </a>
+.</p>
+<div class="admonition danger">
+<p class="admonition-title">WARNING</p>
+<p>Teleport stores data in <code>/var/lib/teleport</code> . Make sure that
+regular/non-admin users do not have access to this folder on the Auth
+server.</p>
+</div>
+<h3 id="systemd-unit-file">Systemd Unit File</h3>
+<p>In production, we recommend starting teleport daemon via an init system like
+<code>systemd</code> . Here's the recommended Teleport service unit file for systemd:</p>
+<div class="highlight"><pre><span></span><code>[Unit]
+Description=Teleport SSH Service
+After=network.target
+
+[Service]
+Type=simple
+Restart=on-failure
+ExecStart=/usr/local/bin/teleport start --config=/etc/teleport.yaml --pid-file=/run/teleport.pid
+ExecReload=/bin/kill -HUP $MAINPID
+PIDFile=/run/teleport.pid
+
+[Install]
+WantedBy=multi-user.target
+</code></pre></div>
+<h3 id="graceful-restarts">Graceful Restarts</h3>
+<p>If using the systemd service unit file above, executing <code>systemctl reload
+teleport</code> will perform a graceful restart, i.e.the Teleport daemon will fork a
+new process to handle new incoming requests, leaving the old daemon process
+running until existing clients disconnect.</p>
+<div class="admonition warning">
+<p class="admonition-title">Version warning</p>
+<p>Graceful restarts only work if Teleport is
+deployed using network-based storage like DynamoDB or etcd 3.3+. Future
+versions of Teleport will not have this limitation.</p>
+</div>
+<p>You can also perform restarts/upgrades by sending <code>kill</code> signals to a Teleport
+daemon manually.</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Teleport Daemon Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>USR1</code></td>
+<td>Dumps diagnostics/debugging information into syslog.</td>
+</tr>
+<tr>
+<td><code>TERM</code> , <code>INT</code> or <code>KILL</code></td>
+<td>Immediate non-graceful shutdown. All existing connections will be dropped.</td>
+</tr>
+<tr>
+<td><code>USR2</code></td>
+<td>Forks a new Teleport daemon to serve new connections.</td>
+</tr>
+<tr>
+<td><code>HUP</code></td>
+<td>Forks a new Teleport daemon to serve new connections <strong>and</strong> initiates the graceful shutdown of the existing process when there are no more clients connected to it.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ports">Ports</h3>
+<p>Teleport services listen on several ports. This table shows the default port
+numbers.</p>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Service</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3022</td>
+<td>Node</td>
+<td>SSH port. This is Teleport's equivalent of port <code>#22</code> for SSH.</td>
+</tr>
+<tr>
+<td>3023</td>
+<td>Proxy</td>
+<td>SSH port clients connect to. A proxy will forward this connection to port <code>#3022</code> on the destination node.</td>
+</tr>
+<tr>
+<td>3024</td>
+<td>Proxy</td>
+<td>SSH port used to create "reverse SSH tunnels" from behind-firewall environments into a trusted proxy server.</td>
+</tr>
+<tr>
+<td>3025</td>
+<td>Auth</td>
+<td>SSH port used by the Auth Service to serve its API to other nodes in a cluster.</td>
+</tr>
+<tr>
+<td>3080</td>
+<td>Proxy</td>
+<td>HTTPS connection to authenticate <code>tsh</code> users and web users into the cluster. The same connection is used to serve a Web UI.</td>
+</tr>
+<tr>
+<td>3026</td>
+<td>Kubernetes Proxy</td>
+<td>HTTPS Kubernetes proxy (if enabled)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="filesystem-layout">Filesystem Layout</h3>
+<p>By default, a Teleport node has the following files present. The location of all
+of them is configurable.</p>
+<table>
+<thead>
+<tr>
+<th>Full path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/etc/teleport.yaml</code></td>
+<td>Teleport configuration file (optional).</td>
+</tr>
+<tr>
+<td><code>/usr/local/bin/teleport</code></td>
+<td>Teleport daemon binary.</td>
+</tr>
+<tr>
+<td><code>/usr/local/bin/tctl</code></td>
+<td>Teleport admin tool. It is only needed for auth servers.</td>
+</tr>
+<tr>
+<td><code>/var/lib/teleport</code></td>
+<td>Teleport data directory. Nodes keep their keys and certificates there. Auth servers store the audit log and the cluster keys there, but the audit log storage can be further configured via <code>auth_service</code> section in the config file.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="configuration">Configuration</h2>
+<p>You should use a <a href="#configuration-file">configuration file</a> to configure the
+<a href="../cli-docs/#teleport"> <code>teleport</code> </a> daemon. For simple experimentation, you can
+use command line flags with the <a href="../cli-docs/#teleport-start"> <code>teleport start</code> </a>
+command. Read about all the allowed flags in the <a href="../cli-docs/#teleport-start">CLI
+Docs</a> or run <code>teleport start --help</code></p>
+<h3 id="configuration-file">Configuration File</h3>
+<p>Teleport uses the YAML file format for configuration. A sample configuration
+file is shown below. By default, it is stored in <code>/etc/teleport.yaml</code>, below is
+an expanded and commented version from <code>teleport configure</code>.</p>
+<p>The default path Teleport uses to look for a config file is <code>/etc/teleport.yaml</code>. You can override
+this path and set it explicitly using the <code>-c</code> or <code>--config</code> flag to <code>teleport start</code>:</p>
+<div class="highlight"><pre><span></span><code>$ teleport start --config<span class="o">=</span>/etc/teleport.yaml
+</code></pre></div>
+<p>For a complete reference, see our <a href="../config-reference/#teleportyaml">Configuration Reference - teleport.yaml</a></p>
+<div class="admonition note">
+<p class="admonition-title">IMPORTANT</p>
+<p>When editing YAML configuration, please pay attention to how your
+editor handles white space. YAML requires consistent handling of
+tab characters.</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="c1">#</span>
+<span class="c1"># Sample Teleport configuration file</span>
+<span class="c1"># Creates a single proxy, auth and node server.</span>
+<span class="c1">#</span>
+<span class="c1"># Things to update:</span>
+<span class="c1">#  1. ca_pin: Obtain the CA pin hash for joining more nodes by running &#39;tctl status&#39;</span>
+<span class="c1">#     on the auth server once Teleport is running.</span>
+<span class="c1">#  2. license-if-using-teleport-enterprise.pem: If you are an Enterprise customer,</span>
+<span class="c1">#     obtain this from https://dashboard.gravitational.com/web/login</span>
+<span class="c1">#</span>
+<span class="nt">teleport</span><span class="p">:</span>
+  <span class="c1"># nodename allows to assign an alternative name this node can be reached by.</span>
+  <span class="c1"># by default it&#39;s equal to hostname</span>
+  <span class="nt">nodename</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">NODE_NAME</span>
+  <span class="nt">data_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport</span>
+
+  <span class="c1"># Invitation token used to join a cluster. it is not used on</span>
+  <span class="c1"># subsequent starts</span>
+  <span class="nt">auth_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxx-token-xxxx</span>
+
+  <span class="c1"># Optional CA pin of the auth server. This enables more secure way of adding new</span>
+  <span class="c1"># nodes to a cluster. See &quot;Adding Nodes&quot; section above.</span>
+  <span class="nt">ca_pin</span><span class="p">:</span> <span class="s">&quot;sha256:ca-pin-hash-goes-here&quot;</span>
+
+  <span class="c1"># list of auth servers in a cluster. you will have more than one auth server</span>
+  <span class="c1"># if you configure teleport auth to run in HA configuration.</span>
+  <span class="c1"># If adding a node located behind NAT, use the Proxy URL. e.g.</span>
+  <span class="c1">#  auth_servers:</span>
+  <span class="c1">#     - teleport-proxy.example.com:3080</span>
+  <span class="nt">auth_servers</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">10.1.0.5:3025</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">10.1.0.6:3025</span>
+
+  <span class="c1"># Logging configuration. Possible output values to disk via &#39;/var/lib/teleport/teleport.log&#39;,</span>
+  <span class="c1"># &#39;stdout&#39;, &#39;stderr&#39; and &#39;syslog&#39;. Possible severity values are INFO, WARN</span>
+  <span class="c1"># and ERROR (default).</span>
+  <span class="nt">log</span><span class="p">:</span>
+    <span class="nt">output</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">stderr</span>
+    <span class="nt">severity</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">INFO</span>
+
+<span class="nt">auth_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="s">&quot;yes&quot;</span>
+  <span class="c1"># A cluster name is used as part of a signature in certificates</span>
+  <span class="c1"># generated by this CA.</span>
+  <span class="c1">#</span>
+  <span class="c1"># We strongly recommend to explicitly set it to something meaningful as it</span>
+  <span class="c1"># becomes important when configuring trust between multiple clusters.</span>
+  <span class="c1">#</span>
+  <span class="c1"># By default an automatically generated name is used (not recommended)</span>
+  <span class="c1">#</span>
+  <span class="c1"># IMPORTANT: if you change cluster_name, it will invalidate all generated</span>
+  <span class="c1"># certificates and keys (may need to wipe out /var/lib/teleport directory)</span>
+  <span class="nt">cluster_name</span><span class="p">:</span> <span class="s">&quot;teleport-aws-us-east-1&quot;</span>
+
+  <span class="c1"># IP and the port to bind to. Other Teleport nodes will be connecting to</span>
+  <span class="c1"># this port (AKA &quot;Auth API&quot; or &quot;Cluster API&quot;) to validate client</span>
+  <span class="c1"># certificates</span>
+  <span class="nt">listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3025</span>
+
+  <span class="nt">tokens</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">proxy,node:xxxx-token-xxxx</span>
+  <span class="c1"># license_file: /path/to/license-if-using-teleport-enterprise.pem</span>
+
+  <span class="nt">authentication</span><span class="p">:</span>
+    <span class="c1"># default authentication type. possible values are &#39;local&#39; and &#39;github&#39; for OSS</span>
+    <span class="c1">#  and &#39;oidc&#39;, &#39;saml&#39; and &#39;false&#39; for Enterprise.</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local</span>
+    <span class="c1"># second_factor can be off, otp, or u2f</span>
+    <span class="nt">second_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">otp</span>
+<span class="nt">ssh_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="s">&quot;yes&quot;</span>
+  <span class="nt">labels</span><span class="p">:</span>
+    <span class="nt">teleport</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">static-label-example</span>
+  <span class="nt">commands</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">hostname</span>
+    <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">/usr/bin/hostname</span><span class="p p-Indicator">]</span>
+    <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1m0s</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">arch</span>
+    <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">/usr/bin/uname</span><span class="p p-Indicator">,</span> <span class="nv">-p</span><span class="p p-Indicator">]</span>
+    <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1h0m0s</span>
+<span class="nt">proxy_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="s">&quot;yes&quot;</span>
+  <span class="nt">listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3023</span>
+  <span class="nt">web_listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3080</span>
+  <span class="nt">tunnel_listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3024</span>
+
+  <span class="c1"># The DNS name of the proxy HTTPS endpoint as accessible by cluster users.</span>
+  <span class="c1"># Defaults to the proxy&#39;s hostname if not specified. If running multiple</span>
+  <span class="c1"># proxies behind a load balancer, this name must point to the load balancer</span>
+  <span class="c1"># (see public_addr section below)</span>
+  <span class="nt">public_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">TELEPORT_PUBLIC_DNS_NAME:3080</span>
+
+  <span class="c1"># TLS certificate for the HTTPS connection. Configuring these properly is</span>
+  <span class="c1"># critical for Teleport security.</span>
+  <span class="nt">https_key_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/etc/letsencrypt/live/TELEPORT_PUBLIC_DNS_NAME/privkey.pem</span>
+  <span class="nt">https_cert_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/etc/letsencrypt/live/TELEPORT_PUBLIC_DNS_NAME/fullchain.pem</span>
+</code></pre></div>
+<h4>Public Addr</h4>
+<p>Notice that all three Teleport services (proxy, auth, node) have an optional
+<code>public_addr</code> property. The public address can take an IP or a DNS name. It can
+also be a list of values:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">public_addr</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;proxy-one.example.com&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;proxy-two.example.com&quot;</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p>Specifying a public address for a Teleport service may be useful in the
+following use cases:</p>
+<ul>
+<li>You have multiple identical services, like proxies, behind a load balancer.</li>
+<li>You want Teleport to issue SSH certificate for the service with the additional
+  principals, e.g.host names.</li>
+</ul>
+<h2 id="authentication">Authentication</h2>
+<p>Teleport uses the concept of "authentication connectors" to authenticate users
+when they execute <a href="../cli-docs/#tsh-login"> <code>tsh login</code> </a> command. There are three
+types of authentication connectors:</p>
+<h3 id="local-connector">Local Connector</h3>
+<p>Local authentication is used to authenticate against a local Teleport user
+database. This database is managed by <a href="../cli-docs/#tctl-users-add"> <code>tctl users</code> </a>
+command. Teleport also supports second factor authentication (2FA) for the local
+connector. There are three possible values (types) of 2FA:</p>
+<ul>
+<li>
+<p><code>otp</code> is the default. It implements <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_Algorithm">TOTP</a>
+     standard. You can use <a href="https://en.wikipedia.org/wiki/Google_Authenticator">Google Authenticator</a>
+     or <a href="https://www.authy.com/">Authy</a> or any other TOTP client.</p>
+</li>
+<li>
+<p><code>u2f</code> implements <a href="https://en.wikipedia.org/wiki/Universal_2nd_Factor">U2F</a>
+    standard for utilizing hardware (USB) keys for second factor. You can use <a href="https://www.yubico.com/">YubiKeys</a>,
+   <a href="https://solokeys.com/">SoloKeys</a> or any other hardware token which implements the FIDO U2F standard.</p>
+</li>
+<li>
+<p><code>off</code> turns off second factor authentication.</p>
+</li>
+</ul>
+<p>Here is an example of this setting in the <code>teleport.yaml</code> :</p>
+<div class="highlight"><pre><span></span><code><span class="nt">auth_service</span><span class="p">:</span>
+  <span class="nt">authentication</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local</span>
+    <span class="nt">second_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">off</span>
+</code></pre></div>
+<h3 id="github-oauth-20-connector">Github OAuth 2.0 Connector</h3>
+<p>This connector implements Github OAuth 2.0 authentication flow. Please refer to
+Github documentation on <a href="https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/">Creating an OAuth App</a>
+to learn how to create and register an OAuth app.</p>
+<p>Here is an example of this setting in the <code>teleport.yaml</code> :</p>
+<div class="highlight"><pre><span></span><code><span class="nt">auth_service</span><span class="p">:</span>
+  <span class="nt">authentication</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">github</span>
+</code></pre></div>
+<p>See <a href="#github-oauth-20">Github OAuth 2.0</a> for details on how to configure it.</p>
+<h3 id="saml">SAML</h3>
+<p>This connector type implements SAML authentication. It can be configured against
+any external identity manager like Okta or Auth0. This feature is only available
+for Teleport Enterprise.</p>
+<p>Here is an example of this setting in the <code>teleport.yaml</code> :</p>
+<div class="highlight"><pre><span></span><code><span class="nt">auth_service</span><span class="p">:</span>
+  <span class="nt">authentication</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">saml</span>
+</code></pre></div>
+<h3 id="oidc">OIDC</h3>
+<p>Teleport implements OpenID Connect (OIDC) authentication, which is similar to
+SAML in principle. This feature is only available for Teleport Enterprise.</p>
+<p>Here is an example of this setting in the <code>teleport.yaml</code> :</p>
+<div class="highlight"><pre><span></span><code><span class="nt">auth_service</span><span class="p">:</span>
+  <span class="nt">authentication</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">oidc</span>
+</code></pre></div>
+<h3 id="hardware-keys-yubikey-fido-u2f">Hardware Keys - YubiKey FIDO U2F</h3>
+<p>Teleport supports <a href="https://www.yubico.com/about/background/fido/">FIDO U2F</a>
+hardware keys as a second authentication factor. By default U2F is disabled. To
+start using U2F:</p>
+<ul>
+<li>
+<p>Enable U2F in Teleport configuration <code>/etc/teleport.yaml</code> .</p>
+</li>
+<li>
+<p>For CLI-based logins you have to install <a href="https://developers.yubico.com/libu2f-host/">u2f-host</a> utility.</p>
+</li>
+<li>
+<p>For web-based logins you have to use Google Chrome and Firefox 67 or greater, are the only
+   supported U2F browsers at this time.</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># snippet from /etc/teleport.yaml to show an example configuration of U2F:</span>
+<span class="nt">auth_service</span><span class="p">:</span>
+  <span class="nt">authentication</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local</span>
+    <span class="nt">second_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">u2f</span>
+    <span class="c1"># this section is needed only if second_factor is set to &#39;u2f&#39;</span>
+    <span class="nt">u2f</span><span class="p">:</span>
+       <span class="c1"># app_id must point to the URL of the Teleport Web UI (proxy) accessible</span>
+       <span class="c1"># by the end users</span>
+       <span class="nt">app_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://localhost:3080</span>
+       <span class="c1"># facets must list all proxy servers if there are more than one deployed</span>
+       <span class="nt">facets</span><span class="p">:</span>
+       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://localhost:3080</span>
+</code></pre></div>
+<p>For single-proxy setups, the <code>app_id</code> setting can be equal to the domain name of
+the proxy, but this will prevent you from adding more proxies without changing
+the <code>app_id</code> . For multi-proxy setups, the <code>app_id</code> should be an HTTPS URL
+pointing to a JSON file that mirrors <code>facets</code> in the auth config.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code>app_id</code> must never change in the lifetime of the
+cluster. If the App ID changes, all existing U2F key registrations will
+become invalid and all users who use U2F as the second factor will need to
+re-register. When adding a new proxy server, make sure to add it to the list
+of "facets" in the configuration file, but also to the JSON file referenced
+by <code>app_id</code></p>
+</div>
+<p><strong>Logging in with U2F</strong></p>
+<p>For logging in via the CLI, you must first install
+<a href="https://developers.yubico.com/libu2f-host/">u2f-host</a>. Installing:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># OSX:</span>
+$ brew install libu2f-host
+
+<span class="c1"># Ubuntu 16.04 LTS:</span>
+$ apt-get install u2f-host
+</code></pre></div>
+<p>Then invoke <code>tsh ssh</code> as usual to authenticate:</p>
+<div class="highlight"><pre><span></span><code>$ tsh --proxy &lt;proxy-addr&gt; ssh &lt;hostname&gt;
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Version Warning</p>
+<p>External user identities are only supported in <a href="../enterprise/introduction/">Teleport Enterprise</a>.</p>
+<p>Please reach out to <a href="mailto:sales@gravitational.com">sales@gravitational.com</a> for more information.</p>
+</div>
+<h2 id="adding-and-deleting-users">Adding and Deleting Users</h2>
+<p>This section covers internal user identities, i.e. user accounts created and
+stored in Teleport's internal storage. Most production users of Teleport use
+<em>external</em> users via <a href="#github-oauth-20">Github</a> or <a href="../enterprise/sso/ssh-okta/">Okta</a> or any other
+SSO provider (Teleport Enterprise supports any SAML or OIDC compliant identity
+provider).</p>
+<p>A user identity in Teleport exists in the scope of a cluster. The member nodes
+of a cluster have multiple OS users on them. A Teleport administrator creates
+Teleport user accounts and maps them to the allowed OS user logins they can use.</p>
+<p>Let's look at this table:</p>
+<table>
+<thead>
+<tr>
+<th>Teleport User</th>
+<th>Allowed OS Logins</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>joe</td>
+<td>joe, root</td>
+<td>Teleport user 'joe' can login into member nodes as OS user 'joe' or 'root'</td>
+</tr>
+<tr>
+<td>bob</td>
+<td>bob</td>
+<td>Teleport user 'bob' can login into member nodes only as OS user 'bob'</td>
+</tr>
+<tr>
+<td>ross</td>
+<td></td>
+<td>If no OS login is specified, it defaults to the same name as the Teleport user - 'ross'.</td>
+</tr>
+</tbody>
+</table>
+<p>To add a new user to Teleport, you have to use the <a href="../cli-docs/#tctl"> <code>tctl</code> </a>
+tool on the same node where the auth server is running, i.e.
+<a href="../cli-docs/#teleport"> <code>teleport</code> </a> was started with <code>--roles=auth</code> .</p>
+<div class="highlight"><pre><span></span><code>$ tctl users add joe joe,root
+</code></pre></div>
+<p>Teleport generates an auto-expiring token (with a TTL of 1 hour) and prints the
+token URL which must be used before the TTL expires.</p>
+<div class="highlight"><pre><span></span><code>Signup token has been created. Share this URL with the user:
+https://&lt;proxy&gt;:3080/web/newuser/xxxxxxxxxxxx
+
+NOTE: make sure the &lt;proxy&gt; host is accessible.
+</code></pre></div>
+<p>The user completes registration by visiting this URL in their web browser,
+picking a password and configuring the 2nd factor authentication. If the
+credentials are correct, the auth server generates and signs a new certificate
+and the client stores this key and will use it for subsequent logins. The key
+will automatically expire after 12 hours by default after which the user will
+need to log back in with her credentials. This TTL can be configured to a
+different value. Once authenticated, the account will become visible via <code>tctl</code>
+:</p>
+<div class="highlight"><pre><span></span><code>$ tctl users ls
+
+User           Allowed Logins
+----           --------------
+admin          admin,root
+ross           ross
+joe            joe,root
+</code></pre></div>
+<p>Joe would then use the <code>tsh</code> client tool to log in to member node "luna" via
+bastion "work" <em>as root</em>:</p>
+<div class="highlight"><pre><span></span><code>$ tsh --proxy<span class="o">=</span>work --user<span class="o">=</span>joe root@luna
+</code></pre></div>
+<p>To delete this user:</p>
+<div class="highlight"><pre><span></span><code>$ tctl users rm joe
+</code></pre></div>
+<h2 id="editing-users">Editing Users</h2>
+<p>Users entries can be manipulated using the generic <a href="#resources">resource
+commands</a> via <a href="../cli-docs/#tctl"> <code>tctl</code> </a> . For example, to see the
+full list of user records, an administrator can execute:</p>
+<div class="highlight"><pre><span></span><code>$ tctl get users
+</code></pre></div>
+<p>To edit the user "joe":</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># dump the user definition into a file:</span>
+$ tctl get user/joe &gt; joe.yaml
+<span class="c1"># ... edit the contents of joe.yaml</span>
+
+<span class="c1"># update the user record:</span>
+$ tctl create -f joe.yaml
+</code></pre></div>
+<p>Some fields in the user record are reserved for internal use. Some of them will
+be finalized and documented in the future versions. Fields like <code>is_locked</code> or
+<code>traits/logins</code> can be used starting in version 2.3</p>
+<h2 id="adding-nodes-to-the-cluster">Adding Nodes to the Cluster</h2>
+<p>Teleport is a "clustered" system, meaning it only allows access to nodes
+(servers) that had been previously granted cluster membership.</p>
+<p>A cluster membership means that a node receives its own host certificate signed
+by the cluster's auth server. To receive a host certificate upon joining a
+cluster, a new Teleport host must present an "invite token". An invite token
+also defines which role a new host can assume within a cluster: <code>auth</code> , <code>proxy</code>
+or <code>node</code> .</p>
+<p>There are two ways to create invitation tokens:</p>
+<ul>
+<li><strong>Static Tokens</strong> are easy to use and somewhat less secure.</li>
+<li><strong>Dynamic Tokens</strong> are more secure but require more planning.</li>
+</ul>
+<h3 id="static-tokens">Static Tokens</h3>
+<p>Static tokens are defined ahead of time by an administrator and stored in the
+auth server's config file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Config section in `/etc/teleport.yaml` file for the auth server</span>
+<span class="nt">auth_service</span><span class="p">:</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">tokens</span><span class="p">:</span>
+    <span class="c1"># This static token allows new hosts to join the cluster as &quot;proxy&quot; or &quot;node&quot;</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;proxy,node:secret-token-value&quot;</span>
+    <span class="c1"># A token can also be stored in a file. In this example the token for adding</span>
+    <span class="c1"># new auth servers is stored in /path/to/tokenfile</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;auth:/path/to/tokenfile&quot;</span>
+</code></pre></div>
+<h3 id="short-lived-tokens">Short-lived Tokens</h3>
+<p>A more secure way to add nodes to a cluster is to generate tokens as they are
+needed. Such token can be used multiple times until its time to live (TTL)
+expires.</p>
+<p>Use the <a href="../cli-docs/#tctl"> <code>tctl</code> </a> tool to register a new invitation token (or
+it can also generate a new token for you). In the following example a new token
+is created with a TTL of 5 minutes:</p>
+<div class="highlight"><pre><span></span><code>$ tctl nodes add --ttl<span class="o">=</span>5m --roles<span class="o">=</span>node,proxy --token<span class="o">=</span>secret-value
+The invite token: secret-value
+</code></pre></div>
+<p>If <code>--token</code> is not provided, <a href="../cli-docs/#tctl"> <code>tctl</code> </a> will generate one:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># generate a short-lived invitation token for a new node:</span>
+$ tctl nodes add --ttl<span class="o">=</span>5m --roles<span class="o">=</span>node,proxy
+The invite token: e94d68a8a1e5821dbd79d03a960644f0
+
+<span class="c1"># you can also list all generated non-expired tokens:</span>
+$ tctl tokens ls
+Token                            Type            Expiry Time
+---------------                  -----------     ---------------
+e94d68a8a1e5821dbd79d03a960644f0 Node            <span class="m">25</span> Sep <span class="m">18</span> <span class="m">00</span>:21 UTC
+
+<span class="c1"># ... or revoke an invitation before it&#39;s used:</span>
+$ tctl tokens rm e94d68a8a1e5821dbd79d03a960644f0
+</code></pre></div>
+<h3 id="using-node-invitation-tokens">Using Node Invitation Tokens</h3>
+<p>Both static and short-lived tokens are used the same way. Execute the following
+command on a new node to add it to a cluster:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># adding a new regular SSH node to the cluster:</span>
+$ teleport start --roles<span class="o">=</span>node --token<span class="o">=</span>secret-token-value --auth-server<span class="o">=</span><span class="m">10</span>.0.10.5
+
+<span class="c1"># adding a new regular SSH node using Teleport Node Tunneling:</span>
+$ teleport start --roles<span class="o">=</span>node --token<span class="o">=</span>secret-token-value --auth-server<span class="o">=</span>teleport-proxy.example.com:3080
+
+<span class="c1"># adding a new proxy service on the cluster:</span>
+$ teleport start --roles<span class="o">=</span>proxy --token<span class="o">=</span>secret-token-value --auth-server<span class="o">=</span><span class="m">10</span>.0.10.5
+</code></pre></div>
+<p>As new nodes come online, they start sending ping requests every few seconds to
+the CA of the cluster. This allows users to explore cluster membership and size:</p>
+<div class="highlight"><pre><span></span><code>$ tctl nodes ls
+
+Node Name     Node ID                                  Address            Labels
+---------     -------                                  -------            ------
+turing        d52527f9-b260-41d0-bb5a-e23b0cfe0f8f     <span class="m">10</span>.1.0.5:3022      distro:ubuntu
+dijkstra      c9s93fd9-3333-91d3-9999-c9s93fd98f43     <span class="m">10</span>.1.0.6:3022      distro:debian
+</code></pre></div>
+<h3 id="untrusted-auth-servers">Untrusted Auth Servers</h3>
+<p>Teleport nodes use the HTTPS protocol to offer the join tokens to the auth
+server running on <code>10.0.10.5</code> in the example above. In a zero-trust environment,
+you must assume that an attacker can hijack the IP address of the auth server
+e.g. <code>10.0.10.5</code> .</p>
+<p>To prevent this from happening, you need to supply every new node with an
+additional bit of information about the auth server. This technique is called
+"CA Pinning". It works by asking the auth server to produce a "CA Pin", which
+is a hashed value of its public key, i.e. for which an attacker can't forge a
+matching private key.</p>
+<p>On the auth server:</p>
+<div class="highlight"><pre><span></span><code>$ tctl status
+Cluster  staging.example.com
+User CA  never updated
+Host CA  never updated
+CA pin   sha256:7e12c17c20d9cb504bbcb3f0236be3f446861f1396dcbb44425fe28ec1c108f1
+</code></pre></div>
+<p>The "CA pin" at the bottom needs to be passed to the new nodes when they're
+starting for the first time, i.e. when they join a cluster:</p>
+<p>Via CLI:</p>
+<div class="highlight"><pre><span></span><code>$ teleport start <span class="se">\</span>
+   --roles<span class="o">=</span>node <span class="se">\</span>
+   --token<span class="o">=</span>1ac590d36493acdaa2387bc1c492db1a <span class="se">\</span>
+   --ca-pin<span class="o">=</span>sha256:7e12c17c20d9cb504bbcb3f0236be3f446861f1396dcbb44425fe28ec1c108f1 <span class="se">\</span>
+   --auth-server<span class="o">=</span><span class="m">10</span>.12.0.6:3025
+</code></pre></div>
+<p>or via <code>/etc/teleport.yaml</code> on a node:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">auth_token</span><span class="p">:</span> <span class="s">&quot;1ac590d36493acdaa2387bc1c492db1a&quot;</span>
+  <span class="nt">ca_pin</span><span class="p">:</span> <span class="s">&quot;sha256:7e12c17c20d9cb504bbcb3f0236be3f446861f1396dcbb44425fe28ec1c108f1&quot;</span>
+  <span class="nt">auth_servers</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;10.12.0.6:3025&quot;</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If a CA pin is not provided, Teleport node will join a
+cluster but it will print a <code>WARN</code> message (warning) into its standard
+error output.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The CA pin becomes invalid if a Teleport administrator
+performs the CA rotation by executing
+<a href="../cli-docs/#tctl-auth-rotate"> <code>tctl auth rotate</code> </a> .</p>
+</div>
+<h2 id="revoking-invitations">Revoking Invitations</h2>
+<p>As you have seen above, Teleport uses tokens to invite users to a cluster
+(sign-up tokens) or to add new nodes to it (provisioning tokens).</p>
+<p>Both types of tokens can be revoked before they can be used. To see a list of
+outstanding tokens, run this command:</p>
+<div class="highlight"><pre><span></span><code>$ tctl tokens ls
+
+Token                                Role       Expiry Time <span class="o">(</span>UTC<span class="o">)</span>
+-----                                ----       -----------------
+eoKoh0caiw6weoGupahgh6Wuo7jaTee2     Proxy      never
+696c0471453e75882ff70a761c1a8bfa     Node       <span class="m">17</span> May <span class="m">16</span> <span class="m">03</span>:51 UTC
+6fc5545ab78c2ea978caabef9dbd08a5     Signup     <span class="m">17</span> May <span class="m">16</span> <span class="m">04</span>:24 UTC
+</code></pre></div>
+<p>In this example, the first token has a "never" expiry date because it is a
+static token configured via a config file.</p>
+<p>The 2nd token with "Node" role was generated to invite a new node to this
+cluster. And the 3rd token was generated to invite a new user.</p>
+<p>The latter two tokens can be deleted (revoked) via <a href="../cli-docs/#tctl-tokens-rm"><code>tctl tokens
+del</code></a> command:</p>
+<div class="highlight"><pre><span></span><code>$ tctl tokens del 696c0471453e75882ff70a761c1a8bfa
+Token 696c0471453e75882ff70a761c1a8bfa has been deleted
+</code></pre></div>
+<h2 id="adding-a-node-located-behind-nat">Adding a node located behind NAT</h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This feature is sometimes called "Teleport IoT" or node tunneling.</p>
+</div>
+<p>With the current setup, you've only been able to add nodes that have direct access to the
+auth server and within the internal IP range of the cluster. We recommend
+setting up a <a href="../trustedclusters/">Trusted Cluster</a> if you have workloads split
+across different networks/clouds.</p>
+<p>Teleport Node Tunneling lets you add a remote node to an existing Teleport Cluster via tunnel.
+This can be useful for IoT applications, or for managing a couple of servers in a different network.</p>
+<p>Similar to <a href="#adding-nodes-to-the-cluster">Adding Nodes to the Cluster</a>, use <code>tctl</code> to
+create a single-use token for a node, but this time you'll replace the auth
+server IP with the URL of the proxy server. In the example below, we've
+replaced the auth server IP with the proxy web endpoint <code>teleport-proxy.example.com:3080</code>.</p>
+<div class="highlight"><pre><span></span><code>$ sudo tctl nodes add
+
+The invite token: n92bb958ce97f761da978d08c35c54a5c
+Run this on the new node to join the cluster:
+teleport start --roles<span class="o">=</span>node --token<span class="o">=</span>n92bb958ce97f761da978d08c35c54a5c --auth-server<span class="o">=</span>teleport-proxy.example.com:3080
+</code></pre></div>
+<p>Using the ports in the default configuration, the node needs to be able to talk to ports 3080
+and 3024 on the proxy. Port 3080 is used to initially fetch the credentials (SSH and TLS certificates)
+and for discovery (where is the reverse tunnel running, in this case 3024). Port 3024 is used to
+establish a connection to the auth server through the proxy.</p>
+<p>To enable multiplexing so only one port is used, simply set the <code>tunnel_listen_addr</code> the same as the
+<code>web_listen_addr</code> respectively within the <code>proxy_service</code>.  Teleport will automatically recognize using the same port and enable multiplexing. If the log setting is set to DEBUG you will see multiplexing enabled in the server log.</p>
+<div class="highlight"><pre><span></span><code>DEBU <span class="o">[</span>PROC:1<span class="o">]</span>    Setup Proxy: Reverse tunnel proxy and web proxy listen on the same port, multiplexing is on. service/service.go:1944
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Load Balancers</p>
+<p>The setup above also works even if the cluster uses multiple proxies behind
+a load balancer (LB) or a DNS entry with multiple values.  This works by
+the node establishing a tunnel to <em>every</em> proxy. This requires that an LB
+uses round-robin or a similar balancing algorithm. Do not use sticky load
+balancing algorithms (a.k.a. "session affinity") with Teleport proxies.</p>
+</div>
+<h2 id="labeling-nodes">Labeling Nodes</h2>
+<p>In addition to specifying a custom nodename, Teleport also allows for the
+application of arbitrary key:value pairs to each node, called labels. There are
+two kinds of labels:</p>
+<ol>
+<li>
+<p><code>static labels</code> do not change over time, while <a href="../cli-docs/#teleport"> <code>teleport</code> </a>
+    process is running.  Examples of static labels are physical location of nodes,
+    name of the environment (staging vs production), etc.</p>
+</li>
+<li>
+<p><code>dynamic labels</code> also known as "label commands" allow to generate labels at
+   runtime. Teleport will execute an external command on a node at a configurable
+   frequency and the output of a command becomes the label value. Examples include
+    reporting load averages, presence of a process, time after last reboot, etc.</p>
+</li>
+</ol>
+<p>There are two ways to configure node labels.</p>
+<ol>
+<li>Via command line, by using <code>--labels</code> flag to <code>teleport start</code> command.</li>
+<li>Using <code>/etc/teleport.yaml</code> configuration file on the nodes.</li>
+</ol>
+<p>To define labels as command line arguments, use <code>--labels</code> flag like shown
+below. This method works well for static labels or simple commands:</p>
+<div class="highlight"><pre><span></span><code>$ teleport start --labels <span class="nv">uptime</span><span class="o">=[</span>1m:<span class="s2">&quot;uptime -p&quot;</span><span class="o">]</span>,kernel<span class="o">=[</span>1h:<span class="s2">&quot;uname -r&quot;</span><span class="o">]</span>
+</code></pre></div>
+<p>Alternatively, you can update <code>labels</code> via a configuration file:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">ssh_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="s">&quot;yes&quot;</span>
+  <span class="c1"># Static labels are simple key/value pairs:</span>
+  <span class="nt">labels</span><span class="p">:</span>
+    <span class="nt">environment</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">test</span>
+</code></pre></div>
+<p>To configure dynamic labels via a configuration file, define a <code>commands</code> array
+as shown below:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">ssh_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="s">&quot;yes&quot;</span>
+  <span class="c1"># Dynamic labels AKA &quot;commands&quot;:</span>
+  <span class="nt">commands</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">hostname</span>
+    <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">hostname</span><span class="p p-Indicator">]</span>
+    <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1m0s</span>
+  <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">arch</span>
+    <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">uname</span><span class="p p-Indicator">,</span> <span class="nv">-p</span><span class="p p-Indicator">]</span>
+    <span class="c1"># this setting tells teleport to execute the command above</span>
+    <span class="c1"># once an hour. this value cannot be less than one minute.</span>
+    <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1h0m0s</span>
+</code></pre></div>
+<p><code>/path/to/executable</code> must be a valid executable command (i.e. executable bit
+must be set) which also includes shell scripts with a proper <a href="https://en.wikipedia.org/wiki/Shebang_(Unix)">shebang
+line</a>.</p>
+<p><strong>Important:</strong> notice that <code>command</code> setting is an array where the first element
+is a valid executable and each subsequent element is an argument, i.e:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># valid syntax:</span>
+<span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;/bin/uname&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;-m&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="c1"># INVALID syntax:</span>
+<span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;/bin/uname</span><span class="nv"> </span><span class="s">-m&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="c1"># if you want to pipe several bash commands together, here&#39;s how to do it:</span>
+<span class="c1"># notice how &#39; and &quot; are interchangeable and you can use it for quoting:</span>
+<span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;/bin/sh&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;-c&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;uname</span><span class="nv"> </span><span class="s">-a</span><span class="nv"> </span><span class="s">|</span><span class="nv"> </span><span class="s">egrep</span><span class="nv"> </span><span class="s">-o</span><span class="nv"> </span><span class="s">&#39;[0-9]+\\.[0-9]+\\.[0-9]+&#39;&quot;</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<h2 id="audit-log">Audit Log</h2>
+<p>Teleport logs every SSH event into its audit log. There are two components of
+the audit log:</p>
+<ol>
+<li>
+<p><strong>SSH Events:</strong> Teleport logs events like successful user logins along with
+   the metadata like remote IP address, time and the session ID.</p>
+</li>
+<li>
+<p><strong>Recorded Sessions:</strong> Every SSH shell session is recorded and can be
+   replayed later. The recording is done by the nodes themselves, by default,
+   but can be configured to be done by the proxy.</p>
+</li>
+<li>
+<p><strong>Optional: <a href="../features/enhanced-session-recording/">Enhanced Session Recording</a></strong></p>
+</li>
+</ol>
+<p>Refer to the <a href="../architecture/authentication/#audit-log">"Audit Log" chapter in the Teleport
+Architecture</a> to learn more about how the audit log and
+session recording are designed.</p>
+<h3 id="ssh-events">SSH Events</h3>
+<p>Teleport supports multiple storage back-ends for storing the SSH events. The
+section below uses the <code>dir</code> backend as an example. <code>dir</code> backend uses the local
+filesystem of an auth server using the configurable <code>data_dir</code> directory.</p>
+<p>For highly available (HA) configurations, users can refer to our
+<a href="#using-dynamodb">DynamoDB</a> or <a href="#using-firestore">Firestore</a> chapters for information
+on how to configure the SSH events and recorded sessions to be stored on
+network storage. It is even possible to store the audit log in multiple places at the
+same time - see <code>audit_events_uri</code> setting in the sample configuration file above for
+how to do that.</p>
+<p>Let's examine the Teleport audit log using the <code>dir</code> backend. The event log is
+stored in <code>data_dir</code> under <code>log</code> directory, usually <code>/var/lib/teleport/log</code> .
+Each day is represented as a file:</p>
+<div class="highlight"><pre><span></span><code>$ ls -l /var/lib/teleport/log/
+total <span class="m">104</span>
+-rw-r----- <span class="m">1</span> root root  <span class="m">31638</span> Jan <span class="m">22</span> <span class="m">20</span>:00 <span class="m">2017</span>-01-23.00:00:00.log
+-rw-r----- <span class="m">1</span> root root  <span class="m">91256</span> Jan <span class="m">31</span> <span class="m">21</span>:00 <span class="m">2017</span>-02-01.00:00:00.log
+-rw-r----- <span class="m">1</span> root root  <span class="m">15815</span> Feb <span class="m">32</span> <span class="m">22</span>:54 <span class="m">2017</span>-02-03.00:00:00.log
+</code></pre></div>
+<p>The log files use JSON format. They are human-readable but can also be
+programmatically parsed. Each line represents an event and has the following
+format:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="c1">// Event type. See below for the list of all possible event types</span>
+    <span class="s2">&quot;event&quot;</span><span class="o">:</span> <span class="s2">&quot;session.start&quot;</span><span class="p">,</span>
+    <span class="c1">// Teleport user name</span>
+    <span class="s2">&quot;user&quot;</span><span class="o">:</span> <span class="s2">&quot;ekontsevoy&quot;</span><span class="p">,</span>
+    <span class="c1">// OS login</span>
+    <span class="s2">&quot;login&quot;</span><span class="o">:</span> <span class="s2">&quot;root&quot;</span><span class="p">,</span>
+    <span class="c1">// Server namespace. This field is reserved for future use.</span>
+    <span class="s2">&quot;namespace&quot;</span><span class="o">:</span> <span class="s2">&quot;default&quot;</span><span class="p">,</span>
+    <span class="c1">// Unique server ID.</span>
+    <span class="s2">&quot;server_id&quot;</span><span class="o">:</span> <span class="s2">&quot;f84f7386-5e22-45ff-8f7d-b8079742e63f&quot;</span><span class="p">,</span>
+    <span class="c1">// Session ID. Can be used to replay the session.</span>
+    <span class="s2">&quot;sid&quot;</span><span class="o">:</span> <span class="s2">&quot;8d3895b6-e9dd-11e6-94de-40167e68e931&quot;</span><span class="p">,</span>
+    <span class="c1">// Address of the SSH node</span>
+    <span class="s2">&quot;addr.local&quot;</span><span class="o">:</span> <span class="s2">&quot;10.5.l.15:3022&quot;</span><span class="p">,</span>
+    <span class="c1">// Address of the connecting client (user)</span>
+    <span class="s2">&quot;addr.remote&quot;</span><span class="o">:</span> <span class="s2">&quot;73.223.221.14:42146&quot;</span><span class="p">,</span>
+    <span class="c1">// Terminal size</span>
+    <span class="s2">&quot;size&quot;</span><span class="o">:</span> <span class="s2">&quot;80:25&quot;</span><span class="p">,</span>
+    <span class="c1">// Timestamp</span>
+    <span class="s2">&quot;time&quot;</span><span class="o">:</span> <span class="s2">&quot;2017-02-03T06:54:05Z&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The possible event types are:</p>
+<table>
+<thead>
+<tr>
+<th>Event Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>auth</td>
+<td>Authentication attempt. Adds the following fields: <code>{"success": "false", "error": "access denied"}</code></td>
+</tr>
+<tr>
+<td>session.start</td>
+<td>Started an interactive shell session.</td>
+</tr>
+<tr>
+<td>session.end</td>
+<td>An interactive shell session has ended.</td>
+</tr>
+<tr>
+<td>session.join</td>
+<td>A new user has joined the existing interactive shell session.</td>
+</tr>
+<tr>
+<td>session.leave</td>
+<td>A user has left the session.</td>
+</tr>
+<tr>
+<td>session.disk</td>
+<td>A list of files opened during the session. <em>Requires Enhanced Session Recording</em>.</td>
+</tr>
+<tr>
+<td>session.network</td>
+<td>A list of network connections made during the session.  <em>Requires Enhanced Session Recording</em>.</td>
+</tr>
+<tr>
+<td>session.command</td>
+<td>A list of commands ran during the session.  <em>Requires Enhanced Session Recording</em>.</td>
+</tr>
+<tr>
+<td>exec</td>
+<td>Remote command has been executed via SSH, like <code>tsh ssh root@node ls /</code> . The following fields will be logged: <code>{"command": "ls /", "exitCode": 0, "exitError": ""}</code></td>
+</tr>
+<tr>
+<td>scp</td>
+<td>Remote file copy has been executed. The following fields will be logged: <code>{"path": "/path/to/file.txt", "len": 32344, "action": "read" }</code></td>
+</tr>
+<tr>
+<td>resize</td>
+<td>Terminal has been resized.</td>
+</tr>
+<tr>
+<td>user.login</td>
+<td>A user logged into web UI or via tsh. The following fields will be logged: <code>{"user": "alice@example.com", "method": "local"}</code> .</td>
+</tr>
+</tbody>
+</table>
+<h3 id="recorded-sessions">Recorded Sessions</h3>
+<p>In addition to logging <code>session.start</code> and <code>session.end</code> events, Teleport also
+records the entire stream of bytes going to/from standard input and standard
+output of an SSH session.</p>
+<p>Teleport can store the recorded sessions in an <a href="#using-dynamodb">AWS S3 bucket</a>
+or in a local filesystem (including NFS).</p>
+<p>The recorded sessions are stored as raw bytes in the <code>sessions</code> directory under
+<code>log</code> . Each session consists of two files, both are named after the session ID:</p>
+<ol>
+<li>
+<p><code>.bytes</code> file or <code>.chunks.gz</code> compressed format represents the raw session bytes and is somewhat
+    human-readable, although you are better off using <a href="../cli-docs/#tsh-play"><code>tsh
+    play</code></a> or the Web UI to replay it.</p>
+</li>
+<li>
+<p><code>.log</code> file or <code>.events.gz</code> compressed file contains the copies of the event log entries that are            related to this session.</p>
+</li>
+</ol>
+<div class="highlight"><pre><span></span><code>$ ls /var/lib/teleport/log/sessions/default
+-rw-r----- <span class="m">1</span> root root <span class="m">506192</span> Feb <span class="m">4</span> <span class="m">00</span>:46 4c146ec8-eab6-11e6-b1b3-40167e68e931.session.bytes
+-rw-r----- <span class="m">1</span> root root  <span class="m">44943</span> Feb <span class="m">4</span> <span class="m">00</span>:46 4c146ec8-eab6-11e6-b1b3-40167e68e931.session.log
+</code></pre></div>
+<p>To replay this session via CLI:</p>
+<div class="highlight"><pre><span></span><code>$ tsh --proxy<span class="o">=</span>proxy play 4c146ec8-eab6-11e6-b1b3-40167e68e931
+</code></pre></div>
+<h2 id="resources">Resources</h2>
+<p>A Teleport administrator has two tools to configure a Teleport cluster:</p>
+<ul>
+<li>
+<p>The <a href="#configuration">configuration file</a> is used for static configuration like
+  the cluster name.</p>
+</li>
+<li>
+<p>The <a href="../cli-docs/#tctl"> <code>tctl</code> </a> admin tool is used for manipulating dynamic
+  records like Teleport
+  users.</p>
+</li>
+</ul>
+<p><a href="../cli-docs/#tctl"> <code>tctl</code> </a> has convenient subcommands for dynamic
+configuration, like <code>tctl users</code> or <code>tctl nodes</code> . However, for dealing with
+more advanced topics, like connecting clusters together or troubleshooting
+trust, <a href="../cli-docs/#tctl"> <code>tctl</code> </a> offers the more powerful, although
+lower-level CLI interface called <code>resources</code> .</p>
+<p>The concept is borrowed from the REST programming pattern. A cluster is composed
+of different objects (aka, resources) and there are just three common operations
+that can be performed on them: <code>get</code> , <code>create</code> , <code>remove</code> .</p>
+<p>A resource is defined as a <a href="https://en.wikipedia.org/wiki/YAML">YAML</a> file.
+Every resource in Teleport has three required fields:</p>
+<ul>
+<li><code>Kind</code> - The type of resource</li>
+<li><code>Name</code> - A required field in the <code>metadata</code> to uniquely identify the resource</li>
+<li><code>Version</code> - The version of the resource format</li>
+</ul>
+<p>Everything else is resource-specific and any component of a Teleport cluster can
+be manipulated with just 3 CLI commands:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../cli-docs/#tctl-get"> <code>tctl get</code> </a></td>
+<td>Get one or multiple resources</td>
+<td><code>tctl get users</code> or <code>tctl get user/joe</code></td>
+</tr>
+<tr>
+<td><a href="../cli-docs/#tctl-rm"> <code>tctl rm</code> </a></td>
+<td>Delete a resource by type/name</td>
+<td><code>tctl rm user/joe</code></td>
+</tr>
+<tr>
+<td><a href="../cli-docs/#tctl-create"> <code>tctl create</code> </a></td>
+<td>Create a new resource from a YAML file. Use <code>-f</code> to override / update</td>
+<td><code>tctl create -f joe.yaml</code></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">YAML Format</p>
+<p>By default Teleport uses <a href="https://en.wikipedia.org/wiki/YAML">YAML format</a>
+to describe resources. YAML is a
+wonderful and very human-readable alternative to JSON or XML, but it's
+sensitive to white space. Pay attention to spaces vs tabs!</p>
+</div>
+<p>Here's an example how the YAML resource definition for a user Joe might look
+like. It can be retrieved by executing <a href="../cli-docs/#tctl-get"><code>tctl get
+user/joe</code></a></p>
+<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">user</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v2</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">joe</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">roles</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">admin</span>
+  <span class="nt">status</span><span class="p">:</span>
+    <span class="c1"># users can be temporarily locked in a Teleport system, but this</span>
+    <span class="c1"># functionality is reserved for internal use for now.</span>
+    <span class="nt">is_locked</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+    <span class="nt">lock_expires</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0001-01-01T00:00:00Z</span>
+    <span class="nt">locked_time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0001-01-01T00:00:00Z</span>
+  <span class="nt">traits</span><span class="p">:</span>
+    <span class="c1"># these are &quot;allowed logins&quot; which are usually specified as the</span>
+    <span class="c1"># last argument to `tctl users add`</span>
+    <span class="nt">logins</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">joe</span>
+    <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">root</span>
+  <span class="c1"># any resource in Teleport can automatically expire.</span>
+  <span class="nt">expires</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0001-01-01T00:00:00Z</span>
+  <span class="c1"># for internal use only</span>
+  <span class="nt">created_by</span><span class="p">:</span>
+    <span class="nt">time</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0001-01-01T00:00:00Z</span>
+    <span class="nt">user</span><span class="p">:</span>
+      <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">builtin-Admin</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Note</p>
+<p>Some of the fields you will see when printing resources are used
+only internally and are not meant to be changed.  Others are reserved for
+future use.</p>
+</div>
+<p>Here's the list of resources currently exposed via <a href="../cli-docs/#tctl"> <code>tctl</code> </a> :</p>
+<table>
+<thead>
+<tr>
+<th>Resource Kind</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>user</td>
+<td>A user record in the internal Teleport user DB.</td>
+</tr>
+<tr>
+<td>node</td>
+<td>A registered SSH node. The same record is displayed via <code>tctl nodes ls</code></td>
+</tr>
+<tr>
+<td>cluster</td>
+<td>A trusted cluster. See <a href="#trusted-clusters">here</a> for more details on connecting clusters together.</td>
+</tr>
+<tr>
+<td>role</td>
+<td>A role assumed by users. The open source Teleport only includes one role: "admin", but Enterprise teleport users can define their own roles.</td>
+</tr>
+<tr>
+<td>connector</td>
+<td>Authentication connectors for <a href="../enterprise/sso/ssh-sso/">single sign-on</a> (SSO) for SAML, OIDC and Github.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># list all connectors:</span>
+$ tctl get connectors
+
+<span class="c1"># dump a SAML connector called &quot;okta&quot;:</span>
+$ tctl get saml/okta
+
+<span class="c1"># delete a SAML connector called &quot;okta&quot;:</span>
+$ tctl rm saml/okta
+
+<span class="c1"># delete an OIDC connector called &quot;gsuite&quot;:</span>
+$ tctl rm oidc/gsuite
+
+<span class="c1"># delete a github connector called &quot;myteam&quot;:</span>
+$ tctl rm github/myteam
+
+<span class="c1"># delete a local user called &quot;admin&quot;:</span>
+$ tctl rm users/admin
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although <code>tctl get connectors</code> will show you every connector, when working with an individual
+connector you must use the correct <code>kind</code>, such as <code>saml</code> or <code>oidc</code>. You can see each
+connector's <code>kind</code> at the top of its YAML output from <code>tctl get connectors</code>.</p>
+</div>
+<h2 id="trusted-clusters">Trusted Clusters</h2>
+<p>As explained in the <a href="../architecture/overview/#design-principles">architecture document</a>,
+Teleport can partition compute infrastructure into multiple clusters. A cluster
+is a group of nodes connected to the cluster's auth server, acting as a
+certificate authority (CA) for all users and nodes.</p>
+<p>To retrieve an SSH certificate, users must authenticate with a cluster through a
+proxy server. So, if users want to connect to nodes belonging to different
+clusters, they would normally have to use a different <code>--proxy</code> flag for each
+cluster. This is not always convenient.</p>
+<p>The concept of trusted clusters allows Teleport administrators to connect
+multiple clusters together and establish trust between them. Trusted clusters
+allow users of one cluster to seamlessly SSH into the nodes of another cluster
+without having to "hop" between proxy servers. Moreover, users don't even need
+to have a direct connection to other clusters' proxy servers. Trusted clusters
+also have their own restrictions on user access.</p>
+<p>To learn more about Trusted Clusters please visit our <a href="../trustedclusters/">Trusted Cluster Guide</a></p>
+<h2 id="github-oauth-20">Github OAuth 2.0</h2>
+<p>Teleport supports authentication and authorization via external identity
+providers such as Github. You can watch the video for how to configure
+<a href="https://gravitational.com/resources/guides/github-sso-provider-kubernetes-ssh/">Github as an SSO provider</a>,
+or you can follow the documentation below.</p>
+<p>First, the Teleport auth service must be configured to use Github for
+authentication:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># snippet from /etc/teleport.yaml</span>
+<span class="nt">auth_service</span><span class="p">:</span>
+  <span class="nt">authentication</span><span class="p">:</span>
+      <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">github</span>
+</code></pre></div>
+<p>Next step is to define a Github connector:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Create a file called github.yaml:</span>
+<span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">github</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v3</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="c1"># connector name that will be used with `tsh --auth=github login`</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">github</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="c1"># client ID of Github OAuth app</span>
+  <span class="nt">client_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;client-id&gt;</span>
+  <span class="c1"># client secret of Github OAuth app</span>
+  <span class="nt">client_secret</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">&lt;client-secret&gt;</span>
+  <span class="c1"># connector display name that will be shown on web UI login screen</span>
+  <span class="nt">display</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Github</span>
+  <span class="c1"># callback URL that will be called after successful authentication</span>
+  <span class="nt">redirect_url</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://&lt;proxy-address&gt;/v1/webapi/github/callback</span>
+  <span class="c1"># mapping of org/team memberships onto allowed logins and roles</span>
+  <span class="nt">teams_to_logins</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">organization</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">octocats</span> <span class="c1"># Github organization name</span>
+      <span class="nt">team</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">admins</span> <span class="c1"># Github team name within that organization</span>
+      <span class="c1"># allowed logins for users in this org/team</span>
+      <span class="nt">logins</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">root</span>
+      <span class="c1"># List of Kubernetes groups this Github team is allowed to connect to</span>
+      <span class="c1"># (see Kubernetes integration for more information)</span>
+      <span class="nt">kubernetes_groups</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;system:masters&quot;</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For open-source Teleport the <code>logins</code> field contains a list of allowed
+OS logins. For the commercial Teleport Enterprise offering, which supports
+role-based access control, the same field is treated as a list of <em>roles</em>
+that users from the matching org/team assume after going through the
+authorization flow.</p>
+</div>
+<p>To obtain client ID and client secret, please follow Github documentation on
+how to <a href="https://developer.github.com/apps/building-oauth-apps/creating-an-oauth-app/">create and register an OAuth
+app</a>.
+Be sure to set the "Authorization callback URL" to the same value as
+<code>redirect_url</code> in the resource spec. Teleport will request only the <code>read:org</code>
+OAuth scope, you can read more about <a href="https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps/">Github OAuth scopes</a>.</p>
+<p>Finally, create the connector using <a href="../cli-docs/#tctl"> <code>tctl</code> </a>
+<a href="#resources">resource</a> management command:</p>
+<div class="highlight"><pre><span></span><code>$ tctl create github.yaml
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When going through the Github authentication flow for the first time,
+the application must be granted the access to all organizations that are
+present in the "teams to logins" mapping, otherwise Teleport will not be
+able to determine team memberships for these orgs.</p>
+</div>
+<h2 id="http-connect-proxies">HTTP CONNECT Proxies</h2>
+<p>Some networks funnel all connections through a proxy server where they can be
+audited and access control rules are applied. For these scenarios Teleport
+supports HTTP CONNECT tunneling.</p>
+<p>To use HTTP CONNECT tunneling, simply set either the <code>HTTPS_PROXY</code> or
+<code>HTTP_PROXY</code> environment variables and when Teleport builds and establishes the
+reverse tunnel to the main cluster, it will funnel all traffic though the proxy.
+Specifically, if using the default configuration, Teleport will tunnel ports
+<code>3024</code> (SSH, reverse tunnel) and <code>3080</code> (HTTPS, establishing trust) through the
+proxy.</p>
+<p>The value of <code>HTTPS_PROXY</code> or <code>HTTP_PROXY</code> should be in the format
+<code>scheme://host:port</code> where scheme is either <code>https</code> or <code>http</code> . If the value is
+<code>host:port</code> , Teleport will prepend <code>http</code> .</p>
+<p>It's important to note that in order for Teleport to use HTTP CONNECT
+tunnelling, the <code>HTTP_PROXY</code> and <code>HTTPS_PROXY</code> environment variables must be set
+within Teleport's environment. You can also optionally set the <code>NO_PROXY</code>
+environment variable to avoid use of the proxy when accessing specified
+hosts/netmasks. When launching Teleport with systemd, this will probably involve
+adding some lines to your systemd unit file:</p>
+<div class="highlight"><pre><span></span><code>[Service]
+Environment=&quot;HTTP_PROXY=http://proxy.example.com:8080/&quot;
+Environment=&quot;HTTPS_PROXY=http://proxy.example.com:8080/&quot;
+Environment=&quot;NO_PROXY=localhost,127.0.0.1,192.168.0.0/16,172.16.0.0/12,10.0.0.0/8&quot;
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Note</p>
+<p><code>localhost</code> and <code>127.0.0.1</code> are invalid values for the proxy
+host. If for some reason your proxy runs locally, you'll need to provide
+some other DNS name or a private IP address for it.</p>
+</div>
+<h2 id="pam-integration">PAM Integration</h2>
+<p>Teleport node service can be configured to integrate with
+<a href="https://en.wikipedia.org/wiki/Linux_PAM">PAM</a>. This allows Teleport to create
+user sessions using PAM session profiles.</p>
+<p>To enable PAM on a given Linux machine, update <code>/etc/teleport.yaml</code> with:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+   <span class="nt">ssh_service</span><span class="p">:</span>
+      <span class="nt">pam</span><span class="p">:</span>
+         <span class="c1"># &quot;no&quot; by default</span>
+         <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+         <span class="c1"># use /etc/pam.d/sshd configuration (the default)</span>
+         <span class="nt">service_name</span><span class="p">:</span> <span class="s">&quot;sshd&quot;</span>
+</code></pre></div>
+<p>Please note that most Linux distributions come with a number of PAM services in
+<code>/etc/pam.d</code> and Teleport will try to use <code>sshd</code> by default, which will be
+removed if you uninstall <code>openssh-server</code> package. We recommend creating your
+own PAM service file like <code>/etc/pam.d/teleport</code> and specifying it as
+<code>service_name</code> above.</p>
+<div class="admonition tip">
+<p class="admonition-title">Note</p>
+<p>Teleport only supports the <code>account</code> and <code>session</code> stack. The <code>auth</code> PAM module is currently not supported with Teleport.</p>
+</div>
+<h2 id="using-teleport-with-openssh">Using Teleport with OpenSSH</h2>
+<p>Review our dedicated <a href="../openssh-teleport/">Using Teleport with OpenSSH</a> guide.</p>
+<h2 id="certificate-rotation">Certificate Rotation</h2>
+<p>Take a look at the <a href="../architecture/authentication/#authentication-in-teleport">Certificates chapter</a> in the
+architecture document to learn how the certificate rotation works. This section
+will show you how to implement certificate rotation in practice.</p>
+<p>The easiest way to start the rotation is to execute this command on a cluster's
+<em>auth server</em>:</p>
+<div class="highlight"><pre><span></span><code>$ tctl auth rotate
+</code></pre></div>
+<p>This will trigger a rotation process for both hosts and users with a <em>grace
+period</em> of 48 hours.</p>
+<p>This can be customized, i.e.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># rotate only user certificates with a grace period of 200 hours:</span>
+$ tctl auth rotate --type<span class="o">=</span>user --grace-period<span class="o">=</span>200h
+
+<span class="c1"># rotate only host certificates with a grace period of 8 hours:</span>
+$ tctl auth rotate --type<span class="o">=</span>host --grace-period<span class="o">=</span>8h
+</code></pre></div>
+<p>The rotation takes time, especially for hosts, because each node in a cluster
+needs to be notified that a rotation is taking place and request a new
+certificate for itself before the grace period ends.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Be careful when choosing a grace period when rotating
+host certificates. The grace period needs to be long enough for all nodes in
+a cluster to request a new certificate. If some nodes go offline during the
+rotation and come back only after the grace period has ended, they will be
+forced to leave the cluster, i.e. users will no longer be allowed to SSH
+into them.</p>
+</div>
+<p>To check the status of certificate rotation:</p>
+<div class="highlight"><pre><span></span><code>$ tctl status
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">CA Pinning Warning</p>
+<p>If you are using <a href="#untrusted-auth-servers">CA Pinning</a> when adding new
+nodes, the CA pin will changes after the rotation. Make sure you use the
+<em>new</em> CA pin when adding nodes after rotation.</p>
+</div>
+<h2 id="ansible-integration">Ansible Integration</h2>
+<p>Ansible uses the OpenSSH client by default. This makes it compatible with
+Teleport without any extra work, except configuring OpenSSH client to work with
+Teleport Proxy:</p>
+<ul>
+<li>configure your OpenSSH to connect to Teleport proxy and use <code>ssh-agent</code> socket</li>
+<li>enable scp mode in the Ansible config file (default is <code>/etc/ansible/ansible.cfg</code> ):</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nv">scp_if_ssh</span> <span class="o">=</span> True
+</code></pre></div>
+<h2 id="kubernetes-integration">Kubernetes Integration</h2>
+<p>Teleport can be configured as a compliance gateway for Kubernetes clusters.
+This allows users to authenticate against a Teleport proxy using <a href="../cli-docs/#tsh"><code>tsh
+login</code></a> command to retrieve credentials for both SSH and
+Kubernetes API.</p>
+<p>Follow our <a href="../kubernetes-ssh/">Kubernetes guide</a> which contains some more specific
+examples and instructions.</p>
+<h2 id="high-availability">High Availability</h2>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Before continuing, please make sure to take a look at the
+<a href="../architecture/nodes/#cluster-state">Cluster State section</a> in the Teleport
+Architecture documentation.</p>
+</div>
+<p>Usually there are two ways to achieve high availability. You can "outsource"
+this function to the infrastructure. For example, using a highly available
+network-based disk volumes (similar to AWS EBS) and by migrating a failed VM to
+a new host. In this scenario, there's nothing Teleport-specific to be done.</p>
+<p>If high availability cannot be provided by the infrastructure (perhaps you're
+running Teleport on a bare metal cluster), you can still configure Teleport to
+run in a highly available fashion.</p>
+<h3 id="auth-server-ha">Auth Server HA</h3>
+<p>In order to run multiple instances of Teleport Auth Server, you must switch to a
+highly available secrets back-end first. Also, you must tell each node in a
+cluster that there is more than one auth server available. There are two ways to
+do this:</p>
+<ul>
+<li>
+<p>Use a load balancer to create a single auth API access point (AP) and
+    specify this AP in <code>auth_servers</code> section of Teleport configuration for all
+    nodes in a cluster. This load balancer should do TCP level forwarding.</p>
+</li>
+<li>
+<p>If a load balancer is not an option, you must specify each instance of an
+    auth server in <code>auth_servers</code> section of Teleport configuration.</p>
+</li>
+</ul>
+<p><strong>IMPORTANT:</strong> with multiple instances of the auth servers running, special
+attention needs to be paid to keeping their configuration identical. Settings
+like <code>cluster_name</code> , <code>tokens</code> , <code>storage</code> , etc must be the same.</p>
+<h3 id="teleport-proxy-ha">Teleport Proxy HA</h3>
+<p>The Teleport Proxy is stateless which makes running multiple instances trivial.
+If using the <a href="#ports">default configuration</a>, configure your load balancer to
+forward ports <code>3023</code> and <code>3080</code> to the servers that run the Teleport proxy. If
+you have configured your proxy to use non-default ports, you will need to
+configure your load balancer to forward the ports you specified for
+<code>listen_addr</code> and <code>web_listen_addr</code> in <code>teleport.yaml</code> . The load balancer for
+<code>web_listen_addr</code> can terminate TLS with your own certificate that is valid for
+your users, while the remaining ports should do TCP level forwarding, since
+Teleport will handle its own SSL on top of that with its own certificates.</p>
+<div class="admonition tip">
+<p class="admonition-title">NOTE</p>
+<p>If you terminate TLS with your own certificate at a load
+balancer you'll need to run Teleport with <code>--insecure-no-tls</code></p>
+</div>
+<p>If your load balancer supports HTTP health checks, configure it to hit the
+<code>/readyz</code> <a href="../metrics-logs-reference/">diagnostics endpoint</a> on machines running Teleport. This endpoint
+must be enabled by using the <code>--diag-addr</code> flag to teleport start: <code>teleport start --diag-addr=127.0.0.1:3000</code>
+The http://127.0.0.1:3000/readyz endpoint will reply <code>{"status":"ok"}</code> if the Teleport service
+is running without problems.</p>
+<div class="admonition tip">
+<p class="admonition-title">NOTE</p>
+<p>As the new auth servers get added to the cluster and the old
+servers get decommissioned, nodes and proxies will refresh the list of
+available auth servers and store it in their local cache
+<code>/var/lib/teleport/authservers.json</code> - the values from the cache file will take
+precedence over the configuration file.</p>
+</div>
+<p>We'll cover how to use <code>etcd</code>, DynamoDB and Firestore storage back-ends to make Teleport
+highly available below.</p>
+<h3 id="teleport-scalability-tweaks">Teleport Scalability Tweaks</h3>
+<p>When running Teleport at scale (for example in the case where there are 10,000+ nodes connected
+to a cluster via <a href="#adding-a-node-located-behind-nat">node tunnelling mode</a>, the following settings
+should be set on Teleport auth and proxies:</p>
+<h4>Proxy Servers</h4>
+<p>These settings alter Teleport's <a href="https://github.com/gravitational/teleport/blob/5cd212fecda63ec6790cc5ffe508a626c56e2b2c/lib/defaults/defaults.go#L385">default connection limit</a> from 15000 to 65000.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Teleport Proxy</span>
+<span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">cache</span><span class="p">:</span>
+    <span class="c1"># use an in-memory cache to speed up the connection of many teleport nodes</span>
+    <span class="c1"># back to proxy</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">in-memory</span>
+  <span class="c1"># set up connection limits to prevent throttling of many IoT nodes connecting to proxies</span>
+  <span class="nt">connection_limits</span><span class="p">:</span>
+    <span class="nt">max_connections</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">65000</span>
+    <span class="nt">max_users</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+</code></pre></div>
+<h4>Auth Servers</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># Teleport Auth</span>
+<span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">connection_limits</span><span class="p">:</span>
+    <span class="nt">max_connections</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">65000</span>
+    <span class="nt">max_users</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+</code></pre></div>
+<h3 id="using-etcd">Using etcd</h3>
+<p>Teleport can use <a href="https://etcd.io/">etcd</a> as a storage backend to
+achieve highly available deployments. You must take steps to protect access to
+<code>etcd</code> in this configuration because that is where Teleport secrets like keys
+and user records will be stored.</p>
+<div class="admonition warning">
+<p class="admonition-title">IMPORTANT</p>
+<p><code>etcd</code> can only currently be used to store Teleport's internal database in a highly-available
+way. This will allow you to have multiple auth servers in your cluster for an HA deployment,
+but it will not also store Teleport audit events for you in the same way that
+<a href="#using-dynamodb">DynamoDB</a> or <a href="#using-firestore">Firestore</a> will.</p>
+</div>
+<p>To configure Teleport for using etcd as a storage back-end:</p>
+<ul>
+<li>Make sure you are using <strong>etcd version 3.3</strong> or newer.</li>
+<li>Install etcd and configure peer and client TLS authentication using the <a href="https://etcd.io/docs/v3.4.0/op-guide/security/">etcd
+  security guide</a>.<ul>
+<li>You can use <a href="https://github.com/etcd-io/etcd/tree/master/hack/tls-setup">this script provided by
+  etcd</a> if you
+  don't already have a TLS setup.</li>
+</ul>
+</li>
+<li>Configure all Teleport Auth servers to use etcd in the "storage" section of the config file as shown below.</li>
+<li>Deploy several auth servers connected to etcd back-end.</li>
+<li>Deploy several proxy nodes that have <code>auth_servers</code> pointed to list of auth
+  servers to connect to.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">storage</span><span class="p">:</span>
+     <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">etcd</span>
+
+     <span class="c1"># list of etcd peers to connect to:</span>
+     <span class="nt">peers</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;https://172.17.0.1:4001&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;https://172.17.0.2:4001&quot;</span><span class="p p-Indicator">]</span>
+
+     <span class="c1"># required path to TLS client certificate and key files to connect to etcd</span>
+     <span class="c1">#</span>
+     <span class="c1"># to create these, follow</span>
+     <span class="c1"># https://coreos.com/os/docs/latest/generate-self-signed-certificates.html</span>
+     <span class="c1"># or use the etcd-provided script</span>
+     <span class="c1"># https://github.com/etcd-io/etcd/tree/master/hack/tls-setup</span>
+     <span class="nt">tls_cert_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/etcd-cert.pem</span>
+     <span class="nt">tls_key_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/etcd-key.pem</span>
+
+     <span class="c1"># optional file with trusted CA authority</span>
+     <span class="c1"># file to authenticate etcd nodes</span>
+     <span class="c1">#</span>
+     <span class="c1"># if you used the script above to generate the client TLS certificate,</span>
+     <span class="c1"># this CA certificate should be one of the other generated files</span>
+     <span class="nt">tls_ca_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/etcd-ca.pem</span>
+
+     <span class="c1"># alternative password based authentication, if not using TLS client</span>
+     <span class="c1"># certificate</span>
+     <span class="c1">#</span>
+     <span class="c1"># See https://etcd.io/docs/v3.4.0/op-guide/authentication/ for setting</span>
+     <span class="c1"># up a new user</span>
+     <span class="nt">username</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">username</span>
+     <span class="nt">password_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/mnt/secrets/etcd-pass</span>
+
+     <span class="c1"># etcd key (location) where teleport will be storing its state under.</span>
+     <span class="c1"># make sure it ends with a &#39;/&#39;!</span>
+     <span class="nt">prefix</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/teleport/</span>
+
+     <span class="c1"># NOT RECOMMENDED: enables insecure etcd mode in which self-signed</span>
+     <span class="c1"># certificate will be accepted</span>
+     <span class="nt">insecure</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<h3 id="using-amazon-s3">Using Amazon S3</h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Before continuing, please make sure to take a look at the
+<a href="../architecture/nodes/#cluster-state">cluster state section</a> in Teleport
+Architecture documentation.</p>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">AWS Authentication</p>
+<p>The configuration examples below contain AWS
+access keys and secret keys. They are optional, they exist for your
+convenience but we DO NOT RECOMMEND using them in production. If Teleport is
+running on an AWS instance it will automatically use the instance IAM role.
+Teleport also will pick up AWS credentials from the <code>~/.aws</code> folder, just
+like the AWS CLI tool.</p>
+</div>
+<p>S3 buckets can only be used as a storage for the recorded sessions. S3 cannot
+store the audit log or the cluster state. Below is an example of how to
+configure a Teleport auth server to store the recorded sessions in an S3 bucket.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">storage</span><span class="p">:</span>
+      <span class="c1"># The region setting sets the default AWS region for all AWS services</span>
+      <span class="c1"># Teleport may consume (DynamoDB, S3)</span>
+      <span class="nt">region</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">us-east-1</span>
+
+      <span class="c1"># Path to S3 bucket to store the recorded sessions in.</span>
+      <span class="nt">audit_sessions_uri</span><span class="p">:</span> <span class="s">&quot;s3://Example_TELEPORT_S3_BUCKET/records&quot;</span>
+
+      <span class="c1"># Teleport assumes credentials. Using provider chains, assuming IAM role or</span>
+      <span class="c1"># standard .aws/credentials in the home folder.</span>
+</code></pre></div>
+<p>The AWS authentication settings above can be omitted if the machine itself is
+running on an EC2 instance with an IAM role.</p>
+<h3 id="using-dynamodb">Using DynamoDB</h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Before continuing, please make sure to take a look at the
+<a href="../architecture/nodes/#cluster-state">cluster state section</a> in Teleport Architecture documentation.</p>
+</div>
+<p>If you are running Teleport on AWS, you can use
+<a href="https://aws.amazon.com/dynamodb/">DynamoDB</a> as a storage back-end to achieve
+high availability. DynamoDB back-end supports two types of Teleport data:</p>
+<ul>
+<li>Cluster state</li>
+<li>Audit log events</li>
+</ul>
+<p>DynamoDB cannot store the recorded sessions. You are advised to use AWS S3 for
+that as shown above. To configure Teleport to use DynamoDB:</p>
+<ul>
+<li>Make sure you have AWS access key and a secret key which give you access to
+  DynamoDB account. If you're using (as recommended) an IAM role for this, the
+  policy with necessary permissions is listed below.</li>
+<li>Configure all Teleport Auth servers to use DynamoDB back-end in the "storage"
+  section of <code>teleport.yaml</code> as shown below.</li>
+<li>Deploy several auth servers connected to DynamoDB storage back-end.</li>
+<li>Deploy several proxy nodes.</li>
+<li>Make sure that all Teleport nodes have <code>auth_servers</code> configuration setting
+  populated with the auth servers.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">storage</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dynamodb</span>
+    <span class="c1"># Region location of dynamodb instance, https://docs.aws.amazon.com/en_pv/general/latest/gr/rande.html#ddb_region</span>
+    <span class="nt">region</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">us-east-1</span>
+
+    <span class="c1"># Name of the DynamoDB table. If it does not exist, Teleport will create it.</span>
+    <span class="nt">table_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Example_TELEPORT_DYNAMO_TABLE_NAME</span>
+
+    <span class="c1"># This setting configures Teleport to send the audit events to three places:</span>
+    <span class="c1"># To keep a copy in DynamoDB, a copy on a local filesystem, and also output the events to stdout.</span>
+    <span class="c1"># NOTE: The DynamoDB events table has a different schema to the regular Teleport</span>
+    <span class="c1"># database table, so attempting to use same table for both will result in errors.</span>
+    <span class="c1"># When using highly available storage like DynamoDB, you should make sure that the list always specifies</span>
+    <span class="c1"># the HA storage method first, as this is what the Teleport web UI uses as its source of events to display.</span>
+    <span class="nt">audit_events_uri</span><span class="p">:</span>  <span class="p p-Indicator">[</span><span class="s">&#39;dynamodb://events_table_name&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;file:///var/lib/teleport/audit/events&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;stdout://&#39;</span><span class="p p-Indicator">]</span>
+
+    <span class="c1"># This setting configures Teleport to save the recorded sessions in an S3 bucket:</span>
+    <span class="nt">audit_sessions_uri</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">s3://Example_TELEPORT_S3_BUCKET/records</span>
+</code></pre></div>
+<ul>
+<li>Replace <code>us-east-1</code> and <code>Example_TELEPORT_DYNAMO_TABLE_NAME</code>
+  with your own settings.  Teleport will create the table automatically.</li>
+<li><code>Example_TELEPORT_DYNAMO_TABLE_NAME</code> and <code>events_table_name</code> <strong>must</strong> be different
+  DynamoDB tables. The schema is different for each. Using the same table name for both
+  will result in errors.</li>
+<li>The AWS authentication setting above can be omitted if the machine itself is
+  running on an EC2 instance with an IAM role.</li>
+<li>Audit log settings above are optional. If specified, Teleport will store the
+  audit log in DynamoDB and the session recordings <strong>must</strong> be stored in an S3
+  bucket, i.e. both <code>audit_xxx</code> settings must be present. If they are not set,
+  Teleport will default to a local file system for the audit log, i.e.
+<code>/var/lib/teleport/log</code> on an auth server.</li>
+<li>If DynamoDB is used for the audit log, the logged events will be stored with a
+  TTL of 1 year. Currently this TTL is not configurable.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Access to DynamoDB</p>
+<p>Make sure that the IAM role assigned to
+Teleport is configured with the sufficient access to DynamoDB. Below is the
+example of the IAM policy you can use:</p>
+</div>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+    <span class="s2">&quot;Version&quot;</span><span class="o">:</span> <span class="s2">&quot;2012-10-17&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Statement&quot;</span><span class="o">:</span> <span class="p">[{</span>
+            <span class="s2">&quot;Sid&quot;</span><span class="o">:</span> <span class="s2">&quot;AllAPIActionsOnTeleportAuth&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Effect&quot;</span><span class="o">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Action&quot;</span><span class="o">:</span> <span class="s2">&quot;dynamodb:*&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Resource&quot;</span><span class="o">:</span> <span class="s2">&quot;arn:aws:dynamodb:eu-west-1:123456789012:table/prod.teleport.auth&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Sid&quot;</span><span class="o">:</span> <span class="s2">&quot;AllAPIActionsOnTeleportStreams&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Effect&quot;</span><span class="o">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Action&quot;</span><span class="o">:</span> <span class="s2">&quot;dynamodb:*&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Resource&quot;</span><span class="o">:</span> <span class="s2">&quot;arn:aws:dynamodb:eu-west-1:123456789012:table/prod.teleport.auth/stream/*&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="using-gcs">Using GCS</h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Before continuing, please make sure to take a look at the
+<a href="../architecture/nodes/#cluster-state">cluster state section</a> in Teleport
+Architecture documentation.</p>
+</div>
+<p>Google Cloud Storage (GCS) can only be used as a storage for the recorded
+sessions. GCS cannot store the audit log or the cluster state. Below is an
+example of how to configure a Teleport auth server to store the recorded
+sessions in a GCS bucket.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">storage</span><span class="p">:</span>
+      <span class="c1"># Path to GCS to store the recorded sessions in.</span>
+      <span class="nt">audit_sessions_uri</span><span class="p">:</span> <span class="s">&quot;gs://Example_TELEPORT_STORAGE/records&quot;</span>
+      <span class="nt">credentials_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/gcs_creds</span>
+</code></pre></div>
+<h3 id="using-firestore">Using Firestore</h3>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Before continuing, please make sure to take a look at the
+<a href="../architecture/nodes/#cluster-state">cluster state section</a> in Teleport Architecture documentation.</p>
+</div>
+<p>If you are running Teleport on GCP, you can use
+<a href="https://cloud.google.com/firestore/">Firestore</a> as a storage back-end to achieve
+high availability. Firestore back-end supports two types of Teleport data:</p>
+<ul>
+<li>Cluster state</li>
+<li>Audit log events</li>
+</ul>
+<p>Firestore cannot store the recorded sessions. You are advised to use Google
+Cloud Storage (GCS) for that as shown above. To configure Teleport to use
+Firestore:</p>
+<ul>
+<li>Configure all Teleport Auth servers to use Firestore back-end in the "storage"
+  section of <code>teleport.yaml</code> as shown below.</li>
+<li>Deploy several auth servers connected to Firestore storage back-end.</li>
+<li>Deploy several proxy nodes.</li>
+<li>Make sure that all Teleport nodes have <code>auth_servers</code> configuration setting
+  populated with the auth servers or use a load balancer for the auth servers in
+  high availability mode.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">storage</span><span class="p">:</span>
+    <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">firestore</span>
+    <span class="c1"># Project ID https://support.google.com/googleapi/answer/7014113?hl=en</span>
+    <span class="nt">project_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Example_GCP_Project_Name</span>
+
+    <span class="c1"># Name of the Firestore table. If it does not exist, Teleport won&#39;t start</span>
+    <span class="nt">collection_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">Example_TELEPORT_FIRESTORE_TABLE_NAME</span>
+
+    <span class="nt">credentials_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/gcs_creds</span>
+
+    <span class="c1"># This setting configures Teleport to send the audit events to three places:</span>
+    <span class="c1"># To keep a copy in Firestore, a copy on a local filesystem, and also write the events to stdout.</span>
+    <span class="c1"># NOTE: The Firestore events table has a different schema to the regular Teleport</span>
+    <span class="c1"># database table, so attempting to use same table for both will result in errors.</span>
+    <span class="c1"># When using highly available storage like Firestore, you should make sure that the list always specifies</span>
+    <span class="c1"># the HA storage method first, as this is what the Teleport web UI uses as its source of events to display.</span>
+    <span class="nt">audit_events_uri</span><span class="p">:</span>  <span class="p p-Indicator">[</span><span class="s">&#39;firestore://Example_TELEPORT_FIRESTORE_EVENTS_TABLE_NAME&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;file:///var/lib/teleport/audit/events&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;stdout://&#39;</span><span class="p p-Indicator">]</span>
+
+    <span class="c1"># This setting configures Teleport to save the recorded sessions in GCP storage:</span>
+    <span class="nt">audit_sessions_uri</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">gs://Example_TELEPORT_S3_BUCKET/records</span>
+</code></pre></div>
+<ul>
+<li>
+<p>Replace <code>Example_GCP_Project_Name</code> and <code>Example_TELEPORT_FIRESTORE_TABLE_NAME</code>
+  with your own settings. Teleport will create the table automatically.</p>
+</li>
+<li>
+<p><code>Example_TELEPORT_FIRESTORE_TABLE_NAME</code> and <code>Example_TELEPORT_FIRESTORE_EVENTS_TABLE_NAME</code>
+  <strong>must</strong> be different Firestore tables. The schema is different for each. Using the same
+  table name for both will result in errors.</p>
+</li>
+<li>
+<p>The GCP authentication setting above can be omitted if the machine itself is
+  running on a GCE instance with a Service Account that has access to the
+  Firestore table.</p>
+</li>
+<li>
+<p>Audit log settings above are optional. If specified, Teleport will store the
+  audit log in Firestore and the session recordings <strong>must</strong> be stored in a GCP
+  bucket, i.e.both <code>audit_xxx</code> settings must be present. If they are not set,
+  Teleport will default to a local file  system for the audit log, i.e.
+  <code>/var/lib/teleport/log</code> on an auth server.</p>
+</li>
+</ul>
+<h2 id="upgrading-teleport">Upgrading Teleport</h2>
+<p>Teleport is always a critical component of the infrastructure it runs on. This
+is why upgrading to a new version must be performed with caution.</p>
+<p>Teleport is a much more capable system than a bare bones SSH server. While it
+offers significant benefits on a cluster level, it also adds some complexity to
+cluster upgrades. To ensure robust operation Teleport administrators must follow
+the upgrade rules listed below.</p>
+<h3 id="production-releases">Production Releases</h3>
+<p>First of all, avoid running pre-releases (release candidates) in production
+environments. Teleport development team uses <a href="https://semver.org/">Semantic
+Versioning</a> which makes it easy to tell if a specific
+version is recommended for production use.</p>
+<h3 id="component-compatibility">Component Compatibility</h3>
+<p>When running multiple binaries of Teleport within a cluster (nodes, proxies,
+clients, etc), the following rules apply:</p>
+<ul>
+<li>
+<p>Patch versions are always compatible, for example any 4.0.1 component will
+  work with any 4.0.3 component.</p>
+</li>
+<li>
+<p>Other versions are always compatible with their <strong>previous</strong> release. This
+  means you must not attempt to upgrade from 4.1 straight to 4.3. You must
+  upgrade to 4.2 first.</p>
+</li>
+<li>
+<p>Teleport clients <a href="../cli-docs/#tsh"><code>tsh</code></a> for users and <a href="../cli-docs/#tctl"><code>tctl</code></a> for admins
+  may not be compatible with different versions of the <code>teleport</code> service.</p>
+</li>
+</ul>
+<p>As an extra precaution you might want to backup your application prior to upgrading. We provide more instructions in <a href="#backup-before-upgrading">Backup before upgrading</a>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Upgrading to Teleport 4.0+</p>
+<p>Teleport 4.0+ switched to GRPC and HTTP/2 as an API protocol. The HTTP/2 spec bans
+two previously recommended ciphers. <code>tls-rsa-with-aes-128-gcm-sha256</code> &amp; <code>tls-rsa-with-aes-256-gcm-sha384</code>, make sure these are removed from <code>teleport.yaml</code>
+<a href="https://community.gravitational.com/t/drop-ciphersuites-blacklisted-by-http-2-spec/446">Visit our community for more details</a></p>
+<p>If upgrading you might want to consider rotating CA to SHA-256 or SHA-512 for RSA
+SSH certificate signatures. The previous default was SHA-1, which is now considered
+weak against brute-force attacks. SHA-1 certificate signatures are also no longer
+accepted by OpenSSH versions 8.2 and above. All new Teleport clusters will default
+to SHA-512 based signatures. To upgrade an existing cluster, set the following in
+your teleport.yaml:</p>
+<div class="highlight"><pre><span></span><code>teleport:
+  ca_signature_algo: <span class="s2">&quot;rsa-sha2-512&quot;</span>
+</code></pre></div>
+<p>After updating to 4.3+ rotate the cluster CA <a href="#certificate-rotation">following these docs</a>.</p>
+</div>
+<h3 id="backup-before-upgrading">Backup Before Upgrading</h3>
+<p>As an extra precaution you might want to backup your application prior to upgrading. We have more
+instructions in <a href="#backing-up-teleport">Backing up Teleport</a>.</p>
+<h3 id="upgrade-sequence">Upgrade Sequence</h3>
+<p>When upgrading a single Teleport cluster:</p>
+<ol>
+<li>
+<p><strong>Upgrade the auth server first</strong>. The auth server keeps the cluster state
+    and if there are data format changes introduced in the new version this will
+    perform necessary migrations.</p>
+</li>
+<li>
+<p>Then, upgrade the proxy servers. The proxy servers are stateless and can be
+   upgraded in any sequence or at the same time.</p>
+</li>
+<li>
+<p>Finally, upgrade the SSH nodes in any sequence or at the same time.</p>
+</li>
+</ol>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If several auth servers are running in HA configuration
+(for example, in AWS auto-scaling group) you have to shrink the group to
+<strong>just one auth server</strong> prior to performing an upgrade. While Teleport
+will attempt to perform any necessary migrations, we recommend users
+create a backup of their backend before upgrading the Auth Server, as a
+precaution. This allows for a safe rollback in case the migration itself
+fails.</p>
+</div>
+<p>When upgrading multiple clusters:</p>
+<ol>
+<li>First, upgrade the main cluster, i.e. the one which other clusters trust.</li>
+<li>Upgrade the trusted clusters.</li>
+</ol>
+<h2 id="backing-up-teleport">Backing Up Teleport</h2>
+<p>When planning a backup of Teleport, it's important to know what is where and the
+importance of each component. Teleport's Proxies and Nodes are stateless, and thus
+only <code>teleport.yaml</code> should be backed up.</p>
+<p>The Auth server is Teleport's brains, and depending on the backend should be backed up
+regularly.</p>
+<p>For example a customer running Teleport on AWS with DynamoDB have these key items of data:</p>
+<table>
+<thead>
+<tr>
+<th>What</th>
+<th>Where ( Example AWS Customer )</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Local Users ( not SSO )</td>
+<td>DynamoDB</td>
+</tr>
+<tr>
+<td>Certificate Authorities</td>
+<td>DynamoDB</td>
+</tr>
+<tr>
+<td>Trusted Clusters</td>
+<td>DynamoDB</td>
+</tr>
+<tr>
+<td>Connectors: SSO</td>
+<td>DynamoDB / File System</td>
+</tr>
+<tr>
+<td>RBAC</td>
+<td>DynamoDB / File System</td>
+</tr>
+<tr>
+<td>teleport.yaml</td>
+<td>File System</td>
+</tr>
+<tr>
+<td>teleport.service</td>
+<td>File System</td>
+</tr>
+<tr>
+<td>license.pem</td>
+<td>File System</td>
+</tr>
+<tr>
+<td>TLS key/certificate</td>
+<td>( File System / Outside Scope )</td>
+</tr>
+<tr>
+<td>Audit log</td>
+<td>DynamoDB</td>
+</tr>
+<tr>
+<td>Session recordings</td>
+<td>S3</td>
+</tr>
+</tbody>
+</table>
+<p>For this customer, we would recommend using <a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/BackupRestore.html">AWS best practices</a> for backing up DynamoDB. If DynamoDB is used for
+the audit log, logged events have a TTL of 1 year.</p>
+<table>
+<thead>
+<tr>
+<th>Backend</th>
+<th>Recommended backup strategy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>dir ( local filesystem )</td>
+<td>Backup <code>/var/lib/teleport/storage</code> directory and the output of <code>tctl get all</code>.</td>
+</tr>
+<tr>
+<td>DynamoDB</td>
+<td><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/BackupRestore.html">Follow AWS Guidelines for Backup &amp; Restore</a></td>
+</tr>
+<tr>
+<td>etcd</td>
+<td><a href="https://etcd.io/docs/v2/admin_guide">Follow etcD Guidleines for Disaster Recovery </a></td>
+</tr>
+<tr>
+<td>Firestore</td>
+<td><a href="https://firebase.google.com/docs/database/backups">Follow GCP Guidlines for Automated Backups</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="teleport-resources">Teleport Resources</h3>
+<p>Teleport uses YAML resources for roles, trusted clusters, local users and auth connectors.
+These could be created via <code>tctl</code> or via the UI.</p>
+<h2 id="gitops">GitOps</h2>
+<p>If running Teleport at scale, it's important for teams to have an automated way to
+restore Teleport. At a high level, this is our recommended approach:</p>
+<ul>
+<li>Persist and backup your backend</li>
+<li>Share that backend among auth servers</li>
+<li>Store your configs as discrete files in VCS</li>
+<li>Have your CI run <code>tctl create -f *.yaml</code> from that git directory</li>
+</ul>
+<h2 id="migrating-backends">Migrating Backends.</h2>
+<p>As of version v4.1 you can now quickly export a collection of resources from
+Teleport. This feature was designed to help customers migrate from local storage
+to etcd.</p>
+<p>Using <code>tctl get all</code> will retrieve the below items:</p>
+<ul>
+<li>Users</li>
+<li>Certificate Authorities</li>
+<li>Trusted Clusters</li>
+<li>Connectors:<ul>
+<li>Github</li>
+<li>SAML [Teleport Enterprise]</li>
+<li>OIDC [Teleport Enterprise]</li>
+<li>Roles [Teleport Enterprise]</li>
+</ul>
+</li>
+</ul>
+<p>When migrating backends, you should back up your auth server's <code>data_dir/storage</code> directly.</p>
+<p><strong>Example of backing up and restoring a cluster.</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># export dynamic configuration state from old cluster</span>
+$ tctl get all &gt; state.yaml
+
+<span class="c1"># prepare a new uninitialized backend (make sure to port</span>
+<span class="c1"># any non-default config values from the old config file)</span>
+$ mkdir fresh <span class="o">&amp;&amp;</span> cat &gt; fresh.yaml <span class="s">&lt;&lt; EOF</span>
+<span class="s">teleport:</span>
+<span class="s">  data_dir: fresh</span>
+<span class="s">EOF</span>
+
+<span class="c1"># bootstrap fresh server (kill the old one first!)</span>
+$ teleport start --config fresh.yaml --bootstrap state.yaml
+
+<span class="c1"># from another terminal, verify state transferred correctly</span>
+$ tctl --config fresh.yaml get all
+<span class="c1"># &lt;your state here!&gt;</span>
+</code></pre></div>
+<p>The <code>--bootstrap</code> flag has no effect, except during backend initialization (performed
+by auth server on first start), so it is safe for use in supervised/HA contexts.</p>
+<p><strong>Limitations</strong></p>
+<ul>
+<li>All the same limitations around modifying the config file of an existing cluster also apply to a new cluster being bootstrapped from the state of an old cluster. Of particular note:<ul>
+<li>Changing cluster name will break your CAs (this will be caught and teleport will refuse to start).</li>
+<li>Some user authentication mechanisms (e.g. u2f) require that the public endpoint of the web ui remains the same (this can't be caught by teleport, be careful!).</li>
+</ul>
+</li>
+<li>Any node whose invite token is defined statically (in the config file of the auth server) will be able to join automatically, but nodes that were added dynamically will need to be re-invited</li>
+</ul>
+<h3 id="daemon-restarts">Daemon Restarts</h3>
+<p>As covered in the <a href="#graceful-restarts">Graceful Restarts</a> section, Teleport
+supports graceful restarts. To upgrade a host to a newer Teleport version, an
+administrator must:</p>
+<ol>
+<li>
+<p>Replace the Teleport binaries, usually <a href="../cli-docs/#teleport"> <code>teleport</code> </a>
+   and <a href="../cli-docs/#tctl"> <code>tctl</code> </a></p>
+</li>
+<li>
+<p>Execute <code>systemctl restart teleport</code></p>
+</li>
+</ol>
+<p>This will perform a graceful restart, i.e.the Teleport daemon will fork a new
+process to handle new incoming requests, leaving the old daemon process running
+until existing clients disconnect.</p>
+<h2 id="license-file">License File</h2>
+<p>Commercial Teleport subscriptions require a valid license. The license file can
+be downloaded from the <a href="https://dashboard.gravitational.com/web/login">Teleport Customer
+Portal</a>.</p>
+<p>The Teleport license file contains a X.509 certificate and the corresponding
+private key in PEM format. Place the downloaded file on Auth servers and set the
+<code>license_file</code> configuration parameter of your <code>teleport.yaml</code> to point to the
+file location:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">auth_service</span><span class="p">:</span>
+    <span class="nt">license_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/license.pem</span>
+</code></pre></div>
+<p>The <code>license_file</code> path can be either absolute or relative to the configured
+<code>data_dir</code> . If license file path is not set, Teleport will look for the
+<code>license.pem</code> file in the configured <code>data_dir</code> .</p>
+<div class="admonition tip">
+<p class="admonition-title">NOTE</p>
+<p>Only Auth servers require the license. Proxies and Nodes that do
+not also have Auth role enabled do not need the license.</p>
+</div>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>To diagnose problems you can configure <a href="../cli-docs/#teleport"> <code>teleport</code> </a> to
+run with verbose logging enabled by passing it <code>-d</code> flag.</p>
+<div class="admonition tip">
+<p class="admonition-title">NOTE</p>
+<p>It is not recommended to run Teleport in production with verbose
+logging as it generates a substantial amount of data.</p>
+</div>
+<p>Sometimes you may want to reset <a href="../cli-docs/#teleport"><code>teleport</code></a> to a clean
+state. This can be accomplished by erasing everything under <code>"data_dir"</code>
+directory. Assuming the default location, <code>rm -rf /var/lib/teleport/*</code> will do.</p>
+<p>Teleport also supports HTTP endpoints for monitoring purposes. They are disabled
+by default, but you can enable them:</p>
+<div class="highlight"><pre><span></span><code>$ teleport start --diag-addr<span class="o">=</span><span class="m">127</span>.0.0.1:3000
+</code></pre></div>
+<p>Now you can see the monitoring information by visiting several endpoints:</p>
+<ul>
+<li>
+<p><code>http://127.0.0.1:3000/metrics</code> is the list of internal metrics Teleport is
+   tracking. It is compatible with <a href="https://prometheus.io/">Prometheus</a>
+   collectors. For a full list of metrics review our <a href="../metrics-logs-reference/">metrics reference</a>.</p>
+</li>
+<li>
+<p><code>http://127.0.0.1:3000/healthz</code> returns "OK" if the process is healthy or
+  <code>503</code> otherwise.</p>
+</li>
+<li>
+<p><code>http://127.0.0.1:3000/readyz</code> is similar to <code>/healthz</code> , but it returns "OK"
+  <em>only after</em> the node successfully joined the cluster, i.e.it draws the
+  difference between "healthy" and "ready".</p>
+</li>
+<li>
+<p><code>http://127.0.0.1:3000/debug/pprof/</code> is Golang's standard profiler. It's only
+  available when <code>-d</code> flag is given in addition to <code>--diag-addr</code></p>
+</li>
+</ul>
+<h2 id="getting-help">Getting Help</h2>
+<p>If you need help, please ask on our <a href="https://community.gravitational.com/">community forum</a>. You can also open an <a href="https://github.com/gravitational/teleport/issues">issue on Github</a>.</p>
+<p>For commercial support, you can create a ticket through the <a href="https://dashboard.gravitational.com/web/login">customer dashboard</a>.</p>
+<p>For more information about custom features, or to try our <a href="../enterprise/introduction/">Enterprise edition</a> of Teleport, please reach out to us at <a href="mailto:sales@gravitational.com">sales@gravitational.com</a>.</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../user-manual/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                User Manual
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../production/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Production Guide
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../js/version-select.js"></script>
+      
+    
+  </body>
+</html>

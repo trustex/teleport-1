@@ -1,0 +1,1594 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How to configure Teleport to provide unified Role Based Access Control for SSH and Kubernetes">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/enterprise/ssh-rbac/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Role Based Access Control for SSH and Kubernetes - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#role-based-access-control-for-ssh-k8s" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Role Based Access Control for SSH and Kubernetes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1">
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../.." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user-manual/" class="md-nav__link">
+      User Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../admin-guide/" class="md-nav__link">
+      Admin Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../production/" class="md-nav__link">
+      Production Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../aws-oss-guide/" class="md-nav__link">
+      AWS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../kubernetes-ssh/" class="md-nav__link">
+      Kubernetes Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" checked>
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../workflow/" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5">
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../workflow/ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../workflow/ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../workflow/ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../workflow/ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../workflow/ssh-approval-slack/" class="md-nav__link">
+      Teleport Slack Plugin Setup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        RBAC
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      RBAC
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-does-it-work" class="md-nav__link">
+    How does it work?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roles" class="md-nav__link">
+    Roles
+  </a>
+  
+    <nav class="md-nav" aria-label="Roles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#role-options" class="md-nav__link">
+    Role Options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rbac-for-hosts" class="md-nav__link">
+    RBAC for Hosts
+  </a>
+  
+    <nav class="md-nav" aria-label="RBAC for Hosts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extended-node-labels-syntax" class="md-nav__link">
+    Extended Node Labels Syntax
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rbac-for-sessions" class="md-nav__link">
+    RBAC for Sessions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#faq" class="md-nav__link">
+    FAQ
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../features/enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../features/ssh-pam/" class="md-nav__link">
+      Using Teleport with PAM
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../config-reference/" class="md-nav__link">
+      YAML
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cli-docs/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+    <nav class="md-nav" aria-label="Introduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-does-it-work" class="md-nav__link">
+    How does it work?
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#roles" class="md-nav__link">
+    Roles
+  </a>
+  
+    <nav class="md-nav" aria-label="Roles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#role-options" class="md-nav__link">
+    Role Options
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rbac-for-hosts" class="md-nav__link">
+    RBAC for Hosts
+  </a>
+  
+    <nav class="md-nav" aria-label="RBAC for Hosts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example" class="md-nav__link">
+    Example
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extended-node-labels-syntax" class="md-nav__link">
+    Extended Node Labels Syntax
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rbac-for-sessions" class="md-nav__link">
+    RBAC for Sessions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#faq" class="md-nav__link">
+    FAQ
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/enterprise/ssh-rbac.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="role-based-access-control-for-ssh-k8s">Role Based Access Control for SSH &amp; K8s</h1>
+<h2 id="introduction">Introduction</h2>
+<p>Role Based Access Control (RBAC) gives Teleport administrators more
+granular access controls. An example of an RBAC policy could be:  <em>"admins can do
+anything, developers must never touch production servers and interns can only
+SSH into staging servers as guests"</em></p>
+<p>RBAC is almost always used in conjunction with
+Single Sign-On (<a href="https://en.wikipedia.org/wiki/Single_sign-on">SSO</a>) but it also works with
+users stored in Teleport's internal database.</p>
+<h3 id="how-does-it-work">How does it work?</h3>
+<p>Let's assume a company is using <a href="https://www.okta.com/">Okta</a> to authenticate users and place
+them into groups. A typical deployment of Teleport in this scenario
+would look like this:</p>
+<ol>
+<li>Configure Teleport to use existing user identities stored in Okta.</li>
+<li>Okta would have users placed in certain groups, perhaps "developers", "admins", "contractors", etc.</li>
+<li>Teleport would have certain <em>Teleport roles</em> defined. For example: "developers" and "admins".</li>
+<li>Mappings would connect the Okta groups (SAML assertions) to the Teleport roles.
+   Every Teleport user will be assigned a <em>Teleport role</em> based on their Okta
+   group membership.</li>
+</ol>
+<h2 id="roles">Roles</h2>
+<p>Every user in Teleport is <strong>always</strong> assigned a set of roles. One can think of
+them as "SSH Roles". The open source edition of Teleport automatically assigns
+every user to the built-in <code>admin</code> role but the Teleport Enterprise allows
+administrators to define their own roles with far greater control over the
+user permissions.</p>
+<p>Some of the permissions a role could define include:</p>
+<ul>
+<li>Which SSH nodes a user can or cannot access. Teleport uses <a href="../admin-guide/#labeling-nodes">node
+  labels</a> to do this, i.e. some nodes can be
+  labeled "production" while others can be labeled "staging".</li>
+<li>Ability to replay recorded sessions.</li>
+<li>Ability to update cluster configuration.</li>
+<li>Which UNIX logins a user is allowed to use when logging into servers.</li>
+</ul>
+<p>A Teleport <code>role</code> works by having two lists of rules: <code>allow</code> rules and <code>deny</code> rules.
+When declaring access rules, keep in mind the following:</p>
+<ul>
+<li>Everything is denied by default.</li>
+<li>Deny rules get evaluated first and take priority.</li>
+</ul>
+<p>A rule consists of two parts: the resources and verbs. Here's an example of an
+<code>allow</code> rule describing a <code>list</code> verb applied to the SSH <code>sessions</code> resource.  It means "allow
+users of this role to see a list of active SSH sessions".</p>
+<div class="highlight"><pre><span></span><code><span class="nt">allow</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">resources</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">session</span><span class="p p-Indicator">]</span>
+      <span class="nt">verbs</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">list</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p>If this rule was declared in <code>deny</code> section of a role definition, it effectively
+prohibits users from getting a list of trusted clusters and sessions. You can see
+all of the available resources and verbs under the <code>allow</code> section in the <code>admin</code> role configuration
+below.</p>
+<p>To manage cluster roles, a Teleport administrator can use the Web UI or the command
+line using <a href="../../admin-guide/#resources">tctl resource commands</a>. To see the list of
+roles in a Teleport cluster, an administrator can execute:</p>
+<div class="highlight"><pre><span></span><code>$ tctl get roles
+</code></pre></div>
+<p>By default there is always one role called <code>admin</code> which looks like this:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">role</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v3</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">admin</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="c1"># SSH options used for user sessions with default values:</span>
+  <span class="nt">options</span><span class="p">:</span>
+    <span class="c1"># max_session_ttl defines the TTL (time to live) of SSH certificates</span>
+    <span class="c1"># issued to the users with this role.</span>
+    <span class="nt">max_session_ttl</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8h</span>
+    <span class="c1"># forward_agent controls whether SSH agent forwarding is allowed</span>
+    <span class="nt">forward_agent</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="c1"># port_forwarding controls whether TCP port forwarding is allowed</span>
+    <span class="nt">port_forwarding</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="c1"># client_idle_timeout determines if SSH sessions to cluster nodes are forcefully</span>
+    <span class="c1"># terminated after no activity from a client (idle client). it overrides the</span>
+    <span class="c1"># global cluster setting. examples: &quot;30m&quot;, &quot;1h&quot; or &quot;1h30m&quot;</span>
+    <span class="nt">client_idle_timeout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">never</span>
+    <span class="c1"># determines if the clients will be forcefully disconnected when their</span>
+    <span class="c1"># certificates expire in the middle of an active SSH session.</span>
+    <span class="c1"># it overrides the global cluster setting.</span>
+    <span class="nt">disconnect_expired_cert</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">no</span>
+    <span class="c1"># Optional: max_connections Per user limit of concurrent sessions within a</span>
+    <span class="c1"># cluster.</span>
+    <span class="nt">max_connections</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2</span>
+    <span class="c1"># Optional: max_sessions total number of session channels which can be established</span>
+    <span class="c1"># across a single connection. 10 will match OpenSSH default behavior.</span>
+    <span class="nt">max_sessions</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10</span>
+    <span class="c1"># permit_x11_forwarding allows users to use X11 forwarding with openssh clients and servers through the proxy</span>
+    <span class="nt">permit_x11_forwarding</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+
+  <span class="c1"># allow section declares a list of resource/verb combinations that are</span>
+  <span class="c1"># allowed for the users of this role. by default nothing is allowed.</span>
+  <span class="nt">allow</span><span class="p">:</span>
+    <span class="c1"># logins array defines the OS/UNIX logins a user is allowed to use.</span>
+    <span class="c1"># a few special variables are supported here (see below)</span>
+    <span class="nt">logins</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">root</span><span class="p p-Indicator">,</span> <span class="s">&#39;{%</span><span class="nv"> </span><span class="s">raw</span><span class="nv"> </span><span class="s">%}{{internal.logins}}{%</span><span class="nv"> </span><span class="s">endraw</span><span class="nv"> </span><span class="s">%}&#39;</span><span class="p p-Indicator">]</span>
+    <span class="c1"># if kubernetes integration is enabled, this setting configures which</span>
+    <span class="c1"># kubernetes groups the users of this role will be assigned to.</span>
+    <span class="c1"># note that you can refer to a SAML/OIDC trait via the &quot;external&quot; property bag,</span>
+    <span class="c1"># this allows you to specify Kubernetes group membership in an identity manager:</span>
+    <span class="nt">kubernetes_groups</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&quot;system:masters&quot;</span><span class="p p-Indicator">,</span> <span class="s">&quot;{%</span><span class="nv"> </span><span class="s">raw</span><span class="nv"> </span><span class="s">%}{{external.trait_name}}{%</span><span class="nv"> </span><span class="s">endraw</span><span class="nv"> </span><span class="s">%}&quot;</span><span class="p p-Indicator">]</span><span class="err">]</span>
+
+    <span class="c1"># list of node labels a user will be allowed to connect to:</span>
+    <span class="nt">node_labels</span><span class="p">:</span>
+      <span class="c1"># a user can only connect to a node marked with &#39;test&#39; label:</span>
+      <span class="s">&#39;environment&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;test&#39;</span>
+      <span class="c1"># the wildcard (&#39;*&#39;) means &quot;any node&quot;</span>
+      <span class="s">&#39;*&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;*&#39;</span>
+      <span class="c1"># labels can be specified as a list:</span>
+      <span class="s">&#39;environment&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;test&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;staging&#39;</span><span class="p p-Indicator">]</span>
+      <span class="c1"># regular expressions are also supported, for example the equivalent</span>
+      <span class="c1"># of the list example above can be expressed as:</span>
+      <span class="s">&#39;environment&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;^test|staging$&#39;</span>
+
+    <span class="c1"># defines roles that this user can can request.</span>
+    <span class="c1"># needed for teleport&#39;s request workflow</span>
+    <span class="c1"># https://gravitational.com/teleport/docs/enterprise/workflow/</span>
+    <span class="nt">request</span><span class="p">:</span>
+      <span class="nt">roles</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">dba</span>
+
+    <span class="c1"># list of allow-rules. see below for more information.</span>
+    <span class="nt">rules</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="nt">resources</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">role</span><span class="p p-Indicator">]</span>
+      <span class="nt">verbs</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">list</span><span class="p p-Indicator">,</span> <span class="nv">create</span><span class="p p-Indicator">,</span> <span class="nv">read</span><span class="p p-Indicator">,</span> <span class="nv">update</span><span class="p p-Indicator">,</span> <span class="nv">delete</span><span class="p p-Indicator">]</span>
+    <span class="p p-Indicator">-</span> <span class="nt">resources</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">auth_connector</span><span class="p p-Indicator">]</span>
+      <span class="nt">verbs</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">list</span><span class="p p-Indicator">,</span> <span class="nv">create</span><span class="p p-Indicator">,</span> <span class="nv">read</span><span class="p p-Indicator">,</span> <span class="nv">update</span><span class="p p-Indicator">,</span> <span class="nv">delete</span><span class="p p-Indicator">]</span>
+    <span class="p p-Indicator">-</span> <span class="nt">resources</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">session</span><span class="p p-Indicator">]</span>
+      <span class="nt">verbs</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">list</span><span class="p p-Indicator">,</span> <span class="nv">read</span><span class="p p-Indicator">]</span>
+    <span class="p p-Indicator">-</span> <span class="nt">resources</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">trusted_cluster</span><span class="p p-Indicator">]</span>
+      <span class="nt">verbs</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">list</span><span class="p p-Indicator">,</span> <span class="nv">create</span><span class="p p-Indicator">,</span> <span class="nv">read</span><span class="p p-Indicator">,</span> <span class="nv">update</span><span class="p p-Indicator">,</span> <span class="nv">delete</span><span class="p p-Indicator">]</span>
+    <span class="c1"># list and read audit log, including audit events and recorded sessions</span>
+    <span class="p p-Indicator">-</span> <span class="nt">resources</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">event</span><span class="p p-Indicator">]</span>
+      <span class="nt">verbs</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">list</span><span class="p p-Indicator">,</span> <span class="nv">read</span><span class="p p-Indicator">]</span>
+
+  <span class="c1"># the deny section uses the identical format as the &#39;allow&#39; section.</span>
+  <span class="c1"># the deny rules always override allow rules.</span>
+  <span class="nt">deny</span><span class="p">:</span> <span class="p p-Indicator">{}</span>
+</code></pre></div>
+<p>The following variables can be used with <code>logins</code> field:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{% raw %}{{internal.logins}}{% endraw %}</code></td>
+<td>Substituted with "allowed logins" parameter used in <code>tctl users add [user] &lt;allowed logins&gt;</code> command. This applies only to users stored in Teleport's own local database.</td>
+</tr>
+<tr>
+<td><code>{% raw %}{{external.xyz}}{% endraw %}</code></td>
+<td>Substituted with a value from an external <a href="https://en.wikipedia.org/wiki/Single_sign-on">SSO provider</a>. If using SAML, this will be expanded with "xyz" assertion value. For OIDC, this will be expanded a value of "xyz" claim.</td>
+</tr>
+</tbody>
+</table>
+<p>Both variables above are there to deliver the same benefit: they allow Teleport
+administrators to define allowed OS logins via the user database, be it the
+local DB, or an identity manager behind a SAML or OIDC endpoint.</p>
+<h4>An example of a SAML assertion:</h4>
+<p>Assuming you have the following SAML assertion attribute in your response:</p>
+<div class="highlight"><pre><span></span><code>&lt;Attribute Name=&quot;http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname&quot;&gt;
+        &lt;AttributeValue&gt;firstname.lastname&lt;/AttributeValue&gt;
+&lt;/Attribute&gt;
+</code></pre></div>
+<p>... you can use the following format in your role:
+<div class="highlight"><pre><span></span><code>logins:
+   - &#39;{% raw %}{{external[&quot;http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname&quot;]}}{% endraw %}&#39;
+</code></pre></div></p>
+<h3 id="role-options">Role Options</h3>
+<p>As shown above, a role can define certain restrictions on SSH sessions initiated by users.
+The table below documents the behavior of each option if multiple roles are assigned to a user.</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Description</th>
+<th>Multi-role behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>max_session_ttl</code></td>
+<td>Max. time to live (TTL) of a user's SSH certificates</td>
+<td>The shortest TTL wins</td>
+</tr>
+<tr>
+<td><code>forward_agent</code></td>
+<td>Allow SSH agent forwarding</td>
+<td>Logical "OR" i.e. if any role allows agent forwarding, it's allowed</td>
+</tr>
+<tr>
+<td><code>port_forwarding</code></td>
+<td>Allow TCP port forwarding</td>
+<td>Logical "OR" i.e. if any role allows port forwarding, it's allowed</td>
+</tr>
+<tr>
+<td><code>client_idle_timeout</code></td>
+<td>Forcefully terminate active SSH sessions after an idle interval</td>
+<td>The shortest timeout value wins, i.e. the most restrictive value is selected</td>
+</tr>
+<tr>
+<td><code>disconnect_expired_cert</code></td>
+<td>Forcefully terminate active SSH sessions when a client certificate expires</td>
+<td>Logical "OR" i.e. evaluates to "yes" if at least one role requires session termination</td>
+</tr>
+<tr>
+<td><code>max_connections</code></td>
+<td>Limit on how many active SSH sessions can be started via Teleport</td>
+<td></td>
+</tr>
+<tr>
+<td><code>max_sessions</code></td>
+<td>Total number of session channels which can be established across a single SSH connection via Teleport</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="rbac-for-hosts">RBAC for Hosts</h2>
+<p>A Teleport role can also define which hosts (nodes) a user can have access to.
+This works by <a href="../../admin-guide/#labeling-nodes">labeling nodes</a> and listing
+allow/deny labels in a role definition.</p>
+<p>Consider the following use case:</p>
+<p>The infrastructure is split into staging/production environments using labels
+like <code>environment=production</code> and <code>environment=staging</code>. You can create roles
+that only have access to one environment. Let's say you create an intern role
+with allow rule for label <code>environment=staging</code>.</p>
+<h3 id="example">Example</h3>
+<p>The role below allows access to all nodes labeled "env=stage" except those that
+also have "workload=database" (these will always be denied).</p>
+<p>Access to any other nodes will be denied:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">role</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v3</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example-role</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">allow</span><span class="p">:</span>
+    <span class="nt">node_labels</span><span class="p">:</span>
+      <span class="s">&#39;env&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;stage&#39;</span>
+
+  <span class="nt">deny</span><span class="p">:</span>
+    <span class="nt">node_labels</span><span class="p">:</span>
+      <span class="c1"># multiple labels are interpreted as an &quot;or&quot; operation.  in this case</span>
+      <span class="c1"># Teleport will deny access to any node labeled as &#39;database&#39; or &#39;backup&#39;</span>
+      <span class="s">&#39;workload&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;database&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;backup&#39;</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<div class="admonition tip">
+<p class="admonition-title">Dynamic RBAC</p>
+<p>Node labels can be dynamic, i.e. determined at runtime by an output
+of an executable. In this case, you can implement "permissions follow workload"
+policies (eg., any server where PostgreSQL is running becomes <em>automatically</em>
+accessible only by the members of the "DBA" group and nobody else).</p>
+</div>
+<h3 id="extended-node-labels-syntax">Extended Node Labels Syntax</h3>
+<p>Below are a few examples for more complex filtering using various regexes.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">kind</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">role</span>
+<span class="nt">version</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">v3</span>
+<span class="nt">metadata</span><span class="p">:</span>
+  <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">example-role</span>
+<span class="nt">spec</span><span class="p">:</span>
+  <span class="nt">allow</span><span class="p">:</span>
+    <span class="nt">node_labels</span><span class="p">:</span>
+      <span class="c1"># literal strings:</span>
+      <span class="s">&#39;environment&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;test&#39;</span>
+      <span class="c1"># the wildcard (&#39;*&#39;) means &quot;any node&quot;</span>
+      <span class="s">&#39;*&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;*&#39;</span>
+      <span class="c1"># a list of alternative options:</span>
+      <span class="s">&#39;environment&#39;</span><span class="p p-Indicator">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;test&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;staging&#39;</span><span class="p p-Indicator">]</span>
+      <span class="c1"># regular expressions are also supported, for example the equivalent</span>
+      <span class="c1"># of the list example above can be expressed as:</span>
+      <span class="s">&#39;environment&#39;</span><span class="p p-Indicator">:</span> <span class="s">&#39;^test|staging$&#39;</span>
+</code></pre></div>
+<h2 id="rbac-for-sessions">RBAC for Sessions</h2>
+<p>As shown in the role example above, a Teleport administrator can restrict
+access to user sessions using the following rule:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">rules</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="nt">resources</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">session</span><span class="p p-Indicator">]</span>
+    <span class="nt">verbs</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="nv">list</span><span class="p p-Indicator">,</span> <span class="nv">read</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<ul>
+<li>"list" determines if a user is allowed to see the list of past sessions.</li>
+<li>"read" determines if a user is allowed to replay a session.</li>
+</ul>
+<p>It is possible to restrict "list" but to allow "read" (in this case a user will
+be able to replay a session using <code>tsh play</code> if they know the session ID)</p>
+<h2 id="faq">FAQ</h2>
+<p><strong>Q:</strong> What if a node has multiple labels?</p>
+<p><strong>A:</strong> In this case, the access will be granted only if <strong>all of the labels</strong>
+defined in the role are present. This effectively means Teleport uses an "AND"
+operator when evaluating node-level access using labels.</p>
+<p><strong>Q:</strong> Can I use node-level RBAC with OpenSSH servers?</p>
+<p><strong>A:</strong> No. OpenSSH servers running <code>sshd</code> do not have the ability to label
+themselves. This is one of the reasons to run Teleport <code>node</code> service instead.</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../ssh-kubernetes-fedramp/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                FedRAMP for SSH & K8s
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../../architecture/overview/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Architecture Overview
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "../..",
+          features: [],
+          search: Object.assign({
+            worker: "../../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../../js/version-select.js"></script>
+      
+    
+  </body>
+</html>

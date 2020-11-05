@@ -1,0 +1,1487 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The detailed guide for configuring Teleport for SSH and Kubernetes access">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/config-reference/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Teleport Configuration Reference - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#teleport-configuration-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Teleport Configuration Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1">
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../user-manual/" class="md-nav__link">
+      User Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../admin-guide/" class="md-nav__link">
+      Admin Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../production/" class="md-nav__link">
+      Production Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-oss-guide/" class="md-nav__link">
+      AWS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../kubernetes-ssh/" class="md-nav__link">
+      Kubernetes Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5">
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-slack/" class="md-nav__link">
+      Teleport Slack Plugin Setup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-rbac/" class="md-nav__link">
+      RBAC
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/ssh-pam/" class="md-nav__link">
+      Using Teleport with PAM
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        YAML
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      YAML
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#teleportyaml" class="md-nav__link">
+    teleport.yaml
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cli-docs/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#teleportyaml" class="md-nav__link">
+    teleport.yaml
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/config-reference.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="teleport-configuration-reference">Teleport Configuration Reference</h1>
+<h2 id="teleportyaml">teleport.yaml</h2>
+<p>Teleport uses the YAML file format for configuration. A full configuration reference
+file is shown below, this provides comments and all available options for <code>teleport.yaml</code>
+By default, it is stored in <code>/etc/teleport.yaml</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># By default, this file should be stored in /etc/teleport.yaml</span>
+
+<span class="c1"># This section of the configuration file applies to all teleport</span>
+<span class="c1"># services.</span>
+<span class="nt">teleport</span><span class="p">:</span>
+    <span class="c1"># nodename allows to assign an alternative name this node can be reached by.</span>
+    <span class="c1"># by default it&#39;s equal to hostname</span>
+    <span class="nt">nodename</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">graviton</span>
+
+    <span class="c1"># Data directory where Teleport daemon keeps its data.</span>
+    <span class="c1"># See &quot;Filesystem Layout&quot; section above for more details.</span>
+    <span class="nt">data_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport</span>
+
+    <span class="c1"># Invitation token used to join a cluster. it is not used on</span>
+    <span class="c1"># subsequent starts</span>
+    <span class="nt">auth_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">xxxx-token-xxxx</span>
+
+    <span class="c1"># Optional CA pin of the auth server. This enables more secure way of adding new</span>
+    <span class="c1"># nodes to a cluster. See &quot;Adding Nodes&quot; section above.</span>
+    <span class="nt">ca_pin</span><span class="p">:</span> <span class="s">&quot;sha256:7e12c17c20d9cb504bbcb3f0236be3f446861f1396dcbb44425fe28ec1c108f1&quot;</span>
+
+    <span class="c1"># When running in multi-homed or NATed environments Teleport nodes need</span>
+    <span class="c1"># to know which IP it will be reachable at by other nodes</span>
+    <span class="c1">#</span>
+    <span class="c1"># This value can be specified as FQDN e.g. host.example.com</span>
+    <span class="nt">advertise_ip</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">10.1.0.5</span>
+
+    <span class="c1"># list of auth servers in a cluster. you will have more than one auth server</span>
+    <span class="c1"># if you configure teleport auth to run in HA configuration.</span>
+    <span class="c1"># If adding a node located behind NAT, use the Proxy URL. e.g.</span>
+    <span class="c1">#  auth_servers:</span>
+    <span class="c1">#     - teleport-proxy.example.com:3080</span>
+    <span class="nt">auth_servers</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">10.1.0.5:3025</span>
+        <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">10.1.0.6:3025</span>
+
+    <span class="c1"># Teleport throttles all connections to avoid abuse. These settings allow</span>
+    <span class="c1"># you to adjust the default limits</span>
+    <span class="nt">connection_limits</span><span class="p">:</span>
+        <span class="nt">max_connections</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+        <span class="nt">max_users</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">250</span>
+
+    <span class="c1"># Logging configuration. Possible output values to disk via &#39;/var/lib/teleport/teleport.log&#39;,</span>
+    <span class="c1"># &#39;stdout&#39;, &#39;stderr&#39; and &#39;syslog&#39;. Possible severity values are INFO, WARN</span>
+    <span class="c1"># and ERROR (default).</span>
+    <span class="nt">log</span><span class="p">:</span>
+        <span class="nt">output</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/teleport.log</span>
+        <span class="nt">severity</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">ERROR</span>
+
+    <span class="c1"># Configuration for the storage back-end used for the cluster state and the</span>
+    <span class="c1"># audit log. Several back-end types are supported. See &quot;High Availability&quot;</span>
+    <span class="c1"># section of this Admin Manual below to learn how to configure DynamoDB,</span>
+    <span class="c1"># S3, etcd and other highly available back-ends.</span>
+    <span class="nt">storage</span><span class="p">:</span>
+        <span class="c1"># By default teleport uses the `data_dir` directory on a local filesystem</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">dir</span>
+
+        <span class="c1"># List of locations where the audit log events will be stored. By default,</span>
+        <span class="c1"># they are stored in `/var/lib/teleport/log`</span>
+        <span class="c1"># When specifying multiple destinations like this, make sure that any highly-available</span>
+        <span class="c1"># storage methods (like DynamoDB or Firestore) are specified first, as this is what the</span>
+        <span class="c1"># Teleport web UI uses as its source of events to display.</span>
+        <span class="nt">audit_events_uri</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;dynamodb://events_table_name&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;firestore://events_table_name&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;file:///var/lib/teleport/log&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;stdout://&#39;</span><span class="p p-Indicator">]</span>
+
+        <span class="c1"># Use this setting to configure teleport to store the recorded sessions in</span>
+        <span class="c1"># an AWS S3 bucket or use GCP Storage with &#39;gs://&#39;. See &quot;Using Amazon S3&quot;</span>
+        <span class="c1"># chapter for more information.</span>
+        <span class="nt">audit_sessions_uri</span><span class="p">:</span> <span class="s">&#39;s3://example.com/path/to/bucket?region=us-east-1&#39;</span>
+
+    <span class="c1"># CA Signing algorithm used for OpenSSH Certificates</span>
+    <span class="c1"># Defaults to rsa-sha2-512 in 4.3 and above.</span>
+    <span class="c1"># valid values are: ssh-rsa, rsa-sha2-256, rsa-sha2-512; ssh-rsa is SHA1</span>
+    <span class="nt">ca_signature_algo</span><span class="p">:</span> <span class="s">&quot;rsa-sha2-512&quot;</span>
+
+    <span class="c1"># Cipher algorithms that the server supports. This section only needs to be</span>
+    <span class="c1"># set if you want to override the defaults.</span>
+    <span class="nt">ciphers</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">aes128-ctr</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">aes192-ctr</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">aes256-ctr</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">aes128-gcm@openssh.com</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">chacha20-poly1305@openssh.com</span>
+
+    <span class="c1"># Key exchange algorithms that the server supports. This section only needs</span>
+    <span class="c1"># to be set if you want to override the defaults.</span>
+    <span class="nt">kex_algos</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">curve25519-sha256@libssh.org</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ecdh-sha2-nistp256</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ecdh-sha2-nistp384</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">ecdh-sha2-nistp521</span>
+
+    <span class="c1"># Message authentication code (MAC) algorithms that the server supports.</span>
+    <span class="c1"># This section only needs to be set if you want to override the defaults.</span>
+    <span class="nt">mac_algos</span><span class="p">:</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">hmac-sha2-256-etm@openssh.com</span>
+      <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">hmac-sha2-256</span>
+
+    <span class="c1"># List of the supported ciphersuites. If this section is not specified,</span>
+    <span class="c1"># only the default ciphersuites are enabled.</span>
+    <span class="nt">ciphersuites</span><span class="p">:</span>
+       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">tls-ecdhe-rsa-with-aes-128-gcm-sha256</span>
+       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">tls-ecdhe-ecdsa-with-aes-128-gcm-sha256</span>
+       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">tls-ecdhe-rsa-with-aes-256-gcm-sha384</span>
+       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">tls-ecdhe-ecdsa-with-aes-256-gcm-sha384</span>
+       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">tls-ecdhe-rsa-with-chacha20-poly1305</span>
+       <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">tls-ecdhe-ecdsa-with-chacha20-poly1305</span>
+
+<span class="c1"># This section configures the &#39;auth service&#39;:</span>
+<span class="nt">auth_service</span><span class="p">:</span>
+    <span class="c1"># Turns &#39;auth&#39; role on. Default is &#39;yes&#39;</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+
+    <span class="c1"># A cluster name is used as part of a signature in certificates</span>
+    <span class="c1"># generated by this CA.</span>
+    <span class="c1">#</span>
+    <span class="c1"># We strongly recommend to explicitly set it to something meaningful as it</span>
+    <span class="c1"># becomes important when configuring trust between multiple clusters.</span>
+    <span class="c1">#</span>
+    <span class="c1"># By default an automatically generated name is used (not recommended)</span>
+    <span class="c1">#</span>
+    <span class="c1"># IMPORTANT: if you change cluster_name, it will invalidate all generated</span>
+    <span class="c1"># certificates and keys (may need to wipe out /var/lib/teleport directory)</span>
+    <span class="nt">cluster_name</span><span class="p">:</span> <span class="s">&quot;main&quot;</span>
+
+    <span class="nt">authentication</span><span class="p">:</span>
+        <span class="c1"># default authentication type. possible values are &#39;local&#39; and &#39;github&#39; for OSS</span>
+        <span class="c1">#  and &#39;oidc&#39;, &#39;saml&#39; and &#39;false&#39; for Enterprise.</span>
+        <span class="c1"># &#39;false&#39; is required for FedRAMP / FIPS, see</span>
+        <span class="c1">#  https://gravitational.com/teleport/docs/enterprise/ssh-kubernetes-fedramp/</span>
+        <span class="c1">#  only local authentication (Teleport&#39;s own user DB) &amp; Github is supported in the open</span>
+        <span class="c1">#  source version</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">local</span>
+        <span class="c1"># second_factor can be off, otp, or u2f</span>
+        <span class="nt">second_factor</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">otp</span>
+        <span class="c1"># this section is used if second_factor is set to &#39;u2f&#39;</span>
+        <span class="nt">u2f</span><span class="p">:</span>
+            <span class="c1"># app_id must point to the URL of the Teleport Web UI (proxy) accessible</span>
+            <span class="c1"># by the end users</span>
+            <span class="nt">app_id</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">https://localhost:3080</span>
+            <span class="c1"># facets must list all proxy servers if there are more than one deployed</span>
+            <span class="nt">facets</span><span class="p">:</span>
+            <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">https://localhost:3080</span>
+
+    <span class="c1"># IP and the port to bind to. Other Teleport nodes will be connecting to</span>
+    <span class="c1"># this port (AKA &quot;Auth API&quot; or &quot;Cluster API&quot;) to validate client</span>
+    <span class="c1"># certificates</span>
+    <span class="nt">listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3025</span>
+
+    <span class="c1"># The optional DNS name the auth server if located behind a load balancer.</span>
+    <span class="c1"># (see public_addr section below)</span>
+    <span class="nt">public_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">auth.example.com:3025</span>
+
+    <span class="c1"># Pre-defined tokens for adding new nodes to a cluster. Each token specifies</span>
+    <span class="c1"># the role a new node will be allowed to assume. The more secure way to</span>
+    <span class="c1"># add nodes is to use `ttl node add --ttl` command to generate auto-expiring</span>
+    <span class="c1"># tokens.</span>
+    <span class="c1">#</span>
+    <span class="c1"># We recommend to use tools like `pwgen` to generate sufficiently random</span>
+    <span class="c1"># tokens of 32+ byte length.</span>
+    <span class="nt">tokens</span><span class="p">:</span>
+        <span class="p p-Indicator">-</span> <span class="s">&quot;proxy,node:xxxxx&quot;</span>
+        <span class="p p-Indicator">-</span> <span class="s">&quot;auth:yyyy&quot;</span>
+
+    <span class="c1"># Optional setting for configuring session recording. Possible values are:</span>
+    <span class="c1">#    &quot;node&quot;  : sessions will be recorded on the node level  (the default)</span>
+    <span class="c1">#    &quot;proxy&quot; : recording on the proxy level, see &quot;recording proxy mode&quot; section.</span>
+    <span class="c1">#    &quot;off&quot;   : session recording is turned off</span>
+    <span class="c1">#</span>
+    <span class="c1"># EXPERIMENTAL *-sync modes</span>
+    <span class="c1"># Proxy and node send logs directly to S3 or other</span>
+<span class="c1">#    storage without storing the records on disk at all. *-sync requires all</span>
+<span class="c1">#    nodes to be upgraded to 4.4</span>
+<span class="c1">#</span>
+<span class="c1">#    &quot;node-sync&quot; : sessions recording will be streamed from node -&gt; auth -&gt; storage service</span>
+<span class="c1">#    &quot;proxy-sync : sessions recording will be streamed from proxy -&gt; auth -&gt; storage service</span>
+<span class="c1">#</span>
+    <span class="nt">session_recording</span><span class="p">:</span> <span class="s">&quot;node&quot;</span>
+
+    <span class="c1"># This setting determines if a Teleport proxy performs strict host key checks.</span>
+    <span class="c1"># Only applicable if session_recording=proxy, see &quot;recording proxy mode&quot; for details.</span>
+    <span class="nt">proxy_checks_host_keys</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+
+    <span class="c1"># Determines if SSH sessions to cluster nodes are forcefully terminated</span>
+    <span class="c1"># after no activity from a client (idle client).</span>
+    <span class="c1"># Examples: &quot;30m&quot;, &quot;1h&quot; or &quot;1h30m&quot;</span>
+    <span class="nt">client_idle_timeout</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">never</span>
+
+    <span class="c1"># Determines if the clients will be forcefully disconnected when their</span>
+    <span class="c1"># certificates expire in the middle of an active SSH session. (default is &#39;no&#39;)</span>
+    <span class="nt">disconnect_expired_cert</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">no</span>
+
+    <span class="c1"># Determines the interval at which Teleport will send keep-alive messages. The default</span>
+    <span class="c1"># is set to 5 minutes (300 seconds) to stay lower than the common load balancer timeout</span>
+    <span class="c1"># of 350 seconds.</span>
+    <span class="c1"># keep_alive_count_max is the number of missed keep-alive messages before the server</span>
+    <span class="c1"># tears down the connection to the client.</span>
+    <span class="nt">keep_alive_interval</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">5m</span>
+    <span class="nt">keep_alive_count_max</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">3</span>
+
+    <span class="c1"># Determines the internal session control timeout cluster wide. This value will</span>
+    <span class="c1"># be used with enterprise max_connections and max_sessions. It&#39;s unlikely that</span>
+    <span class="c1"># you&#39;ll need to change this.</span>
+    <span class="c1"># session_control_timeout: 2m</span>
+
+    <span class="c1"># License file to start auth server with. Note that this setting is ignored</span>
+    <span class="c1"># in open-source Teleport and is required only for Teleport Pro, Business</span>
+    <span class="c1"># and Enterprise subscription plans.</span>
+    <span class="c1">#</span>
+    <span class="c1"># The path can be either absolute or relative to the configured `data_dir`</span>
+    <span class="c1"># and should point to the license file obtained from Teleport Download Portal.</span>
+    <span class="c1">#</span>
+    <span class="c1"># If not set, by default Teleport will look for the `license.pem` file in</span>
+    <span class="c1"># the configured `data_dir` .</span>
+    <span class="nt">license_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/license.pem</span>
+
+<span class="c1"># This section configures the &#39;node service&#39;:</span>
+<span class="nt">ssh_service</span><span class="p">:</span>
+    <span class="c1"># Turns &#39;ssh&#39; role on. Default is &#39;yes&#39;</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+
+    <span class="c1"># IP and the port for SSH service to bind to.</span>
+    <span class="nt">listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3022</span>
+
+    <span class="c1"># The optional public address the SSH service. This is useful if administrators</span>
+    <span class="c1"># want to allow users to connect to nodes directly, bypassing a Teleport proxy</span>
+    <span class="c1"># (see public_addr section below)</span>
+    <span class="nt">public_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">node.example.com:3022</span>
+
+    <span class="c1"># See explanation of labels in &quot;Labeling Nodes&quot; section below</span>
+    <span class="nt">labels</span><span class="p">:</span>
+        <span class="nt">role</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">leader</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">postgres</span>
+
+    <span class="c1"># List of the commands to periodically execute. Their output will be used as node labels.</span>
+    <span class="c1"># See &quot;Labeling Nodes&quot; section below for more information and more examples.</span>
+    <span class="nt">commands</span><span class="p">:</span>
+    <span class="c1"># this command will add a label &#39;arch=x86_64&#39; to a node</span>
+    <span class="p p-Indicator">-</span> <span class="nt">name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">arch</span>
+      <span class="nt">command</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;/bin/uname&#39;</span><span class="p p-Indicator">,</span> <span class="s">&#39;-p&#39;</span><span class="p p-Indicator">]</span>
+      <span class="nt">period</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1h0m0s</span>
+
+    <span class="c1"># enables reading ~/.tsh/environment before creating a session. by default</span>
+    <span class="c1"># set to false, can be set true here or as a command line flag.</span>
+    <span class="nt">permit_user_env</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+    <span class="c1"># Enhanced Session Recording</span>
+    <span class="c1"># see https://gravitational.com/teleport/docs/features/enhanced-session-recording</span>
+    <span class="nt">enhanced_recording</span><span class="p">:</span>
+       <span class="c1"># Enable or disable enhanced auditing for this node. Default value:</span>
+       <span class="c1"># false.</span>
+       <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+
+       <span class="c1"># command_buffer_size is optional with a default value of 8 pages.</span>
+       <span class="nt">command_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
+
+       <span class="c1"># disk_buffer_size is optional with default value of 128 pages.</span>
+       <span class="nt">disk_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">128</span>
+
+       <span class="c1"># network_buffer_size is optional with default value of 8 pages.</span>
+       <span class="nt">network_buffer_size</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">8</span>
+
+       <span class="c1"># Controls where cgroupv2 hierarchy is mounted. Default value:</span>
+       <span class="c1"># /cgroup2.</span>
+       <span class="nt">cgroup_path</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/cgroup2</span>
+
+    <span class="c1"># configures PAM integration. see below for more details.</span>
+    <span class="nt">pam</span><span class="p">:</span>
+        <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">no</span>
+        <span class="nt">service_name</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">teleport</span>
+
+<span class="c1"># This section configures the &#39;proxy service&#39;</span>
+<span class="nt">proxy_service</span><span class="p">:</span>
+    <span class="c1"># Turns &#39;proxy&#39; role on. Default is &#39;yes&#39;</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+
+    <span class="c1"># SSH forwarding/proxy address. Command line (CLI) clients always begin their</span>
+    <span class="c1"># SSH sessions by connecting to this port</span>
+    <span class="nt">listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3023</span>
+
+    <span class="c1"># Reverse tunnel listening address. An auth server (CA) can establish an</span>
+    <span class="c1"># outbound (from behind the firewall) connection to this address.</span>
+    <span class="c1"># This will allow users of the outside CA to connect to behind-the-firewall</span>
+    <span class="c1"># nodes.</span>
+    <span class="nt">tunnel_listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3024</span>
+
+    <span class="c1"># The HTTPS listen address to serve the Web UI and also to authenticate the</span>
+    <span class="c1"># command line (CLI) users via password+HOTP</span>
+    <span class="nt">web_listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3080</span>
+
+    <span class="c1"># The DNS name of the proxy HTTPS endpoint as accessible by cluster users.</span>
+    <span class="c1"># Defaults to the proxy&#39;s hostname if not specified. If running multiple</span>
+    <span class="c1"># proxies behind a load balancer, this name must point to the load balancer</span>
+    <span class="c1"># (see public_addr section below)</span>
+    <span class="nt">public_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">proxy.example.com:3080</span>
+
+    <span class="c1"># The DNS name of the proxy SSH endpoint as accessible by cluster clients.</span>
+    <span class="c1"># Defaults to the proxy&#39;s hostname if not specified. If running multiple proxies</span>
+    <span class="c1"># behind a load balancer, this name must point to the load balancer.</span>
+    <span class="c1"># Use a TCP load balancer because this port uses SSH protocol.</span>
+    <span class="nt">ssh_public_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">proxy.example.com:3023</span>
+
+    <span class="c1"># The DNS name of the tunnel SSH endpoint as accessible by trusted clusters and</span>
+    <span class="c1"># nodes joining the cluster via Teleport IoT/node tunneling.</span>
+    <span class="c1"># Defaults to the proxy&#39;s hostname if not specified. If running multiple proxies</span>
+    <span class="c1"># behind a load balancer, this name must point to the load balancer.</span>
+    <span class="c1"># Use a TCP load balancer because this port uses SSH protocol.</span>
+    <span class="nt">tunnel_public_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">proxy.example.com:3024</span>
+
+    <span class="c1"># TLS certificate for the HTTPS connection. Configuring these properly is</span>
+    <span class="c1"># critical for Teleport security.</span>
+    <span class="nt">https_key_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/webproxy_key.pem</span>
+    <span class="nt">https_cert_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/webproxy_cert.pem</span>
+
+    <span class="c1"># This section configures the Kubernetes proxy service</span>
+    <span class="nt">kubernetes</span><span class="p">:</span>
+        <span class="c1"># Turns &#39;kubernetes&#39; proxy on. Default is &#39;no&#39;</span>
+        <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+
+        <span class="c1"># Kubernetes proxy listen address.</span>
+        <span class="nt">listen_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">0.0.0.0:3026</span>
+
+        <span class="c1"># The DNS name of the Kubernetes proxy server that is accessible by cluster clients.</span>
+        <span class="c1"># If running multiple proxies behind  a load balancer, this name must point to the</span>
+        <span class="c1"># load balancer.</span>
+        <span class="nt">public_addr</span><span class="p">:</span> <span class="p p-Indicator">[</span><span class="s">&#39;kube.example.com:3026&#39;</span><span class="p p-Indicator">]</span>
+
+        <span class="c1"># This setting is not required if the Teleport proxy service is</span>
+        <span class="c1"># deployed inside a Kubernetes cluster. Otherwise, Teleport proxy</span>
+        <span class="c1"># will use the credentials from this file:</span>
+        <span class="nt">kubeconfig_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/path/to/kube/config</span>
+</code></pre></div>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../features/ssh-pam/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Using Teleport with PAM
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../cli-docs/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                CLI
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../js/version-select.js"></script>
+      
+    
+  </body>
+</html>

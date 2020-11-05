@@ -1,0 +1,1662 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How to configure SSH and Kubernetes access with SSO on AWS, GCE and your own infrastructure.">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/production/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Teleport Production Guide - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#production-guide" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Teleport Production Guide
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1" checked>
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../user-manual/" class="md-nav__link">
+      User Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../admin-guide/" class="md-nav__link">
+      Admin Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Production Guide
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Production Guide
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#designing-your-cluster" class="md-nav__link">
+    Designing Your Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#firewall-configuration" class="md-nav__link">
+    Firewall Configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filesystem-layout" class="md-nav__link">
+    Filesystem Layout
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-teleport-in-production" class="md-nav__link">
+    Running Teleport in Production
+  </a>
+  
+    <nav class="md-nav" aria-label="Running Teleport in Production">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#systemd-unit-file" class="md-nav__link">
+    Systemd Unit File
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-the-teleport-service" class="md-nav__link">
+    Start the Teleport Service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-nodes-to-the-cluster" class="md-nav__link">
+    Adding Nodes to the Cluster
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    Security Considerations
+  </a>
+  
+    <nav class="md-nav" aria-label="Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssltls-for-teleport-proxy" class="md-nav__link">
+    SSL/TLS for Teleport Proxy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ca-pinning" class="md-nav__link">
+    CA Pinning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secure-data-storage" class="md-nav__link">
+    Secure Data Storage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-oss-guide/" class="md-nav__link">
+      AWS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../kubernetes-ssh/" class="md-nav__link">
+      Kubernetes Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5">
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-slack/" class="md-nav__link">
+      Teleport Slack Plugin Setup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-rbac/" class="md-nav__link">
+      RBAC
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/ssh-pam/" class="md-nav__link">
+      Using Teleport with PAM
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../config-reference/" class="md-nav__link">
+      YAML
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cli-docs/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#designing-your-cluster" class="md-nav__link">
+    Designing Your Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#firewall-configuration" class="md-nav__link">
+    Firewall Configuration
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    Installation
+  </a>
+  
+    <nav class="md-nav" aria-label="Installation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#filesystem-layout" class="md-nav__link">
+    Filesystem Layout
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-teleport-in-production" class="md-nav__link">
+    Running Teleport in Production
+  </a>
+  
+    <nav class="md-nav" aria-label="Running Teleport in Production">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#systemd-unit-file" class="md-nav__link">
+    Systemd Unit File
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#start-the-teleport-service" class="md-nav__link">
+    Start the Teleport Service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-nodes-to-the-cluster" class="md-nav__link">
+    Adding Nodes to the Cluster
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#security-considerations" class="md-nav__link">
+    Security Considerations
+  </a>
+  
+    <nav class="md-nav" aria-label="Security Considerations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssltls-for-teleport-proxy" class="md-nav__link">
+    SSL/TLS for Teleport Proxy
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ca-pinning" class="md-nav__link">
+    CA Pinning
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secure-data-storage" class="md-nav__link">
+    Secure Data Storage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/production.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="production-guide">Production Guide</h1>
+<p>This guide provides more in-depth details for running Teleport in Production.</p>
+<!-- TODO: Minimal Config example -->
+
+<h2 id="prerequisites">Prerequisites</h2>
+<ul>
+<li>Read the <a href="../architecture/overview/">Architecture Overview</a></li>
+<li>Read through the <a href="../installation/">Installation Guide</a> to see the available packages and binaries available.</li>
+<li>Read the CLI Docs for <a href="../cli-docs/#teleport"><code>teleport</code></a></li>
+</ul>
+<h2 id="designing-your-cluster">Designing Your Cluster</h2>
+<p>Before installing anything there are a few things you should think about.</p>
+<ul>
+<li>Where will you host Teleport?<ul>
+<li>On-premises</li>
+<li>Cloud VMs such as <a href="../aws-oss-guide/">AWS EC2</a> or <a href="../gcp-guide/">GCE</a></li>
+<li>An existing Kubernetes Cluster</li>
+</ul>
+</li>
+<li>What does your existing network configuration look like?<ul>
+<li>Are you able to administer the network firewall rules yourself or do you need to work with a network admin?</li>
+<li>Are these nodes accessible to the public Internet or behind NAT?</li>
+</ul>
+</li>
+<li>Which users, (<a href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">Roles or ClusterRoles</a> on k8s) are set up on the existing system?</li>
+<li>Can you add new users or Roles yourself or do you need to work with a system administrator?</li>
+</ul>
+<h2 id="firewall-configuration">Firewall Configuration</h2>
+<p>Teleport services listen on several ports. This table shows the default port numbers.</p>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Service</th>
+<th>Description</th>
+<th>Ingress</th>
+<th>Egress</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3080</td>
+<td>Proxy</td>
+<td>HTTPS port clients connect to. Used to authenticate <code>tsh</code> users and web users into the cluster.</td>
+<td>Allow inbound connections from HTTP and SSH clients.</td>
+<td>Allow outbound connections to HTTP and SSH clients.</td>
+</tr>
+<tr>
+<td>3023</td>
+<td>Proxy</td>
+<td>SSH port clients connect to after authentication. A proxy will forward this connection to port <code>3022</code> on the destination node.</td>
+<td>Allow inbound traffic from SSH clients.</td>
+<td>Allow outbound traffic to SSH clients.</td>
+</tr>
+<tr>
+<td>3022</td>
+<td>Node</td>
+<td>SSH port to the Node Service. This is Teleport's equivalent of port <code>22</code> for SSH.</td>
+<td>Allow inbound traffic from proxy host.</td>
+<td>Allow outbound traffic to the proxy host.</td>
+</tr>
+<tr>
+<td>3025</td>
+<td>Auth</td>
+<td>SSH port used by the Auth Service to serve its Auth API to other nodes in a cluster.</td>
+<td>Allow inbound connections from all cluster nodes.</td>
+<td>Allow outbound traffic to cluster nodes.</td>
+</tr>
+<tr>
+<td>3024</td>
+<td>Proxy</td>
+<td>SSH port used to create "reverse SSH tunnels" from behind-firewall environments into a trusted proxy server.</td>
+<td><TODO></td>
+<td><TODO></td>
+</tr>
+</tbody>
+</table>
+<!--TODO: Add several diagrams of firewall config examples-->
+
+<h2 id="installation">Installation</h2>
+<p>We have a detailed <a href="../installation/">installation guide</a> which shows how to
+install all available binaries or <a href="../installation/#installing-from-source">install from
+source</a>. Reference that guide to learn
+the best way to install Teleport for your system and the come back here to
+finish your production install.</p>
+<h3 id="filesystem-layout">Filesystem Layout</h3>
+<p>By default a Teleport node has the following files present. The location of all
+of them is configurable.</p>
+<table>
+<thead>
+<tr>
+<th>Default path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/etc/teleport.yaml</code></td>
+<td>Teleport configuration file.</td>
+</tr>
+<tr>
+<td><code>/usr/local/bin/teleport</code></td>
+<td>Teleport daemon binary.</td>
+</tr>
+<tr>
+<td><code>/usr/local/bin/tctl</code></td>
+<td>Teleport admin tool. It is only needed for auth servers.</td>
+</tr>
+<tr>
+<td><code>/usr/local/bin/tsh</code></td>
+<td>Teleport CLI client tool. It is needed on any node that needs to connect to the cluster.</td>
+</tr>
+<tr>
+<td><code>/var/lib/teleport</code></td>
+<td>Teleport data directory. Nodes keep their keys and certificates there. Auth servers store the audit log and the cluster keys there, but the audit log storage can be further configured via <code>auth_service</code> section in the config file.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="running-teleport-in-production">Running Teleport in Production</h2>
+<h3 id="systemd-unit-file">Systemd Unit File</h3>
+<p>In production, we recommend starting teleport daemon via an init system like
+<code>systemd</code>. If systemd and unit files are new to you, check out <a href="https://www.digitalocean.com/community/tutorials/understanding-systemd-units-and-unit-files">this helpful guide</a>. Here's an example systemd unit file for the Teleport <a href="https://github.com/gravitational/teleport/tree/master/examples/systemd/production">Proxy, Node and Auth Service</a>.</p>
+<p>There are a couple of important things to notice about this file:</p>
+<ol>
+<li>
+<p>The start command in the unit file specifies <code>--config</code> as a file and there
+   are very few flags passed to the <code>teleport</code> binary. Most of the configuration
+   for Teleport should be done in the <a href="../admin-guide/#configuration">configuration file</a>.</p>
+</li>
+<li>
+<p>The <strong>ExecReload</strong> command allows admins to run <code>systemctl reload teleport</code>.
+   This will attempt to perform a graceful restart of Teleport <em><em>but it only works if
+   network-based backend storage like <a href="../admin-guide/#using-dynamodb">DynamoDB</a> or
+   <a href="../admin-guide/#using-etcd">etc 3.3</a> is configured</em></em>. Graceful Restarts will
+   fork a new process to handle new incoming requests and leave the old daemon
+   process running until existing clients disconnect.</p>
+</li>
+</ol>
+<h3 id="start-the-teleport-service">Start the Teleport Service</h3>
+<p>You can start Teleport via systemd unit by enabling the <code>.service</code> file
+with the <code>systemctl</code> tool.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># sudo cp teleport/examples/systemd/teleport.service /etc/systemd/system</span>
+$ <span class="nb">cd</span> /etc/systemd/system
+
+<span class="c1"># Use your text editor of choice to create the .service file</span>
+<span class="c1"># Here we use vim</span>
+$ vi teleport.service
+
+<span class="c1"># use the file linked above as is, or customize as needed</span>
+<span class="c1"># save the file</span>
+$ systemctl <span class="nb">enable</span> teleport
+$ systemctl start teleport
+
+<span class="c1"># show the status of the unit</span>
+$ systemctl status teleport
+
+<span class="c1"># follow tail of service logs</span>
+$ journalctl -fu teleport
+
+<span class="c1"># If you modify teleport.service later you will need to</span>
+<span class="c1"># reload the systemctl daemon and reload teleport</span>
+<span class="c1"># to apply your changes</span>
+$ systemctl daemon-reload
+$ systemctl reload teleport
+</code></pre></div>
+<p>You can also perform restarts or upgrades by sending <code>kill</code> signals
+to a Teleport daemon manually.</p>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Teleport Daemon Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>USR1</code></td>
+<td>Dumps diagnostics/debugging information into syslog.</td>
+</tr>
+<tr>
+<td><code>TERM</code>, <code>INT</code> or <code>KILL</code></td>
+<td>Immediate non-graceful shutdown. All existing connections will be dropped.</td>
+</tr>
+<tr>
+<td><code>USR2</code></td>
+<td>Forks a new Teleport daemon to serve new connections.</td>
+</tr>
+<tr>
+<td><code>HUP</code></td>
+<td>Forks a new Teleport daemon to serve new connections <strong>and</strong> initiates the graceful shutdown of the existing process when there are no more clients connected to it. This is the signal sent to trigger a graceful restart.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="adding-nodes-to-the-cluster">Adding Nodes to the Cluster</h3>
+<p>We've written a dedicated guide on <a href="../admin-guide/#adding-nodes-to-the-cluster">Adding Nodes to your
+Cluster</a> which shows how to generate or set join tokens and
+use them to add nodes.</p>
+<h2 id="security-considerations">Security Considerations</h2>
+<h3 id="ssltls-for-teleport-proxy">SSL/TLS for Teleport Proxy</h3>
+<p>TLS stands for Transport Layer Security (TLS), and its now-deprecated predecessor,
+Secure Sockets Layer (SSL).  Teleport requires TLS authentication to ensure that
+communication between nodes, clients and web proxy remains secure and comes from
+a trusted source.</p>
+<p>During our <a href="../quickstart/">quickstart</a> guide we skip over setting up TLS so that you can quickly try Teleport.
+Obtaining a TLS certificate is easy and is free with thanks to <a href="https://letsencrypt.org/">Let's Encrypt</a>.</p>
+<p>If you use <a href="https://certbot.eff.org/">certbot</a>, you get this list of files provided:</p>
+<div class="highlight"><pre><span></span><code>README
+cert.pem
+chain.pem
+fullchain.pem
+privkey.pem
+</code></pre></div>
+<p>The files that are needed for Teleport are these:</p>
+<div class="highlight"><pre><span></span><code>https_key_file: /path/to/certs/privkey.pem
+https_cert_file: /path/to/certs/fullchain.pem
+</code></pre></div>
+<p>If you already have a certificate these should be uploaded to the Teleport Proxy and
+can be set via <code>https_key_file</code> and <code>https_cert_file</code>. Make sure any certificates
+files uploaded contain a full certificate chain, complete with any intermediate
+certificates required - this <a href="https://www.digicert.com/ssl-support/pem-ssl-creation.htm">guide</a> may help.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># This section configures the &#39;proxy service&#39;</span>
+<span class="nt">proxy_service</span><span class="p">:</span>
+    <span class="c1"># Turns &#39;proxy&#39; role on. Default is &#39;yes&#39;</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">yes</span>
+
+    <span class="c1"># The DNS name the proxy HTTPS endpoint as accessible by cluster users.</span>
+    <span class="c1"># Defaults to the proxy&#39;s hostname if not specified. If running multiple</span>
+    <span class="c1"># proxies behind a load balancer, this name must point to the load balancer</span>
+    <span class="c1"># (see public_addr section below)</span>
+    <span class="nt">public_addr</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">proxy.example.com:3080</span>
+
+    <span class="c1"># TLS certificate for the HTTPS connection. Configuring these properly is</span>
+    <span class="c1"># critical for Teleport security.</span>
+    <span class="nt">https_key_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/webproxy_key.pem</span>
+    <span class="nt">https_cert_file</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport/webproxy_cert.pem</span>
+</code></pre></div>
+<p>When setting up on Teleport on AWS or GCP, we recommend leveraging their certificate
+managers.</p>
+<ul>
+<li><a href="https://gravitational.com/teleport/docs/aws-oss-guide/#acm">ACM</a> on AWS</li>
+<li><a href="https://cloud.google.com/load-balancing/docs/ssl-certificates">Google-managed SSL certificates</a> on GCP</li>
+</ul>
+<p>When setting up Teleport with a Cloud Provider, it can be common to terminate
+TLS at the load balancer, then use an autoscaling group for the proxy nodes. When
+setting up the proxy nodes start Teleport with:</p>
+<p><code>teleport start --insecure --roles=proxy --config=/etc/teleport.yaml</code></p>
+<p>See <a href="../admin-guide/#teleport-proxy-ha">Teleport Proxy HA</a> for more info.</p>
+<!-- TODO Address vulns in quay? -->
+
+<!-- TODO SSL for Webproxy & Auth Section -->
+
+<h3 id="ca-pinning">CA Pinning</h3>
+<p>Teleport nodes use the HTTPS protocol to offer the join tokens to the auth
+server. In a zero-trust environment, you must assume that an attacker can
+hijack the IP address of the auth server.</p>
+<p>To prevent this from happening, you need to supply every new node with an
+additional bit of information about the auth server. This technique is called
+"CA pinning". It works by asking the auth server to produce a "CA pin", which
+is a hashed value of its private key, i.e. it cannot be forged by an attacker.</p>
+<p>To get the current CA pin run this on the auth server:</p>
+<div class="highlight"><pre><span></span><code>$ tctl status
+Cluster  staging.example.com
+User CA  never updated
+Host CA  never updated
+CA pin   sha256:7e12c17c20d9cb504bbcb3f0236be3f446861f1396dcbb44425fe28ec1c108f1
+</code></pre></div>
+<p>The CA pin at the bottom needs to be passed to the new nodes when they're starting
+for the first time, i.e. when they join a cluster:</p>
+<p>Via CLI:</p>
+<div class="highlight"><pre><span></span><code>$ teleport start <span class="se">\</span>
+   --roles<span class="o">=</span>node <span class="se">\</span>
+   --token<span class="o">=</span>1ac590d36493acdaa2387bc1c492db1a <span class="se">\</span>
+   --ca-pin<span class="o">=</span>sha256:7e12c17c20d9cb504bbcb3f0236be3f446861f1396dcbb44425fe28ec1c108f1 <span class="se">\</span>
+   --auth-server<span class="o">=</span><span class="m">10</span>.12.0.6:3025
+</code></pre></div>
+<p>or via <code>/etc/teleport.yaml</code> on a node:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">auth_token</span><span class="p">:</span> <span class="s">&quot;1ac590d36493acdaa2387bc1c492db1a&quot;</span>
+  <span class="nt">ca_pin</span><span class="p">:</span> <span class="s">&quot;sha256:7e12c17c20d9cb504bbcb3f0236be3f446861f1396dcbb44425fe28ec1c108f1&quot;</span>
+  <span class="nt">auth_servers</span><span class="p">:</span>
+    <span class="p p-Indicator">-</span> <span class="s">&quot;10.12.0.6:3025&quot;</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If a CA pin is not provided, Teleport node will join a cluster but it will
+print a <code>WARN</code> message (warning) into its standard error output.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The CA pin becomes invalid if a Teleport administrator performs the CA
+rotation by executing <code>tctl auth rotate</code>.</p>
+</div>
+<h3 id="secure-data-storage">Secure Data Storage</h3>
+<p>By default the <code>teleport</code> daemon uses the local directory <code>/var/lib/teleport</code> to
+store its data. This applies to any role or service including Auth, Node, or Proxy.
+While an Auth node hosts the most sensitive data you will want to prevent
+unauthorized access to this directory. Make sure that regular/non-admin users
+do not have access to this folder, particularly on the Auth server. Change
+the ownership of the directory with <a href="https://linuxize.com/post/linux-chown-command/"><code>chown</code></a></p>
+<div class="highlight"><pre><span></span><code>$ sudo teleport start
+</code></pre></div>
+<p>If you are logged in as <code>root</code> you may want to create a new OS-level user first.
+On Linux, create a new user called <code>&lt;username&gt;</code> with the following commands:</p>
+<div class="highlight"><pre><span></span><code>$ adduser &lt;username&gt;
+$ su &lt;username&gt;
+</code></pre></div>
+<!--  Security considerations on installing tctl under root or not -->
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../admin-guide/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Admin Manual
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../faq/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                FAQ
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../js/version-select.js"></script>
+      
+    
+  </body>
+</html>

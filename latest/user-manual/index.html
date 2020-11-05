@@ -1,0 +1,1965 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Manual for how to manage user identities, share sessions for SSH and Kubernetes access using the command line and the Web UI.">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/user-manual/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Teleport User Manual - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#teleport-user-manual" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Teleport User Manual
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1" checked>
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href=".." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        User Manual
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      User Manual
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-tsh" class="md-nav__link">
+    Installing tsh
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-identities" class="md-nav__link">
+    User Identities
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-in" class="md-nav__link">
+    Logging In
+  </a>
+  
+    <nav class="md-nav" aria-label="Logging In">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inspecting-ssh-certificate" class="md-nav__link">
+    Inspecting SSH Certificate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-agent-support" class="md-nav__link">
+    SSH Agent Support
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identity-files" class="md-nav__link">
+    Identity Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-certificates-for-automation" class="md-nav__link">
+    SSH Certificates for Automation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exploring-the-cluster" class="md-nav__link">
+    Exploring the Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interactive-shell" class="md-nav__link">
+    Interactive Shell
+  </a>
+  
+    <nav class="md-nav" aria-label="Interactive Shell">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proxy-ports" class="md-nav__link">
+    Proxy Ports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-forwarding" class="md-nav__link">
+    Port Forwarding
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-jumphost" class="md-nav__link">
+    SSH Jumphost
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolving-node-names" class="md-nav__link">
+    Resolving Node Names
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#short-lived-sessions" class="md-nav__link">
+    Short-lived Sessions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#copying-files" class="md-nav__link">
+    Copying Files
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sharing-sessions" class="md-nav__link">
+    Sharing Sessions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connecting-to-ssh-clusters-behind-firewalls" class="md-nav__link">
+    Connecting to SSH Clusters behind Firewalls
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web-ui" class="md-nav__link">
+    Web UI
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-openssh-client" class="md-nav__link">
+    Using OpenSSH Client
+  </a>
+  
+    <nav class="md-nav" aria-label="Using OpenSSH Client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssh-proxy-configuration" class="md-nav__link">
+    SSH Proxy Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#passing-teleport-ssh-certificate-to-openssh-client" class="md-nav__link">
+    Passing Teleport SSH Certificate to OpenSSH Client
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    Getting Help
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../admin-guide/" class="md-nav__link">
+      Admin Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../production/" class="md-nav__link">
+      Production Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-oss-guide/" class="md-nav__link">
+      AWS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../kubernetes-ssh/" class="md-nav__link">
+      Kubernetes Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5">
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/workflow/ssh-approval-slack/" class="md-nav__link">
+      Teleport Slack Plugin Setup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enterprise/ssh-rbac/" class="md-nav__link">
+      RBAC
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../features/ssh-pam/" class="md-nav__link">
+      Using Teleport with PAM
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../config-reference/" class="md-nav__link">
+      YAML
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cli-docs/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction" class="md-nav__link">
+    Introduction
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-tsh" class="md-nav__link">
+    Installing tsh
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#user-identities" class="md-nav__link">
+    User Identities
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#logging-in" class="md-nav__link">
+    Logging In
+  </a>
+  
+    <nav class="md-nav" aria-label="Logging In">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inspecting-ssh-certificate" class="md-nav__link">
+    Inspecting SSH Certificate
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-agent-support" class="md-nav__link">
+    SSH Agent Support
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#identity-files" class="md-nav__link">
+    Identity Files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-certificates-for-automation" class="md-nav__link">
+    SSH Certificates for Automation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exploring-the-cluster" class="md-nav__link">
+    Exploring the Cluster
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interactive-shell" class="md-nav__link">
+    Interactive Shell
+  </a>
+  
+    <nav class="md-nav" aria-label="Interactive Shell">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#proxy-ports" class="md-nav__link">
+    Proxy Ports
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#port-forwarding" class="md-nav__link">
+    Port Forwarding
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ssh-jumphost" class="md-nav__link">
+    SSH Jumphost
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resolving-node-names" class="md-nav__link">
+    Resolving Node Names
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#short-lived-sessions" class="md-nav__link">
+    Short-lived Sessions
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#copying-files" class="md-nav__link">
+    Copying Files
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sharing-sessions" class="md-nav__link">
+    Sharing Sessions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connecting-to-ssh-clusters-behind-firewalls" class="md-nav__link">
+    Connecting to SSH Clusters behind Firewalls
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web-ui" class="md-nav__link">
+    Web UI
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-openssh-client" class="md-nav__link">
+    Using OpenSSH Client
+  </a>
+  
+    <nav class="md-nav" aria-label="Using OpenSSH Client">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssh-proxy-configuration" class="md-nav__link">
+    SSH Proxy Configuration
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#passing-teleport-ssh-certificate-to-openssh-client" class="md-nav__link">
+    Passing Teleport SSH Certificate to OpenSSH Client
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-help" class="md-nav__link">
+    Getting Help
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/user-manual.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="teleport-user-manual">Teleport User Manual</h1>
+<p>This User Manual covers usage of the Teleport client tool, <code>tsh</code> and Teleport's Web interface.</p>
+<p>In this document you will learn how to:</p>
+<ul>
+<li>Log into an interactive shell on remote cluster nodes.</li>
+<li>Copy files to and from cluster nodes.</li>
+<li>Connect to SSH clusters behind firewalls without any open ports, using SSH
+  reverse tunnels.</li>
+<li>Explore a cluster and execute commands on specific nodes in a cluster.</li>
+<li>Share interactive shell sessions with colleagues or join someone else's
+  session.</li>
+<li>Replay recorded interactive sessions.</li>
+</ul>
+<p>In addition to this document, you can always simply type <code>tsh</code> into your
+terminal for the <a href="../cli-docs/">CLI reference</a>.</p>
+<h2 id="introduction">Introduction</h2>
+<p>For the impatient, here's an example of how a user would typically use
+<a href="../cli-docs/#tsh"><code>tsh</code></a>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Login into a Teleport cluster. This command retrieves user&#39;s certificates</span>
+<span class="c1"># and saves them into ~/.tsh/teleport.example.com</span>
+$ tsh login --proxy<span class="o">=</span>teleport.example.com
+
+<span class="c1"># SSH into a node, as usual:</span>
+$ tsh ssh user@node
+
+<span class="c1"># `tsh ssh` takes the same arguments as OpenSSH client:</span>
+$ tsh ssh -o <span class="nv">ForwardAgent</span><span class="o">=</span>yes user@node
+$ tsh ssh -o <span class="nv">AddKeysToAgent</span><span class="o">=</span>yes user@node
+
+<span class="c1"># you can even create a convenient symlink:</span>
+$ ln -s /path/to/tsh /path/to/ssh
+
+<span class="c1"># ... and now your &#39;ssh&#39; command is calling Teleport&#39;s `tsh ssh`</span>
+$ ssh user@host
+
+<span class="c1"># This command removes SSH certificates from a user&#39;s machine:</span>
+$ tsh <span class="nb">logout</span>
+</code></pre></div>
+<p>In other words, Teleport was designed to be fully compatible with existing
+SSH-based workflows and does not require users to learn anything new, other than
+to call <a href="../cli-docs/#tsh-login"><code>tsh login</code></a> in the beginning.</p>
+<h2 id="installing-tsh">Installing tsh</h2>
+<ul>
+<li>Windows Users: <a href="https://gravitational.com/teleport/download?os=windows">Download tsh Binary</a></li>
+<li>Mac Users: <a href="https://gravitational.com/teleport/download?os=macos">Download Mac Teleport Binary. Includes tsh</a></li>
+<li>Mac Users with <a href="https://brew.sh/">Brew</a>: <code>brew install teleport</code></li>
+<li>Linux Users: <a href="https://gravitational.com/teleport/download?os=linux">Download Linux Teleport Binary. Includes tsh</a></li>
+</ul>
+<h2 id="user-identities">User Identities</h2>
+<p>A user identity in Teleport exists in the scope of a cluster. The member nodes
+of a cluster may have multiple OS users on them. A Teleport administrator
+assigns allowed logins to every Teleport user account.</p>
+<p>When logging into a remote node, you will have to specify both logins. Teleport
+identity will have to be passed as <code>--user</code> flag, while the node login will be
+passed as <code>login@host</code>, using syntax compatible with traditional <code>ssh</code>.</p>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># Authenticate against the &quot;work&quot; cluster as joe and then</span>
+<span class="c1"># log into the node as root:</span>
+$ tsh ssh --proxy<span class="o">=</span>work.example.com --user<span class="o">=</span>joe root@node
+</code></pre></div>
+<a href="../cli-docs/#tsh-ssh">CLI Docs - tsh ssh</a></p>
+<h2 id="logging-in">Logging In</h2>
+<p>To retrieve a user's certificate, execute:</p>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># Full form:</span>
+$ tsh login --proxy<span class="o">=</span>proxy_host:&lt;https_proxy_port&gt;,&lt;ssh_proxy_port&gt;
+
+<span class="c1"># Using default ports:</span>
+$ tsh login --proxy<span class="o">=</span>work.example.com
+
+<span class="c1"># Using custom HTTPS port:</span>
+$ tsh login --proxy<span class="o">=</span>work.example.com:5000
+
+<span class="c1"># Using custom SSH proxy port, which is set on the Auth Server:</span>
+$ tsh login --proxy<span class="o">=</span>work.example.com:2002
+</code></pre></div>
+<a href="../cli-docs/#tsh-login">CLI Docs - tsh login</a></p>
+<table>
+<thead>
+<tr>
+<th>Port</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>https_proxy_port</td>
+<td>the HTTPS port the proxy host is listening to (defaults to 3080).</td>
+</tr>
+<tr>
+<td>ssh_proxy_port</td>
+<td>the SSH port the proxy is listening to (defaults to 3023).</td>
+</tr>
+</tbody>
+</table>
+<p>The login command retrieves a user's certificate and stores it in <code>~/.tsh</code>
+directory as well as in the <a href="https://en.wikipedia.org/wiki/Ssh-agent">ssh
+agent</a>, if there is one running.</p>
+<p>This allows you to authenticate just once, maybe at the beginning of the day.
+Subsequent <code>tsh ssh</code> commands will run without asking for credentials until the
+temporary certificate expires. By default, Teleport issues user certificates
+with a TTL (time to live) of 12 hours.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>It is recommended to always use <a href="../cli-docs/#tsh-login"><code>tsh login</code></a> before
+using any other <code>tsh</code> commands. This
+allows users to omit <code>--proxy</code> flag in subsequent tsh commands. For example
+<code>tsh ssh user@host</code> will work.</p>
+</div>
+<p>A Teleport cluster can be configured for multiple user identity sources. For
+example, a cluster may have a local user called "admin" while regular users
+should <a href="../admin-guide/#github-oauth-20">authenticate via Github</a>. In this case,
+you have to pass <code>--auth</code> flag to <code>tsh login</code> to specify which identity storage
+to use:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Login using the local Teleport &#39;admin&#39; user:</span>
+$ tsh --proxy<span class="o">=</span>proxy.example.com --auth<span class="o">=</span><span class="nb">local</span> --user<span class="o">=</span>admin login
+
+<span class="c1"># Login using Github as an SSO provider, assuming the Github connector is called &quot;github&quot;</span>
+$ tsh --proxy<span class="o">=</span>proxy.example.com --auth<span class="o">=</span>github --user<span class="o">=</span>admin login
+</code></pre></div>
+<p>When using an external identity provider to log in, <code>tsh</code> will need to open a web browser to
+complete the authentication flow. By default, <code>tsh</code> will use your system's default browser to open
+such links. If you wish to suppress this behaviour, you can use the <code>--browser=none</code> flag:</p>
+<div class="highlight"><pre><span></span><code># Don&#39;t open the system default browser when logging in
+$ tsh login --proxy=work.example.com --browser=none
+</code></pre></div>
+<p>In this situation, a link will be printed to the screen. You can copy and paste this link into
+a browser of your choice to continue the login flow.</p>
+<p><a href="../cli-docs/#tsh-login">CLI Docs - tsh login</a></p>
+<h3 id="inspecting-ssh-certificate">Inspecting SSH Certificate</h3>
+<p>To inspect the SSH certificates in <code>~/.tsh</code>, a user may execute the following
+command:</p>
+<p><div class="highlight"><pre><span></span><code>$ tsh status
+
+&gt; Profile URL:  https://proxy.example.com:3080
+  Logged in as: johndoe
+  Roles:        admin*
+  Logins:       root, admin, guest
+  Valid <span class="k">until</span>:  <span class="m">2017</span>-04-25 <span class="m">15</span>:02:30 -0700 PDT <span class="o">[</span>valid <span class="k">for</span> 1h0m0s<span class="o">]</span>
+  Extensions:   permit-agent-forwarding, permit-port-forwarding, permit-pty
+</code></pre></div>
+<a href="../cli-docs/#tsh-status">CLI Docs - tsh status</a></p>
+<h3 id="ssh-agent-support">SSH Agent Support</h3>
+<p>If there is an <a href="https://en.wikipedia.org/wiki/Ssh-agent">ssh agent</a> running,
+<code>tsh login</code> will store the user certificate in the agent. This can be verified
+via:</p>
+<div class="highlight"><pre><span></span><code>$ ssh-add -L
+</code></pre></div>
+<p>SSH agent can be used to feed the certificate to other SSH clients, for example
+to OpenSSH <code>ssh</code>.</p>
+<p>If you wish to disable SSH agent integration, pass <code>--no-use-local-ssh-agent</code>
+to <code>tsh</code>. You can also set the <code>TELEPORT_USE_LOCAL_SSH_AGENT</code> environment
+variable to <code>false</code> in your shell profile to make this permanent.</p>
+<h3 id="identity-files">Identity Files</h3>
+<p><a href="../cli-docs/#tsh-login"><code>tsh login</code></a> can also save the user certificate into a
+file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Authenticate user against proxy.example.com and save the user</span>
+<span class="c1"># certificate into joe.pem file</span>
+$ tsh login --proxy<span class="o">=</span>proxy.example.com --out<span class="o">=</span>joe
+
+<span class="c1"># Use joe.pem to login into a server &#39;db&#39;</span>
+$ tsh ssh --proxy<span class="o">=</span>proxy.example.com -i joe joe@db
+</code></pre></div>
+<p>By default, <code>--out</code> flag will create an identity file suitable for <code>tsh -i</code> but
+if compatibility with OpenSSH is needed, <code>--format=openssh</code> must be specified.
+In this case the identity will be saved into two files: <code>joe</code> and
+<code>joe-cert.pub</code>:</p>
+<div class="highlight"><pre><span></span><code>$ tsh login --proxy<span class="o">=</span>proxy.example.com --out<span class="o">=</span>joe --format<span class="o">=</span>openssh
+$ ls -lh
+total <span class="m">8</span>.0K
+-rw------- <span class="m">1</span> joe staff <span class="m">1</span>.7K Aug <span class="m">10</span> <span class="m">16</span>:16 joe
+-rw------- <span class="m">1</span> joe staff <span class="m">1</span>.5K Aug <span class="m">10</span> <span class="m">16</span>:16 joe-cert.pub
+</code></pre></div>
+<h3 id="ssh-certificates-for-automation">SSH Certificates for Automation</h3>
+<!--This seems more like an admin task-->
+
+<p>Regular users of Teleport must request an auto-expiring SSH certificate, usually
+every day. This doesn't work for non-interactive scripts, like cron jobs or
+CI/CD pipeline.</p>
+<p>For such automation, it is recommended to create a separate Teleport user for
+bots and request a certificate for them with a long time to live (TTL).</p>
+<p>In this example we're creating a certificate with a TTL of 10 years for the
+jenkins user and storing it in jenkins.pem file, which can be later used with
+<code>-i</code> (identity) flag for <code>tsh</code>.</p>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># to be executed on a Teleport auth server</span>
+$ tctl auth sign --ttl<span class="o">=</span>87600h --user<span class="o">=</span>jenkins --out<span class="o">=</span>jenkins.pem
+</code></pre></div>
+<a href="../cli-docs/#tctl-auth-sign">CLI Docs - tctl auth sign</a></p>
+<p>Now <code>jenkins.pem</code> can be copied to the jenkins server and passed to <code>-i</code>
+(identity file) flag of <code>tsh</code>. Essentially <code>tctl auth sign</code> is an admin's
+equivalent of <code>tsh login --out</code> and allows for unrestricted certificate TTL
+values.</p>
+<h2 id="exploring-the-cluster">Exploring the Cluster</h2>
+<p>In a Teleport cluster, all nodes periodically ping the cluster's auth server and
+update their status. This allows Teleport users to see which nodes are online
+with the <code>tsh ls</code> command:</p>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># This command lists all nodes in the cluster which you previously logged in via &quot;tsh login&quot;:</span>
+$ tsh ls
+
+<span class="c1"># Output:</span>
+Node Name     Node ID                Address            Labels
+---------     -------                -------            ------
+turing        <span class="m">11111111</span>-dddd-4132     <span class="m">10</span>.1.0.5:3022      os:linux
+turing        <span class="m">22222222</span>-cccc-8274     <span class="m">10</span>.1.0.6:3022      os:linux
+graviton      <span class="m">33333333</span>-aaaa-1284     <span class="m">10</span>.1.0.7:3022      os:osx
+</code></pre></div>
+<a href="../cli-docs/#tsh-ls">CLI Docs - tsh ls</a></p>
+<p><code>tsh ls</code> can apply a filter based on the node labels.</p>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># only show nodes with os label set to &#39;osx&#39;:</span>
+$ tsh ls <span class="nv">os</span><span class="o">=</span>osx
+
+Node Name     Node ID                Address            Labels
+---------     -------                -------            ------
+graviton      <span class="m">33333333</span>-aaaa-1284     <span class="m">10</span>.1.0.7:3022      os:osx
+</code></pre></div>
+<a href="../cli-docs/#tsh-ls">CLI Docs -tsh ls</a></p>
+<h2 id="interactive-shell">Interactive Shell</h2>
+<p>To launch an interactive shell on a remote node or to execute a command, use
+<code>tsh ssh</code>.</p>
+<p><code>tsh</code> tries to mimic the <code>ssh</code> experience as much as possible, so it supports
+the most popular <code>ssh</code> flags like <code>-p</code>, <code>-l</code> or <code>-L</code>. For example, if you have
+the following alias defined in your ~/.bashrc: <code>alias ssh="tsh ssh"</code> then you
+can continue using familiar SSH syntax:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Have this alias configured, perhaps via ~/.bashrc</span>
+$ <span class="nb">alias</span> <span class="nv">ssh</span><span class="o">=</span><span class="s2">&quot;/usr/local/bin/tsh ssh&quot;</span>
+
+<span class="c1"># Login into a cluster and retrieve your SSH certificate:</span>
+$ tsh --proxy<span class="o">=</span>proxy.example.com login
+
+<span class="c1"># These commands execute `tsh ssh` under the hood:</span>
+$ ssh user@node
+$ ssh -p <span class="m">6122</span> user@node ls
+$ ssh -o <span class="nv">ForwardAgent</span><span class="o">=</span>yes user@node
+$ ssh -o <span class="nv">AddKeysToAgent</span><span class="o">=</span>yes user@node
+</code></pre></div>
+<h3 id="proxy-ports">Proxy Ports</h3>
+<p>A Teleport proxy uses two ports: <code>3080</code> for HTTPS and <code>3023</code> for proxying SSH
+connections. The HTTPS port is used to serve Web UI and also to implement 2nd
+factor auth for the <code>tsh</code> client.</p>
+<p>If a Teleport proxy is configured to listen on non-default ports, they must be
+specified via <code>--proxy</code> flag as shown:</p>
+<div class="highlight"><pre><span></span><code>tsh --proxy=proxy.example.com:5000,5001 &lt;subcommand&gt;
+</code></pre></div>
+<p>This means <em>use port <code>5000</code> for HTTPS and <code>5001</code> for SSH</em>.</p>
+<h3 id="port-forwarding">Port Forwarding</h3>
+<p><code>tsh ssh</code> supports the OpenSSH <code>-L</code> flag which forwards incoming
+connections from localhost to the specified remote host:port. The syntax of <code>-L</code>
+flag is as follows, where "bind_ip" defaults to <code>127.0.0.1</code>:</p>
+<div class="highlight"><pre><span></span><code>-L <span class="o">[</span>bind_ip<span class="o">]</span>:listen_port:remote_host:remote_port
+</code></pre></div>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>$ tsh ssh -L <span class="m">5000</span>:web.remote:80 node
+</code></pre></div>
+<p>This will connect to remote server <code>node</code> via <code>proxy.example.com</code>, then it will
+open a listening socket on <code>localhost:5000</code> and will forward all incoming
+connections to <code>web.remote:80</code> via this SSH tunnel.</p>
+<p>It is often convenient to establish port forwarding, execute a local command
+which uses the connection, and then disconnect. You can do this with the <code>--local</code>
+flag.</p>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code>$ tsh ssh -L <span class="m">5000</span>:google.com:80 --local node curl http://localhost:5000
+</code></pre></div>
+<p>This command:</p>
+<ol>
+<li>Connects to <code>node</code></li>
+<li>Binds the local port 5000 to port 80 on google.com</li>
+<li>Executes <code>curl</code> command locally, which results in <code>curl</code> hitting
+   google.com:80 via <code>node</code></li>
+</ol>
+<h3 id="ssh-jumphost">SSH Jumphost</h3>
+<p>While implementing ProxyJump for Teleport, we have extended the feature to <code>tsh</code>.</p>
+<div class="highlight"><pre><span></span><code>$ tsh ssh -J proxy.example.com telenode
+</code></pre></div>
+<p>Known limits:</p>
+<ul>
+<li>Only one jump host is supported (<code>-J</code> supports chaining that Teleport does not utilise) and <code>tsh</code> will return with error in the case of two jumphosts, i.e. <code>-J proxy-1.example.com,proxy-2.example.com</code> will not work.</li>
+<li>When <code>tsh ssh -J user@proxy</code> is used, it overrides the SSH proxy defined in the tsh profile and port forwarding is used instead of the existing Teleport proxy subsystem.</li>
+</ul>
+<h3 id="resolving-node-names">Resolving Node Names</h3>
+<p><code>tsh</code> supports multiple methods to resolve remote node names.</p>
+<ol>
+<li>Traditional: by IP address or via DNS.</li>
+<li>Nodename setting: teleport daemon supports <code>nodename</code> flag, which allows
+   Teleport administrators to assign alternative node names.</li>
+<li>Labels: you can address a node by <code>name=value</code> pair.</li>
+</ol>
+<p>If we have two nodes, one with <code>os:linux</code> label and one node with <code>os:osx</code>, we
+can log into the OSX node with:</p>
+<div class="highlight"><pre><span></span><code>$ tsh ssh <span class="nv">os</span><span class="o">=</span>osx
+</code></pre></div>
+<p>This only works if there is only one remote node with the <code>os:osx</code> label, but
+you can still execute commands via SSH on multiple nodes using labels as a
+selector. This command will update all system packages on machines that run
+Linux:</p>
+<div class="highlight"><pre><span></span><code>$ tsh ssh <span class="nv">os</span><span class="o">=</span>ubuntu apt-get update -y
+</code></pre></div>
+<h3 id="short-lived-sessions">Short-lived Sessions</h3>
+<p>The default TTL of a Teleport user certificate is 12 hours. This can be modified
+at login with the <code>--ttl</code> flag. This command logs you into the cluster with a
+very short-lived (1 minute) temporary certificate:</p>
+<div class="highlight"><pre><span></span><code>$ tsh --ttl<span class="o">=</span><span class="m">1</span> login
+</code></pre></div>
+<p>You will be logged out after one minute, but if you want to log out immediately,
+you can always do:</p>
+<div class="highlight"><pre><span></span><code>$ tsh <span class="nb">logout</span>
+</code></pre></div>
+<h2 id="copying-files">Copying Files</h2>
+<p>To securely copy files to and from cluster nodes, use the <code>tsh scp</code> command. It
+is designed to mimic traditional <code>scp</code> as much as possible:</p>
+<div class="highlight"><pre><span></span><code>$ tsh scp example.txt root@node:/path/to/dest
+</code></pre></div>
+<p>Again, you may want to create a bash alias like <code>alias scp="tsh --proxy=work
+scp"</code> and use the familiar syntax:</p>
+<div class="highlight"><pre><span></span><code>$ scp -P <span class="m">61122</span> -r files root@node:/path/to/dest
+</code></pre></div>
+<h2 id="sharing-sessions">Sharing Sessions</h2>
+<p>Suppose you are trying to troubleshoot a problem on a remote server. Sometimes
+it makes sense to ask another team member for help. Traditionally, this could be
+done by letting them know which node you're on, having them SSH in, start a
+terminal multiplexer like <code>screen</code> and join a session there.</p>
+<p>Teleport makes this more convenient. Let's log into a server named "luna"
+and ask Teleport for our current session status:</p>
+<div class="highlight"><pre><span></span><code>$ tsh ssh luna
+&gt;luna $ teleport status
+
+User ID    : joe, logged in as joe from <span class="m">10</span>.0.10.1 <span class="m">43026</span> <span class="m">3022</span>
+Session ID : 7645d523-60cb-436d-b732-99c5df14b7c4
+Session URL: https://work:3080/web/sessions/7645d523-60cb-436d-b732-99c5df14b7c4
+</code></pre></div>
+<p>Now you can invite another user account to the "work" cluster. You can share the
+URL for access through a web browser, or you can share the session ID and she
+can join you through her terminal by typing:</p>
+<div class="highlight"><pre><span></span><code>$ tsh join &lt;session_ID&gt;
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Joining sessions is not supported in recording proxy mode (where <code>session_recording</code> is set to <code>proxy</code>).</p>
+</div>
+<h2 id="connecting-to-ssh-clusters-behind-firewalls">Connecting to SSH Clusters behind Firewalls</h2>
+<p>Teleport supports creating clusters of servers located behind firewalls
+<strong>without any open listening TCP ports</strong>.  This works by creating reverse SSH
+tunnels from behind-firewall environments into a Teleport proxy you have access to.</p>
+<p>This feature is called <a href="https://gravitational.com/teleport/docs/trustedclusters/">"Trusted Clusters"</a>. Refer to
+<a href="../admin-guide/#trusted-clusters">the admin manual</a> to learn how a trusted cluster can be configured.</p>
+<p>Assuming the "work" Teleport proxy server is configured with a few trusted
+clusters, a user may use the <code>tsh clusters</code> command to see a list of all clusters on the server:</p>
+<p><div class="highlight"><pre><span></span><code>$ tsh --proxy<span class="o">=</span>work clusters
+
+Cluster Name     Status
+------------     ------
+staging          online
+production       offline
+</code></pre></div>
+<a href="../cli-docs/#tsh-clusters">CLI Docs - tsh clusters</a></p>
+<p>Now you can use the <code>--cluster</code> flag with any <code>tsh</code> command. For example, to list SSH nodes that are members of the "production" cluster, simply do:</p>
+<div class="highlight"><pre><span></span><code>$ tsh --proxy<span class="o">=</span>work ls --cluster<span class="o">=</span>production
+Node Name     Node ID       Address            Labels
+---------     -------       -------            ------
+db-1          xxxxxxxxx     <span class="m">10</span>.0.20.31:3022    kernel:4.4
+db-2          xxxxxxxxx     <span class="m">10</span>.0.20.41:3022    kernel:4.2
+</code></pre></div>
+<p>Similarly, if you want to SSH into <code>db-1</code> inside the "production" cluster:</p>
+<div class="highlight"><pre><span></span><code>$ tsh --proxy<span class="o">=</span>work ssh --cluster<span class="o">=</span>production db-1
+</code></pre></div>
+<p>This is possible even if nodes in the "production" cluster are located behind a
+firewall without open ports. This works because the "production" cluster
+establishes a reverse SSH tunnel back into "work" proxy, and this tunnel is used
+to establish inbound SSH connections.</p>
+<h2 id="web-ui">Web UI</h2>
+<p>Teleport proxy serves the web UI on <code>https://proxyhost:3080</code>. The UI allows you
+to see the list of online nodes in a cluster, open a web-based terminal to them,
+see recorded sessions, and replay them. You can also join other users in active
+sessions.</p>
+<h2 id="using-openssh-client">Using OpenSSH Client</h2>
+<p>There are a few differences between Teleport's <code>tsh</code> and OpenSSH's <code>ssh</code> but
+most of them can be mitigated.</p>
+<ol>
+<li>
+<p><code>tsh</code> always requires the <code>--proxy</code> flag because <code>tsh</code> needs to know which
+    cluster you are connecting to. But if you execute <code>tsh --proxy=xxx login</code>,
+    the current proxy will be saved in your <code>~/.tsh</code> profile and won't be needed
+    for other <code>tsh</code> commands.</p>
+</li>
+<li>
+<p><code>tsh ssh</code> operates <em>two</em> usernames: one for the cluster and another for the
+   node you are trying to log into. See <a href="#user-identities">User Identities</a>
+   section below. For convenience, <code>tsh</code> assumes <code>$USER</code> for both by default.
+   But again, if you use <code>tsh login</code> before <code>tsh ssh</code>, your Teleport username
+   will be stored in <code>~/.tsh</code>.</p>
+</li>
+</ol>
+<p>If you'd like to set the login name that should be used by default on the remote host, you can set the <code>TELEPORT_LOGIN</code> environment variable.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>To avoid typing <code>tsh ssh user@host</code> when logging into servers,
+you can create a symlink <code>ssh -&gt; tsh</code> and execute the symlink. It will
+behave exactly like a standard <code>ssh</code> command, i.e. <code>ssh login@host</code>. This is
+helpful with other tools that expect <code>ssh</code> to just work.</p>
+</div>
+<p>Teleport is built using standard SSH constructs: keys, certificates and
+protocols. This means that a Teleport system is 100% compatible with both
+OpenSSH clients and servers.</p>
+<p>For an OpenSSH client (<code>ssh</code>) to work with a Teleport proxy, two conditions must
+be met:</p>
+<ol>
+<li><code>ssh</code> must be configured to connect through a Teleport proxy.</li>
+<li><code>ssh</code> needs to be given the SSH certificate issued by the <code>tsh login</code> command.</li>
+</ol>
+<h3 id="ssh-proxy-configuration">SSH Proxy Configuration</h3>
+<p>To configure <code>ssh</code> to use a Teleport proxy on <code>proxy.example.com</code>, a user must
+update the <code>/etc/ssh/ssh_config</code> or <code>~/.ssh/config</code>. A few examples are shown
+below:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># When &quot;ssh db&quot; is executed, OpenSSH will connect to proxy.example.com on port 3023</span>
+<span class="c1"># and will request a proxied connection to &quot;db&quot; on port 3022 (default Teleport SSH port)</span>
+Host db
+    Port <span class="m">3022</span>
+    ProxyJump proxy.example.com:3023
+</code></pre></div>
+<p>The configuration above is all you need to <code>ssh root@db</code> if there's an
+SSH agent running on a client computer. You can verify it by executing <code>ssh-add -L</code>
+right after <code>tsh login</code>. If the SSH agent is running, the cluster certificates will
+be printed to stdout.</p>
+<p>If there is no ssh-agent available, the certificate must be passed to the OpenSSH client explicitly.</p>
+<p>When proxy is in <a href="https://gravitational.com/blog/how-to-record-ssh-sessions/">"Recording mode"</a> the following will happen with SSH:</p>
+<div class="highlight"><pre><span></span><code>$ ssh -J user@teleport.proxy:3023 -p <span class="m">3022</span> user@target -F ./forward.config
+</code></pre></div>
+<p>Where <code>forward.config</code> enables agent forwarding:</p>
+<div class="highlight"><pre><span></span><code>Host teleport.proxy
+  ForwardAgent yes
+</code></pre></div>
+<h3 id="passing-teleport-ssh-certificate-to-openssh-client">Passing Teleport SSH Certificate to OpenSSH Client</h3>
+<p>If a user does not want to use an SSH agent or if the agent is not available,
+the certificate must be passed to <code>ssh</code> via <code>IdentityFile</code> option (see <code>man
+ssh_config</code>). Consider this example: the Teleport user "joe" wants to login into
+the proxy named "lab.example.com".</p>
+<p>He executes the <a href="../cli-docs/#tsh-login"><code>tsh login</code></a> command:</p>
+<div class="highlight"><pre><span></span><code>$ tsh --proxy<span class="o">=</span>lab.example.com login --user<span class="o">=</span>joe
+</code></pre></div>
+<p>His identity is now stored in <code>~/.tsh/keys/lab.example.com</code>, so his <code>~/.ssh/config</code> needs to look like this:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># ~/.ssh/config file:</span>
+Host *.lab.example.com
+    Port <span class="m">3022</span>
+    IdentityFile ~/.tsh/keys/lab.example.com/joe
+    ProxyCommand ssh -i ~/.tsh/keys/lab.example.com/joe -p <span class="m">3023</span> %r@lab.example.com -s proxy:%h:%p
+</code></pre></div>
+<p>Now he can SSH into any machine behind <code>lab.example.com</code> using the OpenSSH
+client:</p>
+<div class="highlight"><pre><span></span><code>$ ssh jenkins.lab.example.com
+</code></pre></div>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<p>If you encounter strange behaviour, you may want to try to solve it by enabling
+the verbose logging by specifying <code>-d</code> flag when launching <code>tsh</code>. Also, you may
+want to reset it to a clean state by deleting temporary keys and other data from
+<code>~/.tsh</code></p>
+<h2 id="getting-help">Getting Help</h2>
+<p>If you need help, please ask on our <a href="https://community.gravitational.com/">community forum</a>. You can also open an <a href="https://github.com/gravitational/teleport/issues">issue on Github</a>.</p>
+<p>For commercial support, you can create a ticket through the <a href="https://dashboard.gravitational.com/">customer dashboard</a>.</p>
+<p>For more information about custom features, or to try our <a href="../enterprise/introduction/">Enterprise edition</a> of Teleport, please reach out to us at <a href="mailto:sales@gravitational.com">sales@gravitational.com</a>.</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../quickstart/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Quick Start Guide
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../admin-guide/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Admin Manual
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "..",
+          features: [],
+          search: Object.assign({
+            worker: "../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../js/version-select.js"></script>
+      
+    
+  </body>
+</html>

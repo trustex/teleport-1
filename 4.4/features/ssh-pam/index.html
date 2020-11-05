@@ -1,0 +1,1504 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="How to configure Teleport SSH access to play nicely with PAM (pluggable authentication modules)">
+      
+      
+        <link rel="canonical" href="https://gravitational.com/teleport/docs/features/ssh-pam/">
+      
+      
+        <meta name="author" content="Gravitational Inc">
+      
+      <link rel="shortcut icon" href="../../img/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.1.2+insiders-1.7.0">
+    
+    
+      
+        <title>Configuring Teleport SSH with PAM (pluggable authentication modules) - Gravitational Teleport</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.b0e00042.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.f0267088.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:300,400,400i,700%7C&display=fallback">
+        <style>body,input{font-family:"Lato",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../css/version-select.css">
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+      <script>var palette=JSON.parse(localStorage.getItem("__palette")||"{}");if(void 0!==palette.color)for(var key in palette.color)document.body.setAttribute("data-md-color-"+key,palette.color[key])</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pluggable-authentication-modules-pam" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-header-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Gravitational Teleport
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Configuring Teleport SSH with PAM (pluggable authentication modules)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="md-header-nav__options">
+      
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to light mode" aria-label="Switch to light mode" data-md-option="palette" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 7H7a5 5 0 00-5 5 5 5 0 005 5h10a5 5 0 005-5 5 5 0 00-5-5m0 8a3 3 0 01-3-3 3 3 0 013-3 3 3 0 013 3 3 3 0 01-3 3z"/></svg>
+          </button>
+        
+          
+          
+          
+          <button class="md-header-nav__button md-icon" title="Switch to dark mode" aria-label="Switch to dark mode" data-md-option="palette" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="blue" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10a2 2 0 012 2 2 2 0 01-2 2 2 2 0 01-2-2 2 2 0 012-2m10-3a5 5 0 015 5 5 5 0 01-5 5H7a5 5 0 01-5-5 5 5 0 015-5h10M7 9a3 3 0 00-3 3 3 3 0 003 3h10a3 3 0 003-3 3 3 0 00-3-3H7z"/></svg>
+          </button>
+        
+      
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active">
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+      <div class="md-search__suggest" data-md-component="search-suggest"></div>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://gravitational.com/teleport/docs" title="Gravitational Teleport" class="md-nav__button md-logo" aria-label="Gravitational Teleport">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Gravitational Teleport
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/gravitational/teleport/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1">
+    
+    <label class="md-nav__link" for="nav-1">
+      Documentation
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Documentation" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        <span class="md-nav__icon md-icon"></span>
+        Documentation
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../.." class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../installation/" class="md-nav__link">
+      Installation
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../quickstart/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../user-manual/" class="md-nav__link">
+      User Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../admin-guide/" class="md-nav__link">
+      Admin Manual
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../production/" class="md-nav__link">
+      Production Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../faq/" class="md-nav__link">
+      FAQ
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2" type="checkbox" id="nav-2">
+    
+    <label class="md-nav__link" for="nav-2">
+      Infrastructure Guides
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Infrastructure Guides" data-md-level="1">
+      <label class="md-nav__title" for="nav-2">
+        <span class="md-nav__icon md-icon"></span>
+        Infrastructure Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../aws-oss-guide/" class="md-nav__link">
+      AWS
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-2-2" type="checkbox" id="nav-2-2">
+    
+    <label class="md-nav__link" for="nav-2-2">
+      AWS Terraform
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="AWS Terraform" data-md-level="2">
+      <label class="md-nav__title" for="nav-2-2">
+        <span class="md-nav__icon md-icon"></span>
+        AWS Terraform
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../aws-terraform-guide/" class="md-nav__link">
+      AWS Terraform
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../gcp-guide/" class="md-nav__link">
+      GCP
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../ibm-cloud-guide/" class="md-nav__link">
+      IBM
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../kubernetes-ssh/" class="md-nav__link">
+      Kubernetes Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../openssh-teleport/" class="md-nav__link">
+      OpenSSH Guide
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3">
+    
+    <label class="md-nav__link" for="nav-3">
+      Teleport Enterprise
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Enterprise" data-md-level="1">
+      <label class="md-nav__title" for="nav-3">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Enterprise
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/introduction/" class="md-nav__link">
+      Introduction
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/quickstart-enterprise/" class="md-nav__link">
+      Quick Start Guide
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-3" type="checkbox" id="nav-3-3">
+    
+    <label class="md-nav__link" for="nav-3-3">
+      Single sign-on (SSO)
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Single sign-on (SSO)" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-3">
+        <span class="md-nav__icon md-icon"></span>
+        Single sign-on (SSO)
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/sso/ssh-sso/" class="md-nav__link">
+      SSO
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/sso/ssh-azuread/" class="md-nav__link">
+      Azure Active Directory (AD)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/sso/ssh-adfs/" class="md-nav__link">
+      Active Directory (ADFS)
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/sso/ssh-gsuite/" class="md-nav__link">
+      G Suite
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/sso/ssh-one-login/" class="md-nav__link">
+      OneLogin
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/sso/oidc/" class="md-nav__link">
+      OIDC
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/sso/ssh-okta/" class="md-nav__link">
+      Okta
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/workflow/" class="md-nav__link">
+      Approval Workflow
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3-5" type="checkbox" id="nav-3-5">
+    
+    <label class="md-nav__link" for="nav-3-5">
+      Teleport Plugins
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Teleport Plugins" data-md-level="2">
+      <label class="md-nav__title" for="nav-3-5">
+        <span class="md-nav__icon md-icon"></span>
+        Teleport Plugins
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/workflow/ssh-approval-jira-cloud/" class="md-nav__link">
+      Teleport  Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/workflow/ssh-approval-jira-server/" class="md-nav__link">
+      Teleport Jira Server Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/workflow/ssh-approval-mattermost/" class="md-nav__link">
+      Teleport Mattermost Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/workflow/ssh-approval-pagerduty/" class="md-nav__link">
+      Teleport Pagerduty Plugin Setup
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/workflow/ssh-approval-slack/" class="md-nav__link">
+      Teleport Slack Plugin Setup
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/ssh-kubernetes-fedramp/" class="md-nav__link">
+      FedRAMP for SSH & K8s
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../enterprise/ssh-rbac/" class="md-nav__link">
+      RBAC
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Architecture
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Architecture" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        <span class="md-nav__icon md-icon"></span>
+        Architecture
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/overview/" class="md-nav__link">
+      Architecture Overview
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/users/" class="md-nav__link">
+      Teleport Users
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/nodes/" class="md-nav__link">
+      Teleport Nodes
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/authentication/" class="md-nav__link">
+      Teleport Auth
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../architecture/proxy/" class="md-nav__link">
+      Teleport Proxy
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../trustedclusters/" class="md-nav__link">
+      Trusted Clusters
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+    
+    <label class="md-nav__link" for="nav-5">
+      Advanced Features
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Advanced Features" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        <span class="md-nav__icon md-icon"></span>
+        Advanced Features
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../enhanced-session-recording/" class="md-nav__link">
+      Enhanced Session Rec.
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        Using Teleport with PAM
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+    
+    <a href="./" class="md-nav__link md-nav__link--active">
+      Using Teleport with PAM
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction-to-pluggable-authentication-modules" class="md-nav__link">
+    Introduction to Pluggable Authentication Modules
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-pam-on-a-linux-machine-running-teleport" class="md-nav__link">
+    Setting up PAM on a Linux Machine running Teleport
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-message-of-the-day-motd-with-teleport" class="md-nav__link">
+    Setting Message of the Day (motd) with Teleport
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting Message of the Day (motd) with Teleport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-node-with-pam-turned-off" class="md-nav__link">
+    Example node with PAM turned off
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-node-with-pam-enabled" class="md-nav__link">
+    Example node with PAM enabled
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-local-users-with-teleport" class="md-nav__link">
+    Creating local users with Teleport
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating local users with Teleport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-authentication-steps" class="md-nav__link">
+    Additional authentication steps
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-nav__toggle md-toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+      <span class="md-nav__icon md-icon"></span>
+    </label>
+    <nav class="md-nav" aria-label="Reference" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        <span class="md-nav__icon md-icon"></span>
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../config-reference/" class="md-nav__link">
+      YAML
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../cli-docs/" class="md-nav__link">
+      CLI
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../api-reference/" class="md-nav__link">
+      API
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../metrics-logs-reference/" class="md-nav__link">
+      Metrics
+    </a>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              
+                
+              
+              
+                <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                  <div class="md-sidebar__scrollwrap">
+                    <div class="md-sidebar__inner">
+                      
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#introduction-to-pluggable-authentication-modules" class="md-nav__link">
+    Introduction to Pluggable Authentication Modules
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-pam-on-a-linux-machine-running-teleport" class="md-nav__link">
+    Setting up PAM on a Linux Machine running Teleport
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-message-of-the-day-motd-with-teleport" class="md-nav__link">
+    Setting Message of the Day (motd) with Teleport
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting Message of the Day (motd) with Teleport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-node-with-pam-turned-off" class="md-nav__link">
+    Example node with PAM turned off
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-node-with-pam-enabled" class="md-nav__link">
+    Example node with PAM enabled
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-local-users-with-teleport" class="md-nav__link">
+    Creating local users with Teleport
+  </a>
+  
+    <nav class="md-nav" aria-label="Creating local users with Teleport">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    Examples
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-authentication-steps" class="md-nav__link">
+    Additional authentication steps
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                    </div>
+                  </div>
+                </div>
+              
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/gravitational/teleport/edit/master/docs/features/ssh-pam.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="pluggable-authentication-modules-pam">Pluggable Authentication Modules (PAM)</h1>
+<p>Teleport's node service can be configured to integrate with <a href="https://en.wikipedia.org/wiki/Linux_PAM">PAM</a>. This allows Teleport to create user sessions using PAM session profiles.</p>
+<p>Teleport only supports the <code>auth</code>, <code>account</code> and <code>session</code> stack. The <code>auth</code>
+stack is optional and not used by default.</p>
+<h2 id="introduction-to-pluggable-authentication-modules">Introduction to Pluggable Authentication Modules</h2>
+<p>Pluggable Authentication Modules (PAM) date back to 1995 when Sun Microsystems
+implemented a generic authentication framework for Solaris. Since then most GNU/Linux
+distributions have adopted PAM.</p>
+<div class="highlight"><pre><span></span><code>$ man pam
+</code></pre></div>
+<p>The Pluggable Authentication Modules (PAM) library abstracts a number of common
+authentication-related operations and provides a framework for dynamically loaded
+modules that implement these operations in various ways.</p>
+<p><strong>Terminology</strong></p>
+<p>In PAM parlance, the application that uses PAM to authenticate a user is the server,
+and is identified for configuration purposes by a service name, which is often (but
+not necessarily) the program name.</p>
+<p>The user requesting authentication is called the applicant, while the user (usually, root)
+charged with verifying his identity and granting them the requested credentials is
+called the arbitrator.</p>
+<p>The sequence of operations the server goes through to authenticate a user and perform
+whatever task their requested is a PAM transaction; the context within which the server
+performs the requested task is called a session.</p>
+<p>The functionality embodied by PAM is divided into six primitives grouped into four
+facilities: authentication, account management, session management and password
+management.</p>
+<p>Teleport currently supports account management and session management.</p>
+<h2 id="setting-up-pam-on-a-linux-machine-running-teleport">Setting up PAM on a Linux Machine running Teleport</h2>
+<p>To enable PAM on a given Linux machine, update <code>/etc/teleport.yaml</code> with:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">ssh_service</span><span class="p">:</span>
+  <span class="nt">pam</span><span class="p">:</span>
+    <span class="c1"># &quot;no&quot; by default</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="c1"># use /etc/pam.d/sshd configuration (the default)</span>
+    <span class="nt">service_name</span><span class="p">:</span> <span class="s">&quot;sshd&quot;</span>
+    <span class="c1"># use the &quot;auth&quot; modules in the PAM config</span>
+    <span class="c1"># &quot;false&quot; by default</span>
+    <span class="nt">use_pam_auth</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p>Please note that most Linux distributions come with a number of PAM services in
+<code>/etc/pam.d</code> and Teleport will try to use <code>sshd</code> by default, which will be
+removed if you uninstall the <code>openssh-server</code> package. We recommend creating your
+own PAM service file like <code>/etc/pam.d/teleport</code> and specifying it as
+<code>service_name</code> above.</p>
+<h2 id="setting-message-of-the-day-motd-with-teleport">Setting Message of the Day (motd) with Teleport</h2>
+<p>The file <code>/etc/motd</code> is normally displayed by login(1) after a user has logged in
+but before the shell is run. It is generally used for important system-wide announcements.</p>
+<p>This feature can help you inform users that activity on the node is being audited
+and recorded.</p>
+<h3 id="example-node-with-pam-turned-off">Example node with PAM turned off</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">nodename</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">graviton-node-1</span>
+  <span class="nt">auth_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">hello</span>
+  <span class="nt">auth_servers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">10.2.1.230:5070</span>
+  <span class="nt">data_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport</span>
+<span class="nt">proxy_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">auth_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">ssh_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="c1"># configures PAM integration. see below for more details.</span>
+  <span class="nt">pam</span><span class="p">:</span>
+     <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<p><img alt="Teleport SSH without MOTD" src="../../img/motd/teleport-no-MOTD.png" /></p>
+<h3 id="example-node-with-pam-enabled">Example node with PAM enabled</h3>
+<div class="highlight"><pre><span></span><code><span class="nt">teleport</span><span class="p">:</span>
+  <span class="nt">nodename</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">graviton-node-1</span>
+  <span class="nt">auth_token</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">hello</span>
+  <span class="nt">auth_servers</span><span class="p">:</span>
+  <span class="p p-Indicator">-</span> <span class="l l-Scalar l-Scalar-Plain">10.2.1.230:5070</span>
+  <span class="nt">data_dir</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">/var/lib/teleport</span>
+<span class="nt">proxy_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">auth_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="nt">ssh_service</span><span class="p">:</span>
+  <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+  <span class="c1"># configures PAM integration. see below for more details.</span>
+  <span class="nt">pam</span><span class="p">:</span>
+     <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div>
+<p><img alt="Teleport SSH with MOTD" src="../../img/motd/teleport-with-MOTD.png" /></p>
+<p>When PAM is enabled it will use the default <code>sshd</code> config file. This can differ per
+distro.</p>
+<div class="highlight"><pre><span></span><code>$ cat /etc/pam.d/sshd
+<span class="c1"># PAM configuration for the Secure Shell service</span>
+
+<span class="c1"># Standard Un*x authentication.</span>
+@include common-auth
+
+<span class="c1"># Disallow non-root logins when /etc/nologin exists.</span>
+account    required     pam_nologin.so
+
+<span class="c1"># Uncomment and edit /etc/security/access.conf if you need to set complex</span>
+<span class="c1"># access limits that are hard to express in sshd_config.</span>
+<span class="c1"># account  required     pam_access.so</span>
+
+<span class="c1"># Standard Un*x authorization.</span>
+@include common-account
+
+<span class="c1"># SELinux needs to be the first session rule.  This ensures that any</span>
+<span class="c1"># lingering context has been cleared.  Without this it is possible that a</span>
+<span class="c1"># module could execute code in the wrong domain.</span>
+session <span class="o">[</span><span class="nv">success</span><span class="o">=</span>ok <span class="nv">ignore</span><span class="o">=</span>ignore <span class="nv">module_unknown</span><span class="o">=</span>ignore <span class="nv">default</span><span class="o">=</span>bad<span class="o">]</span>        pam_selinux.so close
+
+<span class="c1"># Set the loginuid process attribute.</span>
+session    required     pam_loginuid.so
+
+<span class="c1"># Create a new session keyring.</span>
+session    optional     pam_keyinit.so force revoke
+
+<span class="c1"># Standard Un*x session setup and teardown.</span>
+@include common-session
+
+<span class="c1"># Print the message of the day upon successful login.</span>
+<span class="c1"># This includes a dynamically generated part from /run/motd.dynamic</span>
+<span class="c1"># and a static (admin-editable) part from /etc/motd.</span>
+session    optional     pam_motd.so  <span class="nv">motd</span><span class="o">=</span>/run/motd.dynamic
+session    optional     pam_motd.so noupdate
+
+<span class="c1"># Print the status of the user&#39;s mailbox upon successful login.</span>
+session    optional     pam_mail.so standard noenv <span class="c1"># [1]</span>
+
+<span class="c1"># Set up user limits from /etc/security/limits.conf.</span>
+session    required     pam_limits.so
+
+<span class="c1"># Read environment variables from /etc/environment and</span>
+<span class="c1"># /etc/security/pam_env.conf.</span>
+session    required     pam_env.so <span class="c1"># [1]</span>
+<span class="c1"># In Debian 4.0 (etch), locale-related environment variables were moved to</span>
+<span class="c1"># /etc/default/locale, so read that as well.</span>
+session    required     pam_env.so <span class="nv">user_readenv</span><span class="o">=</span><span class="m">1</span> <span class="nv">envfile</span><span class="o">=</span>/etc/default/locale
+
+<span class="c1"># SELinux needs to intervene at login time to ensure that the process starts</span>
+<span class="c1"># in the proper default security context.  Only sessions which are intended</span>
+<span class="c1"># to run in the user&#39;s context should be run after this.</span>
+session <span class="o">[</span><span class="nv">success</span><span class="o">=</span>ok <span class="nv">ignore</span><span class="o">=</span>ignore <span class="nv">module_unknown</span><span class="o">=</span>ignore <span class="nv">default</span><span class="o">=</span>bad<span class="o">]</span>        pam_selinux.so open
+
+<span class="c1"># Standard Un*x password updating.</span>
+@include common-password
+</code></pre></div>
+<p>The default <code>sshd</code> will call two <code>pam_motd</code> files, one dynamic. That prints the machine
+info, and a static MOTD that can be set by an admin.</p>
+<div class="highlight"><pre><span></span><code>session    optional     pam_motd.so  motd=/run/motd.dynamic
+session    optional     pam_motd.so noupdate
+</code></pre></div>
+<p>Below, we show the default admin MOTD.</p>
+<div class="highlight"><pre><span></span><code>$ cat /etc/motd
+
+The programs included with the Debian GNU/Linux system are free software<span class="p">;</span>
+the exact distribution terms <span class="k">for</span> each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+</code></pre></div>
+<p>I've updated this to provide a message to users of Teleport, so they know they are
+being audited.</p>
+<div class="highlight"><pre><span></span><code>$ cat /etc/motd
+WARNING: All activity on this node is being recorded by Teleport
+</code></pre></div>
+<p><img alt="Teleport SSH with updated MOTD" src="../../img/motd/teleport-with-updated-MOTD.png" /></p>
+<h2 id="creating-local-users-with-teleport">Creating local users with Teleport</h2>
+<p>Teleport 4.3 introduced the ability to create local (UNIX) users on login. This is
+very helpful if you're a large organization and want to provision local users and home
+directories on the fly.</p>
+<p>Teleport added the ability to read in PAM environment variables from PAM handle and pass
+environment variables to PAM modules: <code>TELEPORT_USERNAME</code>, <code>TELEPORT_LOGIN</code>, and <code>TELEPORT_ROLES</code>.</p>
+<p>Here are some details on the contents of these environment variables which will be set by Teleport:</p>
+<p><code>TELEPORT_USERNAME</code>: The Teleport username of the user who is logging into the node. This is usually an email address (such as <code>user@example.com</code>) if using SAML/OIDC identities with Teleport Enterprise, or a more standard <code>exampleuser</code> if using local Teleport users.</p>
+<p><code>TELEPORT_LOGIN</code>: The name of the Linux/UNIX principal which the Teleport user is logging into the Teleport node as - for example <code>root</code>, <code>developer</code>, <code>ubuntu</code>, <code>ec2-user</code> or similar.</p>
+<p><code>TELEPORT_ROLES</code>: A space-separated list of Teleport roles which the Teleport user has - for example: <code>developer tester admin</code>.</p>
+<p>This PAM module creates the user and home directory before attempting to launch
+a shell for said user.</p>
+<h3 id="examples">Examples</h3>
+<p><strong>Using pam_exec.so</strong></p>
+<p>Using <code>pam_exec.so</code> is the easiest way to use the PAM stack to create a user if
+the user does not already exist. <code>pam_exec.so</code> usually ships with the operating
+system.</p>
+<p>You can either add <code>pam_exec.so</code> to the existing PAM stack for your application or
+write a new one for Teleport. In this example, we'll write a new one to simplify how
+to use <code>pam_exec.so</code> with Teleport.</p>
+<p>Start by creating a file <code>/etc/pam.d/teleport</code> with the following contents:</p>
+<div class="highlight"><pre><span></span><code>account   required   pam_exec.so /etc/pam-exec.d/teleport_acct
+session   required   pam_motd.so
+session   required   pam_permit.so
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Pay attention to the inclusion of <code>pam_motd.so</code> under the <code>session</code> facility. While <code>pam_motd.so</code> is
+  not required for user creation, Teleport requires at least one module to be set under both
+  the <code>account</code> and <code>session</code> facilities for it to work.</p>
+</div>
+<p>Next, create the script that will be run by <code>pam_exec.so</code> like below. This
+script will check if the user passed in <code>TELEPORT_LOGIN</code> exists and if it does
+not, it will create it. Any error from <code>useradd</code> will be written to
+<code>/tmp/pam.error</code>. Note the additional environment variables
+<code>TELEPORT_USERNAME</code>, <code>TELEPORT_ROLES</code>, and <code>TELEPORT_LOGIN</code>.  These can be used
+to write richer scripts that may change the system in other ways based on
+identity information.</p>
+<div class="highlight"><pre><span></span><code>mkdir -p /etc/pam-exec.d
+cat &gt; /etc/pam-exec.d/teleport_acct <span class="s">&lt;&lt;EOF</span>
+<span class="s">#!/bin/sh</span>
+<span class="s">COMMENT=&quot;User ${TELEPORT_USERNAME} with roles ${TELEPORT_ROLES} created by Teleport.&quot;</span>
+<span class="s">id -u &quot;${TELEPORT_LOGIN}&quot; &amp;&gt;/dev/null  || /sbin/useradd -m -c &quot;${COMMENT}&quot; &quot;${TELEPORT_LOGIN}&quot; 2&gt; /tmp/pam.error</span>
+<span class="s">exit 0</span>
+<span class="s">EOF</span>
+chmod +x /etc/pam-exec.d/teleport_acct
+</code></pre></div>
+<p>Next, update <code>/etc/teleport.yaml</code> to call the above PAM stack by both enabling PAM and
+setting the service_name.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">ssh_service</span><span class="p">:</span>
+  <span class="nt">pam</span><span class="p">:</span>
+    <span class="nt">enabled</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">true</span>
+    <span class="nt">service_name</span><span class="p">:</span> <span class="s">&quot;teleport&quot;</span>
+</code></pre></div>
+<p>Now attempting to login as an existing user should result in the creation of the
+user and a successful login.</p>
+<h2 id="additional-authentication-steps">Additional authentication steps</h2>
+<p>Using the PAM <code>auth</code> modules, it is possible to add additional authentication
+steps during user login. These can include passwords, 2nd factor or even
+biometrics.</p>
+<p>Note that Teleport enables strong SSH authentication out of the box using
+certificates. For most users, hardening <a href="../../admin-guide/#authentication">the initial Teleport
+authentication</a> (e.g. <code>tsh login</code>) is preferred.</p>
+<p>By default, <code>auth</code> modules are not used to avoid the default system behavior
+(usually using local Unix passwords). You can enable them by setting
+<code>use_pam_auth</code> in the <code>pam</code> section of your <code>teleport.yaml</code>.</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../enhanced-session-recording/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Enhanced Session Rec.
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../../config-reference/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                YAML
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Gravitational Inc, 2016-20
+          </div>
+        
+        
+          Made with
+          <a href="https://squidfunk.github.io/mkdocs-material-insiders/" target="_blank" rel="noopener">
+            Material for MkDocs Insiders
+          </a>
+        
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/vendor.fd16492e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d964fd3f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "../..",
+          features: [],
+          search: Object.assign({
+            worker: "../../assets/javascripts/worker/search.0f64ce30.min.js"
+          }, typeof search !== "undefined" && search),
+          version: {'method': 'mike'}
+        })
+      </script>
+      
+        <script src="../../js/version-select.js"></script>
+      
+    
+  </body>
+</html>
