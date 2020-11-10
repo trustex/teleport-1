@@ -78,3 +78,11 @@ func setupClientTLS(ctx context.Context) (*tls.Config, error) {
 
 	return identity.TLSConfig(nil)
 }
+
+// ClientRole is a client alias type for teleport.Role
+type ClientRole = teleport.Role
+
+const (
+	// RoleAuth is for teleport auth server (authority, authentication and authorization)
+	RoleAuth ClientRole = teleport.RoleAuth
+)
