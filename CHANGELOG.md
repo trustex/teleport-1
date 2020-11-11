@@ -80,7 +80,7 @@ app_service:
 
 Teleport 5.0 introduces two highly requested features.  The ability to connect multiple
 Kubernetes Clusters to one Teleport Access Plane. Greatly reducing operational complexity.
-We now offer near complete Kubernetes audit log capture [#4526](https://github.com/gravitational/teleport/pull/4526). Going beyond our current `kubectl exec`. For a full overview please
+We now provide near complete Kubernetes audit log capture [#4526](https://github.com/gravitational/teleport/pull/4526). Going beyond our current `kubectl exec`. For a full overview please
 review the [Kubernetes RFD](https://github.com/gravitational/teleport/blob/master/rfd/0005-kubernetes-service.md)
 
 To support these changes we've introduced a new server. This moves Teleport Kubernetes
@@ -150,7 +150,13 @@ and to list and modify Users.
 ```
 
 ##### Cluster Labels
-TODO
+Teleport 5.0 provides the teams to provide labels to Trusted Clusters. The labels
+are set when creating a trusted cluster invite token. This let's teams use the same
+RBAC controls to approve or deny access. This can be especially useful for MSPs that
+connect hundreds of customers clusters, when combined with Access Workflows cluster
+access can easily be given.
+
+Creating a trusted cluster join token for a production environment.
 
 ```bash
 $ tctl tokens add --type=trusted_cluster --labels=env=prod
