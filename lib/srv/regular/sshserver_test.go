@@ -51,8 +51,9 @@ import (
 	"github.com/gravitational/teleport/lib/utils"
 
 	"github.com/gravitational/trace"
-	"github.com/pborman/uuid"
 
+	"github.com/pborman/uuid"
+	"github.com/sirupsen/logrus"
 	. "gopkg.in/check.v1"
 )
 
@@ -697,6 +698,7 @@ func (s *SrvSuite) TestProxyReverseTunnel(c *C) {
 	proxySigner, err := sshutils.NewSigner(proxyKeys.Key, proxyKeys.Cert)
 	c.Assert(err, IsNil)
 
+	logger := logrus.WithField("test", "TestProxyReverseTunnel")
 	listener, reverseTunnelAddress := s.mustListen(c)
 	defer listener.Close()
 	reverseTunnelServer, err := reversetunnel.NewServer(reversetunnel.Config{
@@ -713,6 +715,7 @@ func (s *SrvSuite) TestProxyReverseTunnel(c *C) {
 		DataDir:                       c.MkDir(),
 		Component:                     teleport.ComponentProxy,
 		Emitter:                       s.proxyClient,
+		Log:                           logger,
 	})
 	c.Assert(err, IsNil)
 	c.Assert(reverseTunnelServer.Start(), IsNil)
@@ -863,6 +866,7 @@ func (s *SrvSuite) TestProxyReverseTunnel(c *C) {
 func (s *SrvSuite) TestProxyRoundRobin(c *C) {
 	log.Infof("[TEST START] TestProxyRoundRobin")
 
+	logger := logrus.WithField("test", "TestProxyRoundRobin")
 	listener, reverseTunnelAddress := s.mustListen(c)
 	reverseTunnelServer, err := reversetunnel.NewServer(reversetunnel.Config{
 		ClusterName:                   s.server.ClusterName(),
@@ -877,8 +881,10 @@ func (s *SrvSuite) TestProxyRoundRobin(c *C) {
 		DirectClusters:                []reversetunnel.DirectCluster{{Name: s.server.ClusterName(), Client: s.proxyClient}},
 		DataDir:                       c.MkDir(),
 		Emitter:                       s.proxyClient,
+		Log:                           logger,
 	})
 	c.Assert(err, IsNil)
+	logger.WithField("tun-addr", reverseTunnelAddress.String()).Info("Created reverse tunnel server.")
 
 	c.Assert(reverseTunnelServer.Start(), IsNil)
 
@@ -915,6 +921,7 @@ func (s *SrvSuite) TestProxyRoundRobin(c *C) {
 		Client:      s.proxyClient,
 		AccessPoint: s.proxyClient,
 		EventsC:     eventsC,
+		Log:         logger,
 	})
 	c.Assert(err, IsNil)
 	rsAgent.Start()
@@ -928,6 +935,7 @@ func (s *SrvSuite) TestProxyRoundRobin(c *C) {
 		Client:      s.proxyClient,
 		AccessPoint: s.proxyClient,
 		EventsC:     eventsC,
+		Log:         logger,
 	})
 	c.Assert(err, IsNil)
 	rsAgent2.Start()
@@ -967,6 +975,7 @@ func (s *SrvSuite) TestProxyRoundRobin(c *C) {
 // reverse tunnel
 func (s *SrvSuite) TestProxyDirectAccess(c *C) {
 	listener, _ := s.mustListen(c)
+	logger := logrus.WithField("test", "TestProxyDirectAccess")
 	reverseTunnelServer, err := reversetunnel.NewServer(reversetunnel.Config{
 		ClientTLS:                     s.proxyClient.TLSConfig(),
 		ID:                            hostID,
@@ -980,6 +989,7 @@ func (s *SrvSuite) TestProxyDirectAccess(c *C) {
 		DirectClusters:                []reversetunnel.DirectCluster{{Name: s.server.ClusterName(), Client: s.proxyClient}},
 		DataDir:                       c.MkDir(),
 		Emitter:                       s.proxyClient,
+		Log:                           logger,
 	})
 	c.Assert(err, IsNil)
 
