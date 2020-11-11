@@ -17,6 +17,7 @@ require (
 	github.com/beevik/etree v1.1.0
 	github.com/boombuler/barcode v0.0.0-20161226211916-fe0f26ff6d26 // indirect
 	github.com/cjbassi/drawille-go v0.1.0 // indirect
+	github.com/cloudflare/cfssl v1.5.0
 	github.com/coreos/go-oidc v0.0.3
 	github.com/coreos/go-semver v0.3.0
 	github.com/davecgh/go-spew v1.1.1
@@ -81,18 +82,19 @@ require (
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200306183522-221f0cc107cb
 	go.opencensus.io v0.22.4 // indirect
 	go.uber.org/atomic v1.4.0
-	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+	golang.org/x/crypto v0.0.0-20201012173705-84dcc777aaee
 	golang.org/x/exp v0.0.0-20200224162631-6cc2880d07d6 // indirect
 	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
-	golang.org/x/net v0.0.0-20200707034311-ab3426394381
+	golang.org/x/net v0.0.0-20201010224723-4f7140c49acb
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d
-	golang.org/x/sys v0.0.0-20200803210538-64077c9b5642
+	golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f
 	golang.org/x/text v0.3.3
 	google.golang.org/api v0.22.0
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/genproto v0.0.0-20200806141610-86f49bd18e98
 	google.golang.org/grpc v1.27.0
 	google.golang.org/protobuf v1.25.0
+	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f
 	gopkg.in/square/go-jose.v2 v2.5.1
 	gopkg.in/yaml.v2 v2.3.0
@@ -105,6 +107,7 @@ require (
 
 replace (
 	github.com/coreos/go-oidc => github.com/gravitational/go-oidc v0.0.3
+	github.com/googleapis/gnostic => github.com/googleapis/gnostic v0.4.1
 	github.com/iovisor/gobpf => github.com/gravitational/gobpf v0.0.1
 	github.com/sirupsen/logrus => github.com/gravitational/logrus v0.10.1-0.20171120195323-8ab1e1b91d5f
 )
