@@ -8,11 +8,11 @@ on Github for details of all items.
 
 #### New Features
 Teleport 5.0 is a major version and an introduction to Teleports Unified Access
-Plane. The Access plane extends SSH access into first class Kubernetes support
-and the addition of Application Support.
+Plane. Going beyond just SSH access, with first class Kubernetes support
+and the new addition of Application Support.
 
 ##### Teleport Application Access
-Teleport can now be used to provide secure and audited access to Applications. We've
+Teleport can be used to provide secure access to Applications. We've
 built this Teleport Application Access with an eye for securing those internal apps
 which might once of lived on the VPN or have a simple oauth mechanism but with little
 to no audit trail.  We've tested everything from router control panels to Single
@@ -25,14 +25,16 @@ to be created. This can be static or dynamic.
 $ tctl tokens add --type=app
 ```
 
-Once created Teleport Application Access can route to Application from the central
-access plane or it can be ran as sidecar service. This enables teams to setup access
-on a loopback address so only Teleport Application Access can access the app.
+A Teleport node can be used to route to Application from the unified
+access plane. The Teleport node can be deployed alongside applications, enabling teams
+to setup access on a loopback address so only Teleport Application Access can access the app.
 
 ```yaml
 # ...
 proxy_service:
-  # We've ex
+  # We've extended support for https certs. Teleport can now load multiple
+  # TLS certificates. In the below example we've obtained a wildcard cert
+  # that'll be used for proxy the applications.
   https_keypairs:
   - key_file: /etc/letsencrypt/live/teleport.example.com/privkey.pem
   - cert_file: /etc/letsencrypt/live/teleport.example.com/fullchain.pem
@@ -40,6 +42,7 @@ proxy_service:
   - cert_file: /etc/letsencrypt/live/*.teleport.example.com/fullchain.pem
 # ...
 app_service:
+   # Teleport Application Access is enabled.
    enabled: yes
    # We've a sample debugger app that'll check
    # that Teleport Application Access is working
@@ -77,20 +80,60 @@ app_service:
 
 Teleport 5.0 introduces two highly requested features.  The ability to connect multiple
 Kubernetes Clusters to one Teleport Access Plane. Greatly reducing operational complexity.
-Near complete Kubernetes audit log capture [#4526](https://github.com/gravitational/teleport/pull/4526).
-Going beyond our current `kubectl exec`.
+We now offer near complete Kubernetes audit log capture [#4526](https://github.com/gravitational/teleport/pull/4526). Going beyond our current `kubectl exec`. For a full overview please
+review the [Kubernetes RFD](https://github.com/gravitational/teleport/blob/master/rfd/0005-kubernetes-service.md)
 
 To support these changes we've introduced a new server. This moves Teleport Kubernetes
 support from the `proxy_service` into it's own dedicated `kubernetes_service`
 
+When adding the new Kubernetes service a new type of join token is requied.
+```bash
+tctl tokens add --type=kubernetes
+```
+
+Example configuration for the new `kubernetes_service`
 ```yaml
 # ...
 kubernetes_service:
    enabled: yes
-# BA TODO
+   public_addr: [k8s.example.com:3026]
+   listen_addr: 0.0.0.0:3026
+   kubeconfig_file: /secrets/kubeconfig
 ```
 
-Other Notes:
+#### New "tsh kube" commands
+
+`tsh kube` commands are used to query registered clusters and switch
+`kubeconfig` context:
+
+```sh
+$ tsh login --proxy=proxy.example.com --user=awly
+# list all registered clusters
+$ tsh kube clusters
+Cluster Name       Status
+-------------      ------
+a.k8s.example.com  online
+b.k8s.example.com  online
+c.k8s.example.com  online
+# on login, kubeconfig is pointed at the first cluster (alphabetically)
+$ kubectl config current-context
+awly@a.k8s.example.com
+# but all clusters are populated as contexts
+$ kubectl config get-contexts
+CURRENT   NAME                     CLUSTER             AUTHINFO
+*         awly@a.k8s.example.com   proxy.example.com   awly@a.k8s.example.com
+          awly@b.k8s.example.com   proxy.example.com   awly@b.k8s.example.com
+          awly@c.k8s.example.com   proxy.example.com   awly@c.k8s.example.com
+# switch between different clusters:
+$ tsh kube login c.k8s.example.com
+# Or
+$ kubectl config use-context awly@c.k8s.example.com
+# check current cluster
+$ kubectl config current-context
+awly@c.k8s.example.com
+```
+
+Other Kubernetes changes:
 
 * Support k8s clusters behind firewall/NAT using a single teleport cluster [#3667](https://github.com/gravitational/teleport/issues/3667)
 * Support multiple k8s clusters per a single teleport proxy instance [#3952](https://github.com/gravitational/teleport/issues/3952)
@@ -124,11 +167,10 @@ kind: role
       'env': 'prod'
 ```
 
-##### YUM Repo
+##### Signed RPM and Releases
+Starting with Teleport 5.0 we now provide an RPM Repo for Teleport.
 
-```bash
-dnf config-manager --add-repo https://rpm.releases.teleport.dev/teleport.repo
-```
+See https://rpm.releases.teleport.dev/ for more details.
 
 #### Improvements
 * A `--format=json` playback option for `tsh`. e.g. `$ tsh play --format=json ~/play/0c0b81ed-91a9-4a2a-8d7c-7495891a6ca0.tar | jq '.event` [#4578](https://github.com/gravitational/teleport/issues/4578)
