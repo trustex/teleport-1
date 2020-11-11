@@ -1,5 +1,160 @@
 # Changelog
 
+## 5.0.0.rc1
+
+This is a major Teleport release with a focus on new features, functionality, and
+bug fixes. It’s a substantial release and users can review [5.0 closed issues](https://github.com/gravitational/teleport/milestone/39?closed=1)
+on Github for details of all items.
+
+#### New Features
+Teleport 5.0 is a major version and an introduction to Teleports Unified Access
+Plane. The Access plane extends SSH access into first class Kubernetes support
+and the addition of Application Support.
+
+##### Teleport Application Access
+Teleport can now be used to provide secure and audited access to Applications. We've
+built this Teleport Application Access with an eye for securing those internal apps
+which might once of lived on the VPN or have a simple oauth mechanism but with little
+to no audit trail.  We've tested everything from router control panels to Single
+page javascript apps.
+
+Adding an Application follows the same UX as adding servers. An invite token needs
+to be created. This can be static or dynamic.
+
+```bash
+$ tctl tokens add --type=app
+```
+
+Once created Teleport Application Access can route to Application from the central
+access plane or it can be ran as sidecar service. This enables teams to setup access
+on a loopback address so only Teleport Application Access can access the app.
+
+```yaml
+# ...
+proxy_service:
+  # We've ex
+  https_keypairs:
+  - key_file: /etc/letsencrypt/live/teleport.example.com/privkey.pem
+  - cert_file: /etc/letsencrypt/live/teleport.example.com/fullchain.pem
+  - key_file: /etc/letsencrypt/live/*.teleport.example.com/privkey.pem
+  - cert_file: /etc/letsencrypt/live/*.teleport.example.com/fullchain.pem
+# ...
+app_service:
+   enabled: yes
+   # We've a sample debugger app that'll check
+   # that Teleport Application Access is working
+   # and will output JWT tokens.
+   # https://dumper.teleport.example.com:3080/
+   debug_app: true
+   apps:
+   # Teleport Application Access can be used to proxy any HTTP Endpoint
+   # Note: Name can't include any spaces
+   - name: "internal-dashboard"
+     uri: "http://10.0.1.27:8000"
+     # By default Teleport will make this application
+     # available on sub-domain. Thus the importance of setting up
+     # wilcard DNS. If you want, it's possible to setup a vanity
+     # url. DNS records should point to the proxy server.
+     # `internal-dashboard.teleport.example.com
+     # Example Vanity URL for the internal-dashboard app.
+     # public_addr: "dashboard.acme.com"
+     # Optional Labels
+     labels:
+       name: "jwt"
+     # Optional Dynamic Labels
+     commands:
+     - name: "os"
+       command: ["/usr/bin/uname"]
+       period: "5s"
+    # A proxy can support multipe applications. Teleport Application Access
+    # can also deployed as a sidecar service.
+    - name: "arris"
+        uri: "http://localhost:3001"
+        public_addr: "arris.asteroid.earth"
+```
+
+##### Teleport Kubernetes Access
+
+Teleport 5.0 introduces two highly requested features.  The ability to connect multiple
+Kubernetes Clusters to one Teleport Access Plane. Greatly reducing operational complexity.
+Near complete Kubernetes audit log capture [#4526](https://github.com/gravitational/teleport/pull/4526).
+Going beyond our current `kubectl exec`.
+
+To support these changes we've introduced a new server. This moves Teleport Kubernetes
+support from the `proxy_service` into it's own dedicated `kubernetes_service`
+
+```yaml
+# ...
+kubernetes_service:
+   enabled: yes
+# BA TODO
+```
+
+Other Notes:
+
+* Support k8s clusters behind firewall/NAT using a single teleport cluster [#3667](https://github.com/gravitational/teleport/issues/3667)
+* Support multiple k8s clusters per a single teleport proxy instance [#3952](https://github.com/gravitational/teleport/issues/3952)
+
+##### Additional User and Token Resource
+We've added two new RBAC resources, these provide the ability to limit token creation
+and to list and modify Users.
+
+```yaml
+- resources: [user]
+  verbs: [list,create,read,update,delete]
+- resources: [token]
+  verbs: [list,create,read,update,delete]
+```
+
+##### Cluster Labels
+TODO
+
+```bash
+$ tctl tokens add --type=trusted_cluster --labels=env=prod
+```
+
+```yaml
+kind: role
+#...
+  deny:
+    # cluster labels control what clusters user can connect to. The wildcard ('*')
+    # means any cluster. By default none is set in deny rules to preserve backwards
+    # compatibility
+    cluster_labels:
+      'env': 'prod'
+```
+
+##### YUM Repo
+
+```bash
+dnf config-manager --add-repo https://rpm.releases.teleport.dev/teleport.repo
+```
+
+#### Improvements
+* A `--format=json` playback option for `tsh`. e.g. `$ tsh play --format=json ~/play/0c0b81ed-91a9-4a2a-8d7c-7495891a6ca0.tar | jq '.event` [#4578](https://github.com/gravitational/teleport/issues/4578)
+* Teleport can setup continuous backups and auto scaling for DynamoDB [#4780](https://github.com/gravitational/teleport/issues/4780)
+* Linux ARM64/ARMv8 (64-bit) Release [#3383](https://github.com/gravitational/teleport/issues/3383)
+* `https_keypairs:` replaces `https_key_file: & https_cert_file`. Letting customers load multiple https certs to support Teleport Application Access.
+
+Enterprise Only:
+* `tctl` can load creds from `~/.tsh`. [#4678](https://github.com/gravitational/teleport/pull/4678)
+* Teams can require a reason when using Access Workflows [#4573](https://github.com/gravitational/teleport/pull/4573#issuecomment-720777443)
+
+#### Fixes
+
+* `tctl`: always format resources as lists in JSON/YAML [#4281](https://github.com/gravitational/teleport/pull/4281)
+* `tsh`: print kubernetes info in profile status [#4348](https://github.com/gravitational/teleport/pull/4348)
+* Intermittent issues with loginuid.so in Teleport 4.2.0 [#3245](https://github.com/gravitational/teleport/issues/3245)
+* Reduding log spam  `access denied to Proxy` [#2920](https://github.com/gravitational/teleport/issues/2920)
+* Various AMI Fixes
+
+#### Documentation
+- [Updated `gRPC` API Reference](https://gravitational.com/teleport/docs/api-reference/)
+
+#### Upgrade Notes
+Please follow our [standard upgrade procedure](https://gravitational.com/teleport/docs/admin-guide/#upgrading-teleport).
+
+
 ### 4.4.4
 
 This release of Teleport adds enhancements to the Access Workflows API.
