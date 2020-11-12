@@ -7,15 +7,15 @@ bug fixes. It’s a substantial release and users can review [5.0 closed issues]
 on Github for details of all items.
 
 #### New Features
-Teleport 5.0 is a major version and an introduction to Teleports Unified Access
+Teleport 5.0 is a major version and an introduction to Teleport's Unified Access
 Plane. Going beyond just SSH access, with first class Kubernetes support
 and the new addition of Application Support.
 
 ##### Teleport Application Access
 Teleport can be used to provide secure access to Applications. We've
 built this Teleport Application Access with an eye for securing those internal apps
-which might once of lived on the VPN or have a simple oauth mechanism but with little
-to no audit trail.  We've tested everything from router control panels to Single
+which might once have lived on the VPN or have a simple OAuth mechanism but with little
+to no audit trail.  We've tested everything from router control panels to single
 page javascript apps.
 
 Adding an Application follows the same UX as adding servers. An invite token needs
@@ -26,7 +26,7 @@ $ tctl tokens add --type=app
 ```
 
 A Teleport node can be used to route to Application from the unified
-access plane. The Teleport node can be deployed alongside applications, enabling teams
+access plane. The Teleport Application Access service can be deployed alongside applications, enabling teams
 to setup access on a loopback address so only Teleport Application Access can access the app.
 
 ```yaml
@@ -34,7 +34,7 @@ to setup access on a loopback address so only Teleport Application Access can ac
 proxy_service:
   # We've extended support for https certs. Teleport can now load multiple
   # TLS certificates. In the below example we've obtained a wildcard cert
-  # that'll be used for proxy the applications.
+  # that'll be used for proxying the applications.
   https_keypairs:
   - key_file: /etc/letsencrypt/live/teleport.example.com/privkey.pem
   - cert_file: /etc/letsencrypt/live/teleport.example.com/fullchain.pem
@@ -58,7 +58,7 @@ app_service:
      # available on sub-domain. Thus the importance of setting up
      # wilcard DNS. If you want, it's possible to setup a vanity
      # url. DNS records should point to the proxy server.
-     # `internal-dashboard.teleport.example.com
+     # internal-dashboard.teleport.example.com
      # Example Vanity URL for the internal-dashboard app.
      # public_addr: "dashboard.acme.com"
      # Optional Labels
@@ -69,8 +69,8 @@ app_service:
      - name: "os"
        command: ["/usr/bin/uname"]
        period: "5s"
-    # A proxy can support multipe applications. Teleport Application Access
-    # can also deployed as a sidecar service.
+    # A proxy can support multiple applications. Teleport Application Access
+    # can also be deployed as a sidecar service.
     - name: "arris"
         uri: "http://localhost:3001"
         public_addr: "arris.asteroid.earth"
@@ -84,9 +84,9 @@ We now provide near complete Kubernetes audit log capture [#4526](https://github
 review the [Kubernetes RFD](https://github.com/gravitational/teleport/blob/master/rfd/0005-kubernetes-service.md)
 
 To support these changes we've introduced a new server. This moves Teleport Kubernetes
-support from the `proxy_service` into it's own dedicated `kubernetes_service`
+support from the `proxy_service` into its own dedicated `kubernetes_service`
 
-When adding the new Kubernetes service a new type of join token is requied.
+When adding the new Kubernetes service a new type of join token is required.
 ```bash
 tctl tokens add --type=kubernetes
 ```
@@ -140,7 +140,7 @@ Other Kubernetes changes:
 
 ##### Additional User and Token Resource
 We've added two new RBAC resources, these provide the ability to limit token creation
-and to list and modify Users.
+and to list and modify Teleport users.
 
 ```yaml
 - resources: [user]
@@ -150,13 +150,13 @@ and to list and modify Users.
 ```
 
 ##### Cluster Labels
-Teleport 5.0 provides the teams to provide labels to Trusted Clusters. The labels
-are set when creating a trusted cluster invite token. This let's teams use the same
+Teleport 5.0 adds the ability to set labels on Trusted Clusters. The labels
+are set when creating a trusted cluster invite token. This lets teams use the same
 RBAC controls to approve or deny access. This can be especially useful for MSPs that
-connect hundreds of customers clusters, when combined with Access Workflows cluster
-access can easily be given.
+connect hundreds of customers' clusters, when combined with Access Workflows cluster
+access can easily be delegated.
 
-Creating a trusted cluster join token for a production environment.
+Creating a trusted cluster join token for a production environment:
 
 ```bash
 $ tctl tokens add --type=trusted_cluster --labels=env=prod
@@ -174,7 +174,7 @@ kind: role
 ```
 
 ##### Signed RPM and Releases
-Starting with Teleport 5.0 we now provide an RPM Repo for Teleport.
+Starting with Teleport 5.0 we now provide an RPM repo for Teleport.
 
 See https://rpm.releases.teleport.dev/ for more details.
 
@@ -185,7 +185,7 @@ See https://rpm.releases.teleport.dev/ for more details.
 * `https_keypairs:` replaces `https_key_file: & https_cert_file`. Letting customers load multiple https certs to support Teleport Application Access.
 
 Enterprise Only:
-* `tctl` can load creds from `~/.tsh`. [#4678](https://github.com/gravitational/teleport/pull/4678)
+* `tctl` can load credentials from `~/.tsh`. [#4678](https://github.com/gravitational/teleport/pull/4678)
 * Teams can require a reason when using Access Workflows [#4573](https://github.com/gravitational/teleport/pull/4573#issuecomment-720777443)
 
 #### Fixes
@@ -193,7 +193,7 @@ Enterprise Only:
 * `tctl`: always format resources as lists in JSON/YAML [#4281](https://github.com/gravitational/teleport/pull/4281)
 * `tsh`: print kubernetes info in profile status [#4348](https://github.com/gravitational/teleport/pull/4348)
 * Intermittent issues with loginuid.so in Teleport 4.2.0 [#3245](https://github.com/gravitational/teleport/issues/3245)
-* Reduding log spam  `access denied to Proxy` [#2920](https://github.com/gravitational/teleport/issues/2920)
+* Reducing log spam  `access denied to Proxy` [#2920](https://github.com/gravitational/teleport/issues/2920)
 * Various AMI Fixes
 
 #### Documentation
