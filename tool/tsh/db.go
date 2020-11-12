@@ -50,17 +50,24 @@ func onListDatabases(cf *CLIConf) {
 	sort.Slice(servers, func(i, j int) bool {
 		return servers[i].GetName() < servers[j].GetName()
 	})
-	showDatabases(servers, cf.Verbose)
+	// Retrieve profile to be able to show which databases user is logged into.
+	profile, _, err := client.Status("", cf.Proxy)
+	if err != nil {
+		utils.FatalError(err)
+	}
+	showDatabases(servers, profile.Databases, cf.Verbose)
 }
 
-func showDatabases(servers []services.Server, verbose bool) {
+func showDatabases(servers []services.Server, activeDatabases []string, verbose bool) {
 	// TODO(r0mant): Add verbose mode, add labels like Apps have.
 	t := asciitable.MakeTable([]string{"Name", "Description", "Labels"})
 	for _, server := range servers {
 		for _, db := range server.GetDatabases() {
-			t.AddRow([]string{
-				db.Name, db.Description, services.LabelsAsString(db.StaticLabels, db.DynamicLabels),
-			})
+			name := db.Name
+			if utils.SliceContainsStr(activeDatabases, db.Name) {
+				name += "*"
+			}
+			t.AddRow([]string{name, db.Description, services.LabelsAsString(db.StaticLabels, db.DynamicLabels)})
 		}
 	}
 	fmt.Println(t.AsBuffer().String())
