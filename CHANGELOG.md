@@ -2,24 +2,19 @@
 
 ## 5.0.0.rc1
 
-This is a major Teleport release with a focus on new features, functionality, and
-bug fixes. It’s a substantial release and users can review [5.0 closed issues](https://github.com/gravitational/teleport/milestone/39?closed=1)
+Teleport 5.0 is a major release with new features, functionality, and
+bug fixes. Users can review [5.0 closed issues](https://github.com/gravitational/teleport/milestone/39?closed=1)
 on Github for details of all items.
 
 #### New Features
-Teleport 5.0 is a major version and an introduction to Teleport's Unified Access
-Plane. Going beyond just SSH access, with first class Kubernetes support
+Teleport 5.0 is a major version release and introduces two distinct features: Teleport Application Access and the Unified Access Plane with significant Kubernetes enhancements like multi-cluster support, backwards compatibility, and more.
 and the new addition of Application Support.
 
 ##### Teleport Application Access
-Teleport can be used to provide secure access to Applications. We've
-built this Teleport Application Access with an eye for securing those internal apps
-which might once have lived on the VPN or have a simple OAuth mechanism but with little
-to no audit trail.  We've tested everything from router control panels to single
-page javascript apps.
+Teleport provides secure access to web applications.
+This new feature was built with the express intention of securing internal applications that may live on a VPN with broad access and scanty audit trails. We've tested everything from various dashboards to single page javascript apps.
 
-Adding an Application follows the same UX as adding servers. An invite token needs
-to be created. This can be static or dynamic.
+Adding an application follows the same UX as adding SSH servers or Kubernetes clusters, starting with creating a static or dynamic invite token.
 
 ```bash
 $ tctl tokens add --type=app
@@ -55,7 +50,7 @@ app_service:
    - name: "internal-dashboard"
      uri: "http://10.0.1.27:8000"
      # By default Teleport will make this application
-     # available on sub-domain. Thus the importance of setting up
+     # available on a sub-domain of your Teleport proxy's hostname - thus the importance of setting up
      # wilcard DNS. If you want, it's possible to setup a vanity
      # url. DNS records should point to the proxy server.
      # internal-dashboard.teleport.example.com
