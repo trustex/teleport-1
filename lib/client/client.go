@@ -207,6 +207,9 @@ func (proxy *ProxyClient) ReissueUserCerts(ctx context.Context, params ReissuePa
 	if params.KubernetesCluster != "" {
 		key.KubeTLSCerts[params.KubernetesCluster] = certs.TLS
 	}
+	if params.RouteToDatabase != "" {
+		key.DBTLSCerts[params.RouteToDatabase] = certs.TLS
+	}
 
 	// save the cert to the local storage (~/.tsh usually):
 	_, err = localAgent.AddKey(key)

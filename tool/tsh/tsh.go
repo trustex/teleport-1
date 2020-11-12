@@ -24,12 +24,10 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"os/user"
 	"path"
 	"path/filepath"
 	"runtime"
 	"sort"
-	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -59,7 +57,6 @@ import (
 	gops "github.com/google/gops/agent"
 	"github.com/jonboulle/clockwork"
 	"github.com/sirupsen/logrus"
-	"gopkg.in/ini.v1"
 )
 
 var log = logrus.WithFields(logrus.Fields{
@@ -286,8 +283,11 @@ func Run(args []string) {
 	dbList.Flag("verbose", "Show extra database fields.").Short('v').BoolVar(&cf.Verbose)
 	dbList.Flag("cluster", clusterHelp).Envar(clusterEnvVar).StringVar(&cf.SiteName)
 	dbLogin := db.Command("login", "Retrieve credentials for a database.")
-	dbLogin.Arg("name", "Database to retrieve credentials for. Can be obtained from tsh db ls output.").Required().StringVar(&cf.DatabaseName)
+	dbLogin.Arg("db", "Database to retrieve credentials for. Can be obtained from tsh db ls output.").Required().StringVar(&cf.DatabaseName)
+	dbLogout := db.Command("logout", "Remove database credentials.")
+	dbLogout.Arg("db", "Database to remove credentials for.").Required().StringVar(&cf.DatabaseName)
 	dbEnv := db.Command("env", "Print environment variables for the configured database.")
+	dbEnv.Flag("db", "Database to print environment for if logged into multiple.").StringVar(&cf.DatabaseName)
 
 	// join
 	join := app.Command("join", "Join the active SSH session")
@@ -440,6 +440,8 @@ func Run(args []string) {
 		onListDatabases(&cf)
 	case dbLogin.FullCommand():
 		onDatabaseLogin(&cf)
+	case dbLogout.FullCommand():
+		onDatabaseLogout(&cf)
 	case dbEnv.FullCommand():
 		onDatabaseEnv(&cf)
 	default:
@@ -1531,8 +1533,8 @@ func printStatus(debug bool, p *client.ProfileStatus, isActive bool) {
 	} else {
 		fmt.Printf("  Kubernetes:         disabled\n")
 	}
-	if p.Database != "" {
-		fmt.Printf("  Database:           %v\n", p.Database)
+	if len(p.Databases) != 0 {
+		fmt.Printf("  Databases:          %v\n", strings.Join(p.Databases, ", "))
 	}
 	fmt.Printf("  Valid until:        %v [%v]\n", p.ValidUntil, humanDuration)
 	fmt.Printf("  Extensions:         %v\n", strings.Join(p.Extensions, ", "))
@@ -1730,215 +1732,4 @@ func onApps(cf *CLIConf) {
 	})
 
 	showApps(servers, cf.Verbose)
-}
-
-func onListDatabases(cf *CLIConf) {
-	tc, err := makeClient(cf, false)
-	if err != nil {
-		utils.FatalError(err)
-	}
-	var servers []services.Server
-	err = client.RetryWithRelogin(cf.Context, tc, func() error {
-		servers, err = tc.ListDatabaseServers(cf.Context)
-		return trace.Wrap(err)
-	})
-	if err != nil {
-		utils.FatalError(err)
-	}
-	sort.Slice(servers, func(i, j int) bool {
-		return servers[i].GetName() < servers[j].GetName()
-	})
-	showDatabases(servers, cf.Verbose)
-}
-
-func showDatabases(servers []services.Server, verbose bool) {
-	// TODO(r0mant): Add verbose mode, add labels like Apps have.
-	t := asciitable.MakeTable([]string{"Name", "Description", "Labels"})
-	for _, server := range servers {
-		for _, db := range server.GetDatabases() {
-			t.AddRow([]string{
-				db.Name, db.Description, services.LabelsAsString(db.StaticLabels, db.DynamicLabels),
-			})
-		}
-	}
-	fmt.Println(t.AsBuffer().String())
-}
-
-func onDatabaseLogin(cf *CLIConf) {
-	profile, _, err := client.Status("", cf.Proxy)
-	if err != nil {
-		utils.FatalError(err)
-	}
-	if profile == nil {
-		utils.FatalError(trace.BadParameter("please login using 'tsh login' first"))
-	}
-	tc, err := makeClient(cf, false)
-	if err != nil {
-		utils.FatalError(err)
-	}
-	var servers []services.Server
-	err = client.RetryWithRelogin(cf.Context, tc, func() error {
-		servers, err = tc.ListDatabaseServersFor(cf.Context, cf.DatabaseName)
-		return trace.Wrap(err)
-	})
-	if err != nil {
-		utils.FatalError(err)
-	}
-	if len(servers) == 0 {
-		utils.FatalError(trace.NotFound(
-			"database %q not found, use 'tsh db ls' to see registered databases", cf.DatabaseName))
-	}
-	// Obtain certificate with the database name encoded in it.
-	log.Debugf("Requesting TLS certificate for database %q on cluster %q.", cf.DatabaseName, profile.Cluster)
-	err = client.RetryWithRelogin(cf.Context, tc, func() error {
-		return tc.ReissueUserCerts(cf.Context, client.ReissueParams{
-			RouteToCluster:  profile.Cluster,
-			RouteToDatabase: cf.DatabaseName,
-		})
-	})
-	if err != nil {
-		utils.FatalError(err)
-	}
-	// Refresh the profile.
-	profile, _, err = client.Status("", cf.Proxy)
-	if err != nil {
-		utils.FatalError(err)
-	}
-	// Save connection information to ~/.pg_service.conf file which psql
-	// can refer to via "service" connection string parameter.
-	pgProfile, err := pgConnectProfileFromProfile(*profile)
-	if err != nil {
-		utils.FatalError(err)
-	}
-	err = pgProfile.Save()
-	if err != nil {
-		utils.FatalError(err)
-	}
-	fmt.Printf(`
-Connection information for %[1]q has been saved to ~/.pg_service.conf.
-You can connect to the database using the following command:
-
-  $ psql "service=%[1]v user=<user> dbname=<dbname>"
-
-Or configure environment variables and use regular CLI flags:
-
-  $ eval $(tsh db env)
-  $ psql -U <user> <database>
-
-`, profile.Database)
-}
-
-func onDatabaseEnv(cf *CLIConf) {
-	profile, _, err := client.Status("", cf.Proxy)
-	if err != nil {
-		utils.FatalError(err)
-	}
-	if profile == nil {
-		utils.FatalError(trace.BadParameter("please login using 'tsh login' first"))
-	}
-	if profile.Database == "" {
-		utils.FatalError(trace.BadParameter("please login using 'tsh db login' first"))
-	}
-	pgProfile, err := pgConnectProfileFromProfile(*profile)
-	if err != nil {
-		utils.FatalError(err)
-	}
-	for k, v := range pgProfile.AsEnv() {
-		fmt.Printf("export %v=%v\n", k, v)
-	}
-}
-
-type pgConnectProfile struct {
-	// Name is the profile name, the database it is for.
-	Name string
-	// Host is the host to connect to.
-	Host string
-	// Port is the port number to connect to.
-	Port int
-	// SSLMode is the SSL connection mode.
-	SSLMode string
-	// SSLRootCert is the CA certificate path.
-	SSLRootCert string
-	// SSLCert is the client certificate path.
-	SSLCert string
-	// SSLKey is the client key path.
-	SSLKey string
-}
-
-func pgConnectProfileFromProfile(profile client.ProfileStatus) (*pgConnectProfile, error) {
-	addr, err := utils.ParseAddr(profile.ProxyURL.Host)
-	if err != nil {
-		return nil, trace.Wrap(err)
-	}
-	return &pgConnectProfile{
-		Name:        profile.Database,
-		Host:        addr.Host(),
-		Port:        addr.Port(defaults.HTTPListenPort),
-		SSLMode:     "verify-ca", // TODO(r0mant): Change to verify-full.
-		SSLRootCert: filepath.Join(profile.Dir, "keys", profile.Name, "certs.pem"),
-		SSLCert:     filepath.Join(profile.Dir, "keys", profile.Name, fmt.Sprintf("%v-x509.pem", profile.Username)),
-		SSLKey:      filepath.Join(profile.Dir, "keys", profile.Name, profile.Username),
-	}, nil
-}
-
-// AsEnv returns this connection profile as a set of environment variables
-// recognized by Postgres clients.
-func (p *pgConnectProfile) AsEnv() map[string]string {
-	return map[string]string{
-		"PGHOST":        p.Host,
-		"PGPORT":        strconv.Itoa(p.Port),
-		"PGSSLMODE":     p.SSLMode,
-		"PGSSLROOTCERT": p.SSLRootCert,
-		"PGSSLCERT":     p.SSLCert,
-		"PGSSLKEY":      p.SSLKey,
-	}
-}
-
-// Save saves this connection profile in the ~/.pg_service.conf ini file.
-//
-// The profile goes into a separate section with the name equal to the
-// name of the database that user is logged into and looks like this:
-//
-//   [postgres]
-//   host=localhost
-//   port=3080
-//   sslmode=verify-full
-//   sslrootcert=/home/user/.tsh/keys/127.0.0.1/certs.pem
-//   sslcert=/home/user/.tsh/keys/127.0.0.1/user-x509.pem
-//   sslkey=/home/user/.tsh/keys/127.0.0.1/user
-//
-// With the profile like this, a user can refer to it using "service" psql
-// parameter:
-//
-//   $ psql service=postgres <other parameters>
-func (p *pgConnectProfile) Save() error {
-	user, err := user.Current()
-	if err != nil {
-		return trace.Wrap(err)
-	}
-	path := filepath.Join(user.HomeDir, ".pg_service.conf")
-	iniFile, err := ini.LooseLoad(path)
-	if err != nil {
-		return trace.Wrap(err)
-	}
-	section := iniFile.Section(p.Name)
-	if section != nil {
-		iniFile.DeleteSection(p.Name)
-	}
-	section, err = iniFile.NewSection(p.Name)
-	if err != nil {
-		return trace.Wrap(err)
-	}
-	section.NewKey("host", p.Host)
-	section.NewKey("port", strconv.Itoa(p.Port))
-	section.NewKey("sslmode", p.SSLMode)
-	section.NewKey("sslrootcert", p.SSLRootCert)
-	section.NewKey("sslcert", p.SSLCert)
-	section.NewKey("sslkey", p.SSLKey)
-	ini.PrettyFormat = false
-	err = iniFile.SaveTo(path)
-	if err != nil {
-		return trace.Wrap(err)
-	}
-	return nil
 }

@@ -329,8 +329,8 @@ type ProfileStatus struct {
 	// KubeGroups are the kubernetes groups used by this profile.
 	KubeGroups []string
 
-	// Database is the database the user is logged into.
-	Database string
+	// Databases are the database the user is logged into.
+	Databases []string
 
 	// ValidUntil is the time at which this SSH certificate will expire.
 	ValidUntil time.Time
@@ -415,7 +415,7 @@ func readProfile(profileDir string, profileName string) (*ProfileStatus, error) 
 	if err != nil {
 		return nil, trace.Wrap(err)
 	}
-	key, err := store.GetKey(profile.Name(), profile.Username, WithKubeCerts(profile.SiteName))
+	key, err := store.GetKey(profile.Name(), profile.Username, WithKubeCerts(profile.SiteName), WithDBCerts(profile.SiteName, ""))
 	if err != nil {
 		return nil, trace.Wrap(err)
 	}
@@ -496,6 +496,21 @@ func readProfile(profileDir string, profileName string) (*ProfileStatus, error) 
 		return nil, trace.Wrap(err)
 	}
 
+	dbCerts, err := key.DBTLSCertificates()
+	if err != nil {
+		return nil, trace.Wrap(err)
+	}
+	var databases []string
+	for _, cert := range dbCerts {
+		tlsID, err := tlsca.FromSubject(cert.Subject, time.Time{})
+		if err != nil {
+			return nil, trace.Wrap(err)
+		}
+		if tlsID.RouteToDatabase.DatabaseName != "" {
+			databases = append(databases, tlsID.RouteToDatabase.DatabaseName)
+		}
+	}
+
 	return &ProfileStatus{
 		Name: profileName,
 		Dir:  profileDir,
@@ -515,7 +530,7 @@ func readProfile(profileDir string, profileName string) (*ProfileStatus, error) 
 		KubeCluster:    tlsID.KubernetesCluster,
 		KubeUsers:      tlsID.KubernetesUsers,
 		KubeGroups:     tlsID.KubernetesGroups,
-		Database:       tlsID.RouteToDatabase.DatabaseName,
+		Databases:      databases,
 	}, nil
 }
 
@@ -1710,11 +1725,20 @@ func (tc *TeleportClient) Logout() error {
 	if tc.localAgent == nil {
 		return nil
 	}
-	if err := tc.localAgent.DeleteKey(WithKubeCerts(tc.SiteName)); err != nil {
+	if err := tc.localAgent.DeleteKey(WithKubeCerts(tc.SiteName), WithDBCerts(tc.SiteName, "")); err != nil {
 		return trace.Wrap(err)
 	}
 
 	return nil
+}
+
+// LogoutDatabase removes certificate for a particular database.
+func (tc *TeleportClient) LogoutDatabase(dbName string) error {
+	if tc.localAgent == nil {
+		return nil
+	}
+	return tc.localAgent.keyStore.DeleteKeyOption(tc.localAgent.proxyHost,
+		tc.localAgent.username, WithDBCerts(tc.SiteName, dbName))
 }
 
 // LogoutAll removes all certificates for all users from the filesystem
@@ -1800,6 +1824,9 @@ func (tc *TeleportClient) Login(ctx context.Context) (*Key, error) {
 	key.TLSCert = response.TLSCert
 	if tc.KubernetesCluster != "" {
 		key.KubeTLSCerts[tc.KubernetesCluster] = response.TLSCert
+	}
+	if tc.DatabaseName != "" {
+		key.DBTLSCerts[tc.DatabaseName] = response.TLSCert
 	}
 	key.ProxyHost = webProxyHost
 	key.TrustedCA = response.HostSigners
