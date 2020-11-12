@@ -846,16 +846,20 @@ type Database struct {
 	Protocol string `yaml:"protocol"`
 	// URI is the database address to connect to.
 	URI string `yaml:"uri"`
-	// CAPath is an optional path to the database CA certificate.
-	CAPath string `yaml:"ca_path,omitempty"`
-	// Region is an optional database cloud region e.g. when using AWS RDS.
-	Region string `yaml:"region,omitempty"`
-	// Auth is database authentication type e.g. aws-iam.
-	Auth string `yaml:"auth,omitempty"`
+	// CACertFile is an optional path to the database CA certificate.
+	CACertFile string `yaml:"ca_cert_file,omitempty"`
 	// Labels is a map of database static labels.
 	StaticLabels map[string]string `yaml:"static_labels,omitempty"`
 	// Commands is a list of database dynamic labels.
 	DynamicLabels []CommandLabel `yaml:"dynamic_labels,omitempty"`
+	// AWS contains AWS specific settings for RDS/Aurora databases.
+	AWS DatabaseAWS `yaml:"aws"`
+}
+
+// DatabaseAWS contains AWS specific settings for RDS/Aurora databases.
+type DatabaseAWS struct {
+	// Region is a cloud region for RDS/Aurora database endpoint.
+	Region string `yaml:"region,omitempty"`
 }
 
 // Check validates the database proxy configuration.

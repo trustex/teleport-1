@@ -21,7 +21,6 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
-	"encoding/base64"
 	"fmt"
 	"io"
 	"net"
@@ -162,6 +161,7 @@ func (p *postgresProxy) proxyToSite(conn, siteConn net.Conn, startupMessage *pgp
 type postgresEngine struct {
 	authClient     *auth.Client
 	credentials    *credentials.Credentials
+	rdsCACerts     map[string][]byte
 	streamWriter   events.StreamWriter
 	onSessionStart func(sessionContext) error
 	onSessionEnd   func(sessionContext) error
@@ -377,7 +377,7 @@ func (e *postgresEngine) getConnectConfig(ctx context.Context, sessionCtx *sessi
 	}
 	// RDS/Aurora use IAM authentication so request an auth token and
 	// use it as a password.
-	if sessionCtx.db.Auth == "aws-iam" {
+	if sessionCtx.db.IsAWS() {
 		config.Password, err = e.getAuthToken(sessionCtx)
 		if err != nil {
 			return nil, trace.Wrap(err)
@@ -398,7 +398,7 @@ func (e *postgresEngine) getAuthToken(sessionCtx *sessionContext) (string, error
 	e.Debugf("Generating auth token for %s.", sessionCtx)
 	return rdsutils.BuildAuthToken(
 		sessionCtx.db.URI,
-		sessionCtx.db.Region,
+		sessionCtx.db.AWS.Region,
 		sessionCtx.dbUser,
 		e.credentials)
 }
@@ -419,18 +419,22 @@ func (e *postgresEngine) getTLSConfig(ctx context.Context, sessionCtx *sessionCo
 	}
 	// Add CA certificate to the trusted pool if it's present, e.g. when
 	// connecting to RDS/Aurora which require AWS CA.
-	if sessionCtx.db.CACert != "" {
-		caBytes, err := base64.StdEncoding.DecodeString(sessionCtx.db.CACert)
-		if err != nil {
-			return nil, trace.Wrap(err)
-		}
-		if !tlsConfig.RootCAs.AppendCertsFromPEM(caBytes) {
+	if len(sessionCtx.db.CACert) != 0 {
+		if !tlsConfig.RootCAs.AppendCertsFromPEM(sessionCtx.db.CACert) {
 			return nil, trace.BadParameter("failed to append CA certificate to the pool")
+		}
+	} else if sessionCtx.db.IsAWS() {
+		if rdsCA, ok := e.rdsCACerts[sessionCtx.db.AWS.Region]; ok {
+			if !tlsConfig.RootCAs.AppendCertsFromPEM(rdsCA) {
+				return nil, trace.BadParameter("failed to append CA certificate to the pool")
+			}
+		} else {
+			e.Warnf("No RDS CA certificate for %v.", sessionCtx.db)
 		}
 	}
 	// RDS/Aurora auth is done via an auth token so don't generate a client
 	// certificate and exit here.
-	if sessionCtx.db.Auth == "aws-iam" {
+	if sessionCtx.db.IsAWS() {
 		return tlsConfig, nil
 	}
 	// Otherwise, when connecting to an onprem database, generate a client

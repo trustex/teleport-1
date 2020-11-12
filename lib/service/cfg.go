@@ -529,10 +529,14 @@ type Database struct {
 	DynamicLabels services.CommandLabels
 	// CACert is an optional database CA certificate.
 	CACert []byte
+	// AWS contains AWS specific settings for RDS/Aurora.
+	AWS DatabaseAWS
+}
+
+// DatabaseAWS contains AWS specific settings for RDS/Aurora databases.
+type DatabaseAWS struct {
 	// Region is the cloud region database is running in when using AWS RDS.
 	Region string
-	// Auth is database authentication type e.g. aws-iam.
-	Auth string
 }
 
 // AppsConfig configures application proxy service.

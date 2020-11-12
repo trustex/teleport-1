@@ -117,14 +117,12 @@ type CommandLineFlags struct {
 	DatabaseDescription string
 	// DatabaseProtocol is the type of the proxied database e.g. postgres or mysql.
 	DatabaseProtocol string
-	// DatabaseEndpoint is the address to connect to the proxied database.
-	DatabaseEndpoint string
-	// DatabaseCAPath is the database CA cert path.
-	DatabaseCAPath string
-	// DatabaseRegion is an optional database cloud region e.g. when using AWS RDS.
-	DatabaseRegion string
-	// DatabaseAuth is the database auth type e.g. aws-iam.
-	DatabaseAuth string
+	// DatabaseURI is the address to connect to the proxied database.
+	DatabaseURI string
+	// DatabaseCACertFile is the database CA cert path.
+	DatabaseCACertFile string
+	// DatabaseAWSRegion is an optional database cloud region e.g. when using AWS RDS.
+	DatabaseAWSRegion string
 }
 
 // readConfigFile reads /etc/teleport.yaml (or whatever is passed via --config flag)
@@ -787,8 +785,8 @@ func applyDatabasesConfig(fc *FileConfig, cfg *service.Config) error {
 			}
 		}
 		var caBytes []byte
-		if database.CAPath != "" {
-			caBytes, err = ioutil.ReadFile(database.CAPath)
+		if database.CACertFile != "" {
+			caBytes, err = ioutil.ReadFile(database.CACertFile)
 			if err != nil {
 				return trace.Wrap(err)
 			}
@@ -802,8 +800,9 @@ func applyDatabasesConfig(fc *FileConfig, cfg *service.Config) error {
 				StaticLabels:  staticLabels,
 				DynamicLabels: dynamicLabels,
 				CACert:        caBytes,
-				Region:        database.Region,
-				Auth:          database.Auth,
+				AWS: service.DatabaseAWS{
+					Region: database.AWS.Region,
+				},
 			})
 	}
 	return nil
@@ -1121,10 +1120,11 @@ func Configure(clf *CommandLineFlags, cfg *service.Config) error {
 					Name:        clf.DatabaseName,
 					Description: clf.DatabaseDescription,
 					Protocol:    clf.DatabaseProtocol,
-					URI:         clf.DatabaseEndpoint,
-					CAPath:      clf.DatabaseCAPath,
-					Region:      clf.DatabaseRegion,
-					Auth:        clf.DatabaseAuth,
+					URI:         clf.DatabaseURI,
+					CACertFile:  clf.DatabaseCACertFile,
+					AWS: DatabaseAWS{
+						Region: clf.DatabaseAWSRegion,
+					},
 				},
 			},
 		}

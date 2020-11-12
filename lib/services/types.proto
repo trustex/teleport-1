@@ -215,16 +215,21 @@ message Database {
     // URI is the database connection endpoint.
     string URI = 4 [ (gogoproto.jsontag) = "uri" ];
     // CACert is an optional base64-encoded database CA certificate.
-    string CACert = 5 [ (gogoproto.jsontag) = "ca_cert,omitempty" ];
-    // Region is an optional database cloud region e.g. when using RDS/Aurora.
-    string Region = 6 [ (gogoproto.jsontag) = "region,omitempty" ];
-    // Auth is the database authentication type.
-    string Auth = 7 [ (gogoproto.jsontag) = "auth,omitempty" ];
+    bytes CACert = 5 [ (gogoproto.jsontag) = "ca_cert,omitempty" ];
+    // AWS contains AWS specific settings for RDS/Aurora databases.
+    DatabaseAWS AWS = 6 [ (gogoproto.nullable) = false, (gogoproto.jsontag) = "aws" ];
     // StaticLabels is map of static labels associated with a database.
-    map<string, string> StaticLabels = 8 [ (gogoproto.jsontag) = "static_labels,omitempty" ];
+    map<string, string> StaticLabels = 7 [ (gogoproto.jsontag) = "static_labels,omitempty" ];
     // DynamicLabels is map of dynamic labels associated with a database.
-    map<string, CommandLabelV2> DynamicLabels = 9
+    map<string, CommandLabelV2> DynamicLabels = 8
         [ (gogoproto.nullable) = false, (gogoproto.jsontag) = "dynamic_labels,omitempty" ];
+}
+
+// DatabaseAWS contains AWS specific settings for a database service proxying
+// an RDS/Aurora instance.
+message DatabaseAWS {
+    // Region is a cloud region where RDS/Aurora database is deployed.
+    string Region = 1 [ (gogoproto.jsontag) = "region,omitempty" ];
 }
 
 // CommandLabelV2 is a label that has a value as a result of the

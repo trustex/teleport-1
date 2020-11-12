@@ -484,6 +484,11 @@ func CompareApps(a []*App, b []*App) int {
 	return Equal
 }
 
+// IsAWS returns true if this database represents AWS RDS/Aurora instance.
+func (d *Database) IsAWS() bool {
+	return d.AWS.Region != ""
+}
+
 // CompareDatabases compares two slices of databases.
 func CompareDatabases(a []*Database, b []*Database) int {
 	if len(a) != len(b) {
@@ -592,8 +597,13 @@ const ServerSpecV2Schema = `{
           "protocol": {"type": "string"},
           "uri": {"type": "string"},
           "ca_cert": {"type": "string"},
-          "region": {"type": "string"},
-          "auth": {"type": "string"},
+          "aws": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "region": {"type": "string"}
+            }
+          },
           "static_labels": {
             "type": "object",
             "additionalProperties": false,

@@ -141,9 +141,9 @@ func Run(options Options) (executedCommand string, conf *service.Config) {
 	start.Flag("db-protocol",
 		"Proxied database protocol, e.g. postgresql or mysql.").
 		StringVar(&ccf.DatabaseProtocol)
-	start.Flag("db-address",
+	start.Flag("db-uri",
 		"Address proxied database is reachable at.").
-		StringVar(&ccf.DatabaseEndpoint)
+		StringVar(&ccf.DatabaseURI)
 
 	// define start's usage info (we use kingpin's "alias" field for this)
 	start.Alias(usageNotes + usageExamples)

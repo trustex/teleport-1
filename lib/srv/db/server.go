@@ -133,6 +133,8 @@ type Server struct {
 	heartbeat *srv.Heartbeat
 	// dynamicLabels are command labels updated by the server.
 	dynamicLabels map[string]*labels.Dynamic
+	// rdsCACerts contains loaded RDS root certificates for required regions.
+	rdsCACerts map[string][]byte
 	// Entry is used for logging.
 	*logrus.Entry
 }
@@ -145,14 +147,16 @@ func New(ctx context.Context, config Config) (*Server, error) {
 
 	localCtx, cancel := context.WithCancel(ctx)
 	server := &Server{
-		Config:       config,
-		closeContext: localCtx,
-		closeFunc:    cancel,
+		Config:        config,
+		Entry:         logrus.WithField(trace.Component, teleport.ComponentDB),
+		closeContext:  localCtx,
+		closeFunc:     cancel,
+		dynamicLabels: make(map[string]*labels.Dynamic),
+		rdsCACerts:    make(map[string][]byte),
 		middleware: &auth.Middleware{
 			AccessPoint:   config.AccessPoint,
 			AcceptedUsage: []string{teleport.UsageDatabaseOnly},
 		},
-		Entry: logrus.WithField(trace.Component, teleport.ComponentDB),
 	}
 
 	// Update TLS config to require client certificate.
@@ -160,21 +164,12 @@ func New(ctx context.Context, config Config) (*Server, error) {
 	server.TLSConfig.GetConfigForClient = getConfigForClient(
 		server.TLSConfig, server.AccessPoint, server.Entry)
 
-	// Init dynamic labels and sync them right away.
-	server.dynamicLabels = make(map[string]*labels.Dynamic)
+	// Perform various initialization actions on each proxied database, like
+	// starting up dynamic labels and loading root certs for RDS dbs.
 	for _, db := range server.Server.GetDatabases() {
-		if len(db.DynamicLabels) == 0 {
-			continue
-		}
-		dynamic, err := labels.NewDynamic(localCtx, &labels.DynamicConfig{
-			Labels: services.V2ToLabels(db.DynamicLabels),
-			Log:    server.Entry,
-		})
-		if err != nil {
+		if err := server.initDatabase(localCtx, db); err != nil {
 			return nil, trace.Wrap(err)
 		}
-		dynamic.Sync()
-		server.dynamicLabels[db.Name] = dynamic
 	}
 
 	// Create heartbeat loop so databases keep sending presence to auth server.
@@ -196,6 +191,32 @@ func New(ctx context.Context, config Config) (*Server, error) {
 	server.heartbeat = heartbeat
 
 	return server, nil
+}
+
+func (s *Server) initDatabase(ctx context.Context, db *services.Database) error {
+	if err := s.initDatabaseDynamicLabels(ctx, db); err != nil {
+		return trace.Wrap(err)
+	}
+	if err := s.initRDSRootCert(ctx, db); err != nil {
+		return trace.Wrap(err)
+	}
+	return nil
+}
+
+func (s *Server) initDatabaseDynamicLabels(ctx context.Context, db *services.Database) error {
+	if len(db.DynamicLabels) == 0 {
+		return nil // Nothing to do.
+	}
+	dynamic, err := labels.NewDynamic(ctx, &labels.DynamicConfig{
+		Labels: services.V2ToLabels(db.DynamicLabels),
+		Log:    s.Entry,
+	})
+	if err != nil {
+		return trace.Wrap(err)
+	}
+	dynamic.Sync()
+	s.dynamicLabels[db.Name] = dynamic
+	return nil
 }
 
 // GetServerInfo returns a services.Server representing the database proxy.
@@ -282,7 +303,7 @@ func (s *Server) HandleConnection(conn net.Conn) {
 		s.WithError(err).Error("Failed to perform TLS handshake.")
 		return
 	}
-	// Now that handshake has completed and the client has sent us a
+	// Now that the handshake has completed and the client has sent us a
 	// certificate, extract identity information from it.
 	ctx, err := s.middleware.WrapContext(context.TODO(), tlsConn)
 	if err != nil {
@@ -325,6 +346,7 @@ func (s *Server) dispatch(sessionCtx *sessionContext, streamWriter events.Stream
 		return &postgresEngine{
 			authClient:     s.AuthClient,
 			credentials:    s.Credentials,
+			rdsCACerts:     s.rdsCACerts,
 			onSessionStart: s.emitSessionStartEventFn(streamWriter),
 			onSessionEnd:   s.emitSessionEndEventFn(streamWriter),
 			onQuery:        s.emitQueryEventFn(streamWriter),

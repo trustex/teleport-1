@@ -17,8 +17,6 @@ limitations under the License.
 package service
 
 import (
-	"encoding/base64"
-
 	"github.com/gravitational/teleport"
 	"github.com/gravitational/teleport/lib/auth"
 	"github.com/gravitational/teleport/lib/cache"
@@ -95,9 +93,10 @@ func (process *TeleportProcess) initDatabaseService() error {
 			URI:           db.URI,
 			StaticLabels:  db.StaticLabels,
 			DynamicLabels: services.LabelsToV2(db.DynamicLabels),
-			CACert:        base64.StdEncoding.EncodeToString(db.CACert),
-			Region:        db.Region,
-			Auth:          db.Auth,
+			CACert:        db.CACert,
+			AWS: services.DatabaseAWS{
+				Region: db.AWS.Region,
+			},
 		})
 	}
 
