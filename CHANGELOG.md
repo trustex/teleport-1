@@ -11,8 +11,7 @@ Teleport 5.0 is a major version release and introduces two distinct features: Te
 and the new addition of Application Support.
 
 ##### Teleport Application Access
-Teleport provides secure access to web applications.
-This new feature was built with the express intention of securing internal applications that may live on a VPN with broad access and scanty audit trails. We've tested everything from various dashboards to single page javascript apps.
+Teleport provides secure access to web applications. This new feature was built with the express intention of securing those internal apps which might once lived on a VPN or had a simple oauth mechanism with little to no audit trail. We've tested everything from various dashboards to single page javascript apps.
 
 Adding an application follows the same UX as adding SSH servers or Kubernetes clusters, starting with creating a static or dynamic invite token.
 
@@ -20,9 +19,10 @@ Adding an application follows the same UX as adding SSH servers or Kubernetes cl
 $ tctl tokens add --type=app
 ```
 
-A Teleport node can be used to route to Application from the unified
-access plane. The Teleport Application Access service can be deployed alongside applications, enabling teams
-to setup access on a loopback address so only Teleport Application Access can access the app.
+A Teleport node can be used to route an application from the unified access plane.
+The application access service can be deployed alongside applications, enabling teams
+to setup access on a loopback address so only application access can provide ingress to
+the app.
 
 ```yaml
 # ...
@@ -30,6 +30,8 @@ proxy_service:
   # We've extended support for https certs. Teleport can now load multiple
   # TLS certificates. In the below example we've obtained a wildcard cert
   # that'll be used for proxying the applications.
+  # The correct certificate is selected based on the hostname in the HTTPS
+  # request using SNI.
   https_keypairs:
   - key_file: /etc/letsencrypt/live/teleport.example.com/privkey.pem
   - cert_file: /etc/letsencrypt/live/teleport.example.com/fullchain.pem
@@ -45,30 +47,34 @@ app_service:
    # https://dumper.teleport.example.com:3080/
    debug_app: true
    apps:
-   # Teleport Application Access can be used to proxy any HTTP Endpoint
-   # Note: Name can't include any spaces
+   # Application Access can be used to proxy any HTTP Endpoint
+   # Note: Name can't include any spaces and should be DNS-compatible A-Za-z0-9-._
    - name: "internal-dashboard"
      uri: "http://10.0.1.27:8000"
      # By default Teleport will make this application
-     # available on a sub-domain of your Teleport proxy's hostname - thus the importance of setting up
-     # wilcard DNS. If you want, it's possible to setup a vanity
-     # url. DNS records should point to the proxy server.
+     # available on a sub-domain of your Teleport proxy's hostname
      # internal-dashboard.teleport.example.com
-     # Example Vanity URL for the internal-dashboard app.
-     # public_addr: "dashboard.acme.com"
-     # Optional Labels
+     # - thus the importance of setting up wilcard DNS.
+     # If you want, it's possible to setup a custom public url.
+     # DNS records should point to the proxy server.
+     # internal-dashboard.teleport.example.com
+     # Example Public URL for the internal-dashboard app.
+     # public_addr: "internal-dashboard.acme.com"
+     # Optional labels
+     # Labels can be combined with RBAC rules to provide access.
      labels:
-       name: "jwt"
-     # Optional Dynamic Labels
+       customer: "acme",
+       env: "production"
+     # Optional dynamic labels
      commands:
      - name: "os"
        command: ["/usr/bin/uname"]
        period: "5s"
-    # A proxy can support multiple applications. Teleport Application Access
-    # can also be deployed as a sidecar service.
-    - name: "arris"
-        uri: "http://localhost:3001"
-        public_addr: "arris.asteroid.earth"
+     # A proxy can support multiple applications. Application Access
+     # can also be deployed with a Teleport node.
+     - name: "arris"
+       uri: "http://localhost:3001"
+       public_addr: "arris.example.com"
 ```
 
 ##### Teleport Kubernetes Access
@@ -78,7 +84,7 @@ Kubernetes Clusters to one Teleport Access Plane. Greatly reducing operational c
 We now provide near complete Kubernetes audit log capture [#4526](https://github.com/gravitational/teleport/pull/4526). Going beyond our current `kubectl exec`. For a full overview please
 review the [Kubernetes RFD](https://github.com/gravitational/teleport/blob/master/rfd/0005-kubernetes-service.md)
 
-To support these changes we've introduced a new server. This moves Teleport Kubernetes
+To support these changes we've introduced a new service. This moves Teleport Kubernetes
 support from the `proxy_service` into its own dedicated `kubernetes_service`
 
 When adding the new Kubernetes service a new type of join token is required.
@@ -177,7 +183,7 @@ See https://rpm.releases.teleport.dev/ for more details.
 * A `--format=json` playback option for `tsh`. e.g. `$ tsh play --format=json ~/play/0c0b81ed-91a9-4a2a-8d7c-7495891a6ca0.tar | jq '.event` [#4578](https://github.com/gravitational/teleport/issues/4578)
 * Teleport can setup continuous backups and auto scaling for DynamoDB [#4780](https://github.com/gravitational/teleport/issues/4780)
 * Linux ARM64/ARMv8 (64-bit) Release [#3383](https://github.com/gravitational/teleport/issues/3383)
-* `https_keypairs:` replaces `https_key_file: & https_cert_file`. Letting customers load multiple https certs to support Teleport Application Access.
+* `https_keypairs:` replaces `https_key_file: & https_cert_file`. Letting customers load multiple https certs to support Teleport Application Access. Teleport 5.0 is backwards compatible with the old format but we recommend upgrading.
 
 Enterprise Only:
 * `tctl` can load credentials from `~/.tsh`. [#4678](https://github.com/gravitational/teleport/pull/4678)
@@ -197,6 +203,7 @@ Enterprise Only:
 #### Upgrade Notes
 Please follow our [standard upgrade procedure](https://gravitational.com/teleport/docs/admin-guide/#upgrading-teleport).
 
+* Optional: Consider updating https_key_file & https_cert_file to our new `https_keypairs:` format.
 
 ### 4.4.4
 
