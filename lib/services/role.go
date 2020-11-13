@@ -2038,8 +2038,7 @@ func (set RoleSet) CheckAccessToKubernetes(namespace string, kube *KubernetesClu
 // CheckAccessToDatabaseService checks is a role has access to the specified
 // database proxy service.
 //
-// Used to filter available databases a user sees with "tsh db ls" command as
-// well as a part of authorization check when user connects to a database.
+// Used to filter available databases a user sees with "tsh db ls" command.
 func (set RoleSet) CheckAccessToDatabaseService(namespace string, db *Database) error {
 	var errs []error
 	// Check deny rules.
@@ -2082,6 +2081,9 @@ func (set RoleSet) CheckAccessToDatabaseService(namespace string, db *Database) 
 
 // CheckAccessToDatabase checks is a role has access to a particular database
 // and database user within the specified database proxy.
+//
+// Used as an authorization check when a user connects to a particular database
+// as a particular database user.
 func (set RoleSet) CheckAccessToDatabase(namespace, dbName, dbUser string, db *Database) error {
 	var errs []error
 	// Check deny rules.

@@ -260,8 +260,8 @@ func TestRoleParse(t *testing.T) {
 					                    "allow": {
 					                      "node_labels": {"a": "b", "c-d": "e"},
 					                      "app_labels": {"a": "b", "c-d": "e"},
-										  "kubernetes_labels": {"a": "b", "c-d": "e"},
-										  "db_labels": {"a": "b", "c-d": "e"},
+					                      "kubernetes_labels": {"a": "b", "c-d": "e"},
+					                      "db_labels": {"a": "b", "c-d": "e"},
 					                      "namespaces": ["default"],
 					                      "rules": [
 					                        {
@@ -340,8 +340,8 @@ func TestRoleParse(t *testing.T) {
 		                    "allow": {
 		                      "node_labels": {"a": "b"},
 		                      "app_labels": {"a": "b"},
-							  "kubernetes_labels": {"c": "d"},
-							  "db_labels": {"e": "f"},
+		                      "kubernetes_labels": {"c": "d"},
+		                      "db_labels": {"e": "f"},
 		                      "namespaces": ["default"],
 		                      "rules": [
 		                        {
@@ -420,8 +420,8 @@ func TestRoleParse(t *testing.T) {
 		                    "allow": {
 		                      "node_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]},
 		                      "app_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]},
-							  "kubernetes_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]},
-							  "db_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]}
+		                      "kubernetes_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]},
+		                      "db_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]}
 		                    },
 		                    "deny": {
 		                      "logins": ["c"]
