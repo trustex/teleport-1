@@ -17,6 +17,7 @@ limitations under the License.
 package utils
 
 import (
+	"bytes"
 	"crypto/x509"
 	"fmt"
 	"io"
@@ -25,6 +26,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/gravitational/teleport"
 
@@ -43,7 +45,7 @@ const (
 
 // InitLogger configures the global logger for a given purpose / verbosity level
 func InitLogger(purpose LoggingPurpose, level log.Level, verbose ...bool) {
-	log.StandardLogger().SetHooks(make(log.LevelHooks))
+	log.StandardLogger().ReplaceHooks(make(log.LevelHooks))
 	log.SetLevel(level)
 
 	switch purpose {
@@ -66,30 +68,45 @@ func InitLogger(purpose LoggingPurpose, level log.Level, verbose ...bool) {
 		})
 		log.SetOutput(os.Stderr)
 	case LoggingForTests:
-		log.SetFormatter(&trace.TextFormatter{
-			DisableTimestamp: true,
-			EnableColors:     true,
-		})
-		log.SetLevel(level)
-		log.SetOutput(os.Stderr)
-		if len(verbose) != 0 && verbose[0] {
-			return
-		}
-		val, _ := strconv.ParseBool(os.Getenv(teleport.VerboseLogsEnvVar))
-		if val {
-			return
-		}
-		val, _ = strconv.ParseBool(os.Getenv(teleport.DebugEnvVar))
-		if val {
-			return
-		}
-		log.SetLevel(log.WarnLevel)
-		log.SetOutput(ioutil.Discard)
+		InitLoggerForTests(verbose...)
 	}
 }
 
+// InitLoggerForTestsWithLogger initializes the standard logger
+// for logging into the specified test logger in case a test fails
+func InitLoggerForTestsWithLogger(logger testLogger, verbose bool) {
+	if verbose {
+		InitLoggerForTests(verbose)
+		return
+	}
+	log.AddHook(testHook{w: newTestWriter(logger)})
+	log.SetFormatter(&trace.TextFormatter{})
+	log.SetLevel(log.DebugLevel)
+	log.SetOutput(os.Stderr)
+}
+
+// InitLoggerForTests initializes the logger for test with the specified verbosity.
+// Only the first verbosity value is used
 func InitLoggerForTests(verbose ...bool) {
-	InitLogger(LoggingForTests, log.InfoLevel, verbose...)
+	log.SetFormatter(&trace.TextFormatter{
+		DisableTimestamp: true,
+		EnableColors:     true,
+	})
+	log.SetLevel(log.DebugLevel)
+	log.SetOutput(os.Stderr)
+	if len(verbose) != 0 && verbose[0] {
+		return
+	}
+	val, _ := strconv.ParseBool(os.Getenv(teleport.VerboseLogsEnvVar))
+	if val {
+		return
+	}
+	val, _ = strconv.ParseBool(os.Getenv(teleport.DebugEnvVar))
+	if val {
+		return
+	}
+	log.SetLevel(log.WarnLevel)
+	log.SetOutput(ioutil.Discard)
 }
 
 // FatalError is for CLI front-ends: it detects gravitational/trace debugging
@@ -205,6 +222,58 @@ func EscapeControl(s string) string {
 		return fmt.Sprintf("%q", s)
 	}
 	return s
+}
+
+// Fire writes the provided log entry to the configured test logger
+func (r testHook) Fire(entry *log.Entry) error {
+	msg, err := entry.String()
+	if err != nil {
+		// defaultLogger().Warnf("Failed to convert log entry: %v.", err)
+		return nil
+	}
+	_, err = io.WriteString(r.w, msg)
+	return trace.Wrap(err)
+}
+
+// Levels returns the list of levels this hook is active on
+func (r testHook) Levels() []log.Level {
+	return log.AllLevels
+}
+
+type testHook struct {
+	w io.Writer
+}
+
+func newTestWriter(l testLogger) *testWriter {
+	return &testWriter{
+		l:   l,
+		buf: &bytes.Buffer{},
+	}
+}
+
+func (r *testWriter) Write(p []byte) (n int, err error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	var lf = []byte("\n")
+	if !bytes.HasSuffix(p, lf) {
+		r.buf.Write(p)
+		return len(p), nil
+	}
+	r.buf.Write(p[:len(p)-len(lf)])
+	r.l.Log(r.buf.String())
+	r.buf.Reset()
+	return len(p), nil
+}
+
+type testWriter struct {
+	mu  sync.Mutex
+	l   testLogger
+	buf *bytes.Buffer
+}
+
+type testLogger interface {
+	// Log logs the specified values in the context of a test
+	Log(...interface{})
 }
 
 // needsQuoting returns true if any non-printable characters are found.
