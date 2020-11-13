@@ -232,6 +232,7 @@ func TestRoleParse(t *testing.T) {
 						NodeLabels:       Labels{},
 						AppLabels:        Labels{Wildcard: []string{Wildcard}},
 						KubernetesLabels: Labels{Wildcard: []string{Wildcard}},
+						DatabaseLabels:   Labels{Wildcard: []string{Wildcard}},
 						Namespaces:       []string{defaults.Namespace},
 					},
 					Deny: RoleConditions{
@@ -259,7 +260,8 @@ func TestRoleParse(t *testing.T) {
 					                    "allow": {
 					                      "node_labels": {"a": "b", "c-d": "e"},
 					                      "app_labels": {"a": "b", "c-d": "e"},
-					                      "kubernetes_labels": {"a": "b", "c-d": "e"},
+										  "kubernetes_labels": {"a": "b", "c-d": "e"},
+										  "db_labels": {"a": "b", "c-d": "e"},
 					                      "namespaces": ["default"],
 					                      "rules": [
 					                        {
@@ -298,9 +300,10 @@ func TestRoleParse(t *testing.T) {
 						NodeLabels:       Labels{"a": []string{"b"}, "c-d": []string{"e"}},
 						AppLabels:        Labels{"a": []string{"b"}, "c-d": []string{"e"}},
 						KubernetesLabels: Labels{"a": []string{"b"}, "c-d": []string{"e"}},
+						DatabaseLabels:   Labels{"a": []string{"b"}, "c-d": []string{"e"}},
 						Namespaces:       []string{"default"},
 						Rules: []Rule{
-							Rule{
+							{
 								Resources: []string{KindRole},
 								Verbs:     []string{VerbRead, VerbList},
 								Where:     "contains(user.spec.traits[\"groups\"], \"prod\")",
@@ -337,7 +340,8 @@ func TestRoleParse(t *testing.T) {
 		                    "allow": {
 		                      "node_labels": {"a": "b"},
 		                      "app_labels": {"a": "b"},
-		                      "kubernetes_labels": {"c": "d"},
+							  "kubernetes_labels": {"c": "d"},
+							  "db_labels": {"e": "f"},
 		                      "namespaces": ["default"],
 		                      "rules": [
 		                        {
@@ -376,9 +380,10 @@ func TestRoleParse(t *testing.T) {
 						NodeLabels:       Labels{"a": []string{"b"}},
 						AppLabels:        Labels{"a": []string{"b"}},
 						KubernetesLabels: Labels{"c": []string{"d"}},
+						DatabaseLabels:   Labels{"e": []string{"f"}},
 						Namespaces:       []string{"default"},
 						Rules: []Rule{
-							Rule{
+							{
 								Resources: []string{KindRole},
 								Verbs:     []string{VerbRead, VerbList},
 								Where:     "contains(user.spec.traits[\"groups\"], \"prod\")",
@@ -415,7 +420,8 @@ func TestRoleParse(t *testing.T) {
 		                    "allow": {
 		                      "node_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]},
 		                      "app_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]},
-		                      "kubernetes_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]}
+							  "kubernetes_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]},
+							  "db_labels": {"a": "b", "key": ["val"], "key2": ["val2", "val3"]}
 		                    },
 		                    "deny": {
 		                      "logins": ["c"]
@@ -451,6 +457,11 @@ func TestRoleParse(t *testing.T) {
 							"key2": []string{"val2", "val3"},
 						},
 						KubernetesLabels: Labels{
+							"a":    []string{"b"},
+							"key":  []string{"val"},
+							"key2": []string{"val2", "val3"},
+						},
+						DatabaseLabels: Labels{
 							"a":    []string{"b"},
 							"key":  []string{"val"},
 							"key2": []string{"val2", "val3"},
@@ -1954,6 +1965,205 @@ func TestBoolOptions(t *testing.T) {
 		})
 		require.Equal(t, tt.outCanPortForward, set.CanPortForward())
 		require.Equal(t, tt.outCanForwardAgents, set.CanForwardAgents())
+	}
+}
+
+func TestCheckAccessToDatabase(t *testing.T) {
+	utils.InitLoggerForTests(testing.Verbose())
+	dbStage := &Database{
+		Name:         "stage",
+		StaticLabels: map[string]string{"env": "stage"},
+	}
+	dbProd := &Database{
+		Name:         "prod",
+		StaticLabels: map[string]string{"env": "prod"},
+	}
+	roleDevStage := &RoleV3{
+		Metadata: Metadata{Name: "dev-stage", Namespace: defaults.Namespace},
+		Spec: RoleSpecV3{
+			Allow: RoleConditions{
+				Namespaces:     []string{defaults.Namespace},
+				DatabaseLabels: Labels{"env": []string{"stage"}},
+				DatabaseNames:  []string{Wildcard},
+				DatabaseUsers:  []string{Wildcard},
+			},
+		},
+	}
+	roleDevProd := &RoleV3{
+		Metadata: Metadata{Name: "dev-prod", Namespace: defaults.Namespace},
+		Spec: RoleSpecV3{
+			Allow: RoleConditions{
+				Namespaces:     []string{defaults.Namespace},
+				DatabaseLabels: Labels{"env": []string{"prod"}},
+				DatabaseNames:  []string{"test"},
+				DatabaseUsers:  []string{"dev"},
+			},
+		},
+	}
+	type access struct {
+		db     *Database
+		dbName string
+		dbUser string
+		access bool
+	}
+	testCases := []struct {
+		name   string
+		roles  []*RoleV3
+		access []access
+	}{
+		{
+			name:  "developer allowed any username/database in stage database",
+			roles: []*RoleV3{roleDevStage, roleDevProd},
+			access: []access{
+				{db: dbStage, dbName: "superdb", dbUser: "superuser", access: true},
+				{db: dbStage, dbName: "test", dbUser: "dev", access: true},
+			},
+		},
+		{
+			name:  "developer allowed only specific username/database in prod database",
+			roles: []*RoleV3{roleDevStage, roleDevProd},
+			access: []access{
+				{db: dbProd, dbName: "superdb", dbUser: "superuser", access: false},
+				{db: dbProd, dbName: "test", dbUser: "dev", access: true},
+				{db: dbProd, dbName: "superdb", dbUser: "dev", access: false},
+				{db: dbProd, dbName: "test", dbUser: "superuser", access: false},
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var set RoleSet
+			for _, r := range tc.roles {
+				set = append(set, r)
+			}
+			for _, access := range tc.access {
+				err := set.CheckAccessToDatabase(defaults.Namespace, access.dbName, access.dbUser, access.db)
+				if access.access {
+					require.NoError(t, err)
+				} else {
+					require.Error(t, err)
+					require.True(t, trace.IsAccessDenied(err))
+				}
+			}
+		})
+	}
+}
+
+func TestCheckAccessToDatabaseService(t *testing.T) {
+	utils.InitLoggerForTests(testing.Verbose())
+	dbNoLabels := &Database{
+		Name: "test",
+	}
+	dbStage := &Database{
+		Name:          "stage",
+		StaticLabels:  map[string]string{"env": "stage"},
+		DynamicLabels: map[string]CommandLabelV2{"arch": {Result: "x86"}},
+	}
+	dbStage2 := &Database{
+		Name:          "stage-2",
+		StaticLabels:  map[string]string{"env": "stage"},
+		DynamicLabels: map[string]CommandLabelV2{"arch": {Result: "amd64"}},
+	}
+	dbProd := &Database{
+		Name:         "prod",
+		StaticLabels: map[string]string{"env": "prod"},
+	}
+	roleAdmin := &RoleV3{
+		Metadata: Metadata{Name: "admin", Namespace: defaults.Namespace},
+		Spec: RoleSpecV3{
+			Allow: RoleConditions{
+				Namespaces:     []string{defaults.Namespace},
+				DatabaseLabels: Labels{Wildcard: []string{Wildcard}},
+			},
+		},
+	}
+	roleDev := &RoleV3{
+		Metadata: Metadata{Name: "dev", Namespace: defaults.Namespace},
+		Spec: RoleSpecV3{
+			Allow: RoleConditions{
+				Namespaces:     []string{defaults.Namespace},
+				DatabaseLabels: Labels{"env": []string{"stage"}},
+			},
+			Deny: RoleConditions{
+				Namespaces:     []string{defaults.Namespace},
+				DatabaseLabels: Labels{"arch": []string{"amd64"}},
+			},
+		},
+	}
+	roleIntern := &RoleV3{
+		Metadata: Metadata{Name: "intern", Namespace: defaults.Namespace},
+		Spec: RoleSpecV3{
+			Allow: RoleConditions{
+				Namespaces: []string{defaults.Namespace},
+			},
+		},
+	}
+	type access struct {
+		db     *Database
+		access bool
+	}
+	testCases := []struct {
+		name   string
+		roles  []*RoleV3
+		access []access
+	}{
+		{
+			name:  "empty role doesn't have access to any databases",
+			roles: nil,
+			access: []access{
+				{db: dbNoLabels, access: false},
+				{db: dbStage, access: false},
+				{db: dbStage2, access: false},
+				{db: dbProd, access: false},
+			},
+		},
+		{
+			name:  "intern doesn't have access to any databases",
+			roles: []*RoleV3{roleIntern},
+			access: []access{
+				{db: dbNoLabels, access: false},
+				{db: dbStage, access: false},
+				{db: dbStage2, access: false},
+				{db: dbProd, access: false},
+			},
+		},
+		{
+			name:  "developer only has access to one of stage database",
+			roles: []*RoleV3{roleDev},
+			access: []access{
+				{db: dbNoLabels, access: false},
+				{db: dbStage, access: true},
+				{db: dbStage2, access: false},
+				{db: dbProd, access: false},
+			},
+		},
+		{
+			name:  "admin has access to all databases",
+			roles: []*RoleV3{roleAdmin},
+			access: []access{
+				{db: dbNoLabels, access: true},
+				{db: dbStage, access: true},
+				{db: dbStage2, access: true},
+				{db: dbProd, access: true},
+			},
+		},
+	}
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			var set RoleSet
+			for _, r := range tc.roles {
+				set = append(set, r)
+			}
+			for _, access := range tc.access {
+				err := set.CheckAccessToDatabaseService(defaults.Namespace, access.db)
+				if access.access {
+					require.NoError(t, err)
+				} else {
+					require.Error(t, err)
+					require.True(t, trace.IsAccessDenied(err))
+				}
+			}
+		})
 	}
 }
 

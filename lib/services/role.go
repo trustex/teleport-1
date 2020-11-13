@@ -2038,7 +2038,8 @@ func (set RoleSet) CheckAccessToKubernetes(namespace string, kube *KubernetesClu
 // CheckAccessToDatabaseService checks is a role has access to the specified
 // database proxy service.
 //
-// Used to filter available databases a user sees with "tsh db ls" command.
+// Used to filter available databases a user sees with "tsh db ls" command as
+// well as a part of authorization check when user connects to a database.
 func (set RoleSet) CheckAccessToDatabaseService(namespace string, db *Database) error {
 	var errs []error
 	// Check deny rules.
@@ -2082,36 +2083,41 @@ func (set RoleSet) CheckAccessToDatabaseService(namespace string, db *Database) 
 // CheckAccessToDatabase checks is a role has access to a particular database
 // and database user within the specified database proxy.
 func (set RoleSet) CheckAccessToDatabase(namespace, dbName, dbUser string, db *Database) error {
-	// Check access to the service first.
-	err := set.CheckAccessToDatabaseService(namespace, db)
-	if err != nil {
-		return trace.Wrap(err)
-	}
 	var errs []error
 	// Check deny rules.
 	for _, role := range set {
+		matchNamespace, namespaceMessage := MatchNamespace(role.GetNamespaces(Deny), namespace)
+		matchLabels, labelsMessage, err := MatchLabels(role.GetDatabaseLabels(Deny), CombineLabels(db.StaticLabels, db.DynamicLabels))
+		if err != nil {
+			return trace.Wrap(err)
+		}
 		matchName, nameMessage := MatchDatabaseName(role.GetDatabaseNames(Deny), dbName)
 		matchUser, userMessage := MatchDatabaseUser(role.GetDatabaseUsers(Deny), dbUser)
-		if matchName || matchUser {
+		if matchNamespace && (matchLabels || matchName || matchUser) {
 			log.WithField(trace.Component, teleport.ComponentRBAC).Debugf(
-				"Access to database %q denied, deny rule in %q matched; match(dbname=%v, dbuser=%v).",
-				db.Name, role.GetName(), nameMessage, userMessage)
+				"Access to database %q denied, deny rule in %q matched; match(namespace=%v, label=%v, dbname=%v, dbuser=%v).",
+				db.Name, role.GetName(), namespaceMessage, labelsMessage, nameMessage, userMessage)
 			return trace.AccessDenied("access to database denied")
 		}
 	}
 	// Check allow rules.
 	for _, role := range set {
+		matchNamespace, namespaceMessage := MatchNamespace(role.GetNamespaces(Allow), namespace)
+		matchLabels, labelsMessage, err := MatchLabels(role.GetDatabaseLabels(Allow), CombineLabels(db.StaticLabels, db.DynamicLabels))
+		if err != nil {
+			return trace.Wrap(err)
+		}
 		matchName, nameMessage := MatchDatabaseName(role.GetDatabaseNames(Allow), dbName)
 		matchUser, userMessage := MatchDatabaseUser(role.GetDatabaseUsers(Allow), dbUser)
-		if matchName && matchUser {
+		if matchNamespace && matchLabels && matchName && matchUser {
 			log.WithField(trace.Component, teleport.ComponentRBAC).Debugf(
-				"Access to database %q granted, allow rule in %q matched; match(dbname=%v, dbuser=%v).",
-				db.Name, role.GetName(), nameMessage, userMessage)
+				"Access to database %q granted, allow rule in %q matched; match(namespace=%v, label=%v, dbname=%v, dbuser=%v).",
+				db.Name, role.GetName(), namespaceMessage, labelsMessage, nameMessage, userMessage)
 			return nil
 		}
 		if log.GetLevel() == log.DebugLevel {
-			deniedError := trace.AccessDenied("role=%v, match(dbname=%v, dbuser=%v)",
-				role.GetName(), nameMessage, userMessage)
+			deniedError := trace.AccessDenied("role=%v, match(namespace=%v, label=%v, dbname=%v, dbuser=%v)",
+				role.GetName(), namespaceMessage, labelsMessage, nameMessage, userMessage)
 			errs = append(errs, deniedError)
 		}
 	}
