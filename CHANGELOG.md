@@ -79,20 +79,22 @@ app_service:
 
 ##### Teleport Kubernetes Access
 
-Teleport 5.0 introduces two highly requested features.  The ability to connect multiple
-Kubernetes Clusters to one Teleport Access Plane. Greatly reducing operational complexity.
-We now provide near complete Kubernetes audit log capture [#4526](https://github.com/gravitational/teleport/pull/4526). Going beyond our current `kubectl exec`. For a full overview please
-review the [Kubernetes RFD](https://github.com/gravitational/teleport/blob/master/rfd/0005-kubernetes-service.md)
+Teleport 5.0 introduces two highly requested features:
+- The ability to connect multiple Kubernetes Clusters to one Teleport Access Plane, greatly reducing operational complexity.
+- We now provide near complete Kubernetes audit log capture [#4526](https://github.com/gravitational/teleport/pull/4526), going beyond our current `kubectl exec`.
+  - For a full overview please review the [Kubernetes RFD](https://github.com/gravitational/teleport/blob/master/rfd/0005-kubernetes-service.md)
 
-To support these changes we've introduced a new service. This moves Teleport Kubernetes
-support from the `proxy_service` into its own dedicated `kubernetes_service`
+To support these changes, we've introduced a new service. This moves Teleport Kubernetes
+support from the `proxy_service` into its own dedicated `kubernetes_service`.
 
-When adding the new Kubernetes service a new type of join token is required.
+When adding the new Kubernetes service, a new type of join token is required.
+
 ```bash
 tctl tokens add --type=kubernetes
 ```
 
-Example configuration for the new `kubernetes_service`
+Example configuration for the new `kubernetes_service`:
+
 ```yaml
 # ...
 kubernetes_service:
@@ -109,6 +111,7 @@ kubernetes_service:
 
 ```sh
 $ tsh login --proxy=proxy.example.com --user=awly
+
 # list all registered clusters
 $ tsh kube clusters
 Cluster Name       Status
@@ -116,19 +119,24 @@ Cluster Name       Status
 a.k8s.example.com  online
 b.k8s.example.com  online
 c.k8s.example.com  online
+
 # on login, kubeconfig is pointed at the first cluster (alphabetically)
 $ kubectl config current-context
 awly@a.k8s.example.com
+
 # but all clusters are populated as contexts
 $ kubectl config get-contexts
 CURRENT   NAME                     CLUSTER             AUTHINFO
 *         awly@a.k8s.example.com   proxy.example.com   awly@a.k8s.example.com
           awly@b.k8s.example.com   proxy.example.com   awly@b.k8s.example.com
           awly@c.k8s.example.com   proxy.example.com   awly@c.k8s.example.com
+
 # switch between different clusters:
 $ tsh kube login c.k8s.example.com
-# Or
+
+# the traditional way is also supported:
 $ kubectl config use-context awly@c.k8s.example.com
+
 # check current cluster
 $ kubectl config current-context
 awly@c.k8s.example.com
@@ -136,12 +144,12 @@ awly@c.k8s.example.com
 
 Other Kubernetes changes:
 
-* Support k8s clusters behind firewall/NAT using a single teleport cluster [#3667](https://github.com/gravitational/teleport/issues/3667)
-* Support multiple k8s clusters per a single teleport proxy instance [#3952](https://github.com/gravitational/teleport/issues/3952)
+* Support k8s clusters behind firewall/NAT using a single Teleport cluster [#3667](https://github.com/gravitational/teleport/issues/3667)
+* Support multiple k8s clusters with a single Teleport proxy instance [#3952](https://github.com/gravitational/teleport/issues/3952)
 
 ##### Additional User and Token Resource
-We've added two new RBAC resources, these provide the ability to limit token creation
-and to list and modify Teleport users.
+We've added two new RBAC resources; these provide the ability to limit token creation
+and to list and modify Teleport users:
 
 ```yaml
 - resources: [user]
@@ -151,6 +159,7 @@ and to list and modify Teleport users.
 ```
 
 ##### Cluster Labels
+
 Teleport 5.0 adds the ability to set labels on Trusted Clusters. The labels
 are set when creating a trusted cluster invite token. This lets teams use the same
 RBAC controls to approve or deny access. This can be especially useful for MSPs that
@@ -168,14 +177,14 @@ kind: role
 #...
   deny:
     # cluster labels control what clusters user can connect to. The wildcard ('*')
-    # means any cluster. By default none is set in deny rules to preserve backwards
+    # means any cluster. By default, deny rules are empty to preserve backwards
     # compatibility
     cluster_labels:
       'env': 'prod'
 ```
 
 ##### Signed RPM and Releases
-Starting with Teleport 5.0 we now provide an RPM repo for Teleport.
+Starting with Teleport 5.0, we now provide an RPM repo for stable releases of Teleport.
 
 See https://rpm.releases.teleport.dev/ for more details.
 
@@ -195,7 +204,7 @@ Enterprise Only:
 * `tsh`: print kubernetes info in profile status [#4348](https://github.com/gravitational/teleport/pull/4348)
 * Intermittent issues with loginuid.so in Teleport 4.2.0 [#3245](https://github.com/gravitational/teleport/issues/3245)
 * Reducing log spam  `access denied to Proxy` [#2920](https://github.com/gravitational/teleport/issues/2920)
-* Various AMI Fixes
+* Various AMI fixes (paths are now consistent with other Teleport packages, config files will not be overwritten on reboot)
 
 #### Documentation
 - [Updated `gRPC` API Reference](https://gravitational.com/teleport/docs/api-reference/)
@@ -203,7 +212,7 @@ Enterprise Only:
 #### Upgrade Notes
 Please follow our [standard upgrade procedure](https://gravitational.com/teleport/docs/admin-guide/#upgrading-teleport).
 
-* Optional: Consider updating https_key_file & https_cert_file to our new `https_keypairs:` format.
+* Optional: Consider updating `https_key_file` & `https_cert_file` to our new `https_keypairs:` format.
 
 ### 4.4.4
 
