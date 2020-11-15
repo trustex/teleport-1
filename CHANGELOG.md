@@ -7,8 +7,7 @@ bug fixes. Users can review [5.0 closed issues](https://github.com/gravitational
 on Github for details of all items.
 
 #### New Features
-Teleport 5.0 is a major version release and introduces two distinct features: Teleport Application Access and the Unified Access Plane with significant Kubernetes enhancements like multi-cluster support, backwards compatibility, and more.
-and the new addition of Application Support.
+Teleport 5.0 is a major version release and introduces two distinct features: Teleport Application Access and significant Kubernetes Access improvements - multi-cluster support.
 
 ##### Teleport Application Access
 Teleport provides secure access to web applications. This new feature was built with the express intention of securing those internal apps which might once lived on a VPN or had a simple oauth mechanism with little to no audit trail. We've tested everything from various dashboards to single page javascript apps.
@@ -23,6 +22,17 @@ A Teleport node can be used to route an application from the unified access plan
 The application access service can be deployed alongside applications, enabling teams
 to setup access on a loopback address so only application access can provide ingress to
 the app.
+
+Adding an application is as simple as starting Teleport with a few new flags.
+```sh
+$ teleport start --roles=app --token=xyz --auth-server=proxy.example.com:3080 \
+    --app-name="example-app" \
+    --app-uri="http://localhost:8080"
+```
+This start script will create an app server that proxies the application "example-app"
+running at http://localhost:8080.
+
+Applications can can configured using the new `app_service`.
 
 ```yaml
 # ...
@@ -76,6 +86,8 @@ app_service:
        uri: "http://localhost:3001"
        public_addr: "arris.example.com"
 ```
+
+You can learn more at [https://gravitational.com/teleport/docs/application-access/](https://gravitational.com/teleport/docs/application-access/)
 
 ##### Teleport Kubernetes Access
 
@@ -158,6 +170,8 @@ and to list and modify Teleport users:
   verbs: [list,create,read,update,delete]
 ```
 
+Learn more about [Teleports RBAC Resources](https://gravitational.com/teleport/docs/enterprise/ssh-rbac/)
+
 ##### Cluster Labels
 
 Teleport 5.0 adds the ability to set labels on Trusted Clusters. The labels
@@ -183,6 +197,18 @@ kind: role
       'env': 'prod'
 ```
 
+TODO-Create content and deeplink for cluster labels.
+
+##### Teleport UI Updates
+
+Teleport 5.0 iterates on the UI Refresh from 4.3. We've moved the cluster list into our
+sidebar and have added an Application launcher. For customer moving from 4.3 to 5.0, you'll notice that we moved session recordings back to their own dedicated section.
+
+Other updates:
+ * We now provide local user management via `https://[cluster-url]/web/users. Providing the easy ability to edit, reset and delete local users.
+ * Teleport Node & App Install scripts. Currently an enterprise only feature, but customers can get easy access to 'auto-magic' installer scripts. Enterprise customers can enable this feature by modifying the 'token' resource. See note above.
+ * We've added a Waiting Room for customers using Access Workflows. [TODO-Learn more]
+
 ##### Signed RPM and Releases
 Starting with Teleport 5.0, we now provide an RPM repo for stable releases of Teleport.
 
@@ -195,8 +221,8 @@ See https://rpm.releases.teleport.dev/ for more details.
 * `https_keypairs:` replaces `https_key_file: & https_cert_file`. Letting customers load multiple https certs to support Teleport Application Access. Teleport 5.0 is backwards compatible with the old format but we recommend upgrading.
 
 Enterprise Only:
-* `tctl` can load credentials from `~/.tsh`. [#4678](https://github.com/gravitational/teleport/pull/4678)
-* Teams can require a reason when using Access Workflows [#4573](https://github.com/gravitational/teleport/pull/4573#issuecomment-720777443)
+* `tctl` can load credentials from `~/.tsh` [#4678](https://github.com/gravitational/teleport/pull/4678)
+* Teams can require a user submitted reason when using Access Workflows [#4573](https://github.com/gravitational/teleport/pull/4573#issuecomment-720777443)
 
 #### Fixes
 
