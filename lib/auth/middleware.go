@@ -467,6 +467,8 @@ func (a *Middleware) GetUser(connState tls.ConnectionState) (IdentityGetter, err
 			Principals:       identity.Principals,
 			KubernetesGroups: identity.KubernetesGroups,
 			KubernetesUsers:  identity.KubernetesUsers,
+			DatabaseNames:    identity.DatabaseNames,
+			DatabaseUsers:    identity.DatabaseUsers,
 			RemoteRoles:      identity.Groups,
 			Identity:         *identity,
 		}, nil

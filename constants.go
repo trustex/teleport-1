@@ -497,6 +497,14 @@ const (
 	// allowed kubernetes users
 	TraitKubeUsers = "kubernetes_users"
 
+	// TraitDbNames is the name of the role variable used to store
+	// allowed database names.
+	TraitDbNames = "db_names"
+
+	// TraitDbUsers is the name of the role variable used to store
+	// allowed database users.
+	TraitDbUsers = "db_users"
+
 	// TraitInternalLoginsVariable is the variable used to store allowed
 	// logins for local accounts.
 	TraitInternalLoginsVariable = "{{internal.logins}}"
@@ -508,6 +516,14 @@ const (
 	// TraitInternalKubeUsersVariable is the variable used to store allowed
 	// kubernetes users for local accounts.
 	TraitInternalKubeUsersVariable = "{{internal.kubernetes_users}}"
+
+	// TraitInternalDbNamesVariable is the variable used to store allowed
+	// database names for local accounts.
+	TraitInternalDbNamesVariable = "{{internal.db_names}}"
+
+	// TraitInternalDbUsersVariable is the variable used to store allowed
+	// database users for local accounts.
+	TraitInternalDbUsersVariable = "{{internal.db_users}}"
 )
 
 const (

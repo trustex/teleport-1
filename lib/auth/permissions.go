@@ -136,6 +136,8 @@ func (a *authorizer) authorizeRemoteUser(u RemoteUser) (*Context, error) {
 		teleport.TraitLogins:     u.Principals,
 		teleport.TraitKubeGroups: u.KubernetesGroups,
 		teleport.TraitKubeUsers:  u.KubernetesUsers,
+		teleport.TraitDbNames:    u.DatabaseNames,
+		teleport.TraitDbUsers:    u.DatabaseUsers,
 	}
 	log.Debugf("Mapped roles %v of remote user %q to local roles %v and traits %v.",
 		u.RemoteRoles, u.Username, roleNames, traits)
@@ -698,6 +700,12 @@ type RemoteUser struct {
 
 	// KubernetesUsers is a list of Kubernetes users
 	KubernetesUsers []string `json:"kubernetes_users"`
+
+	// DatabaseNames is a list of database names user can connect to.
+	DatabaseNames []string `json:"database_names"`
+
+	// DatabaseUsers is a list of database names user can connect as.
+	DatabaseUsers []string `json:"database_users"`
 
 	// Identity is source x509 used to build this role
 	Identity tlsca.Identity

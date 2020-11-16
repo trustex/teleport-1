@@ -354,7 +354,7 @@ func (s *Server) AuthenticateSSHUser(req AuthenticateSSHRequest) (*SSHLoginRespo
 		traits:            user.GetTraits(),
 		routeToCluster:    req.RouteToCluster,
 		kubernetesCluster: req.KubernetesCluster,
-		routeToDatabase:   req.RouteToDatabase,
+		dbName:            req.RouteToDatabase,
 	})
 	if err != nil {
 		return nil, trace.Wrap(err)

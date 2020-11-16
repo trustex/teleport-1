@@ -100,9 +100,6 @@ func (c *TokenCommand) Initialize(app *kingpin.Application, config *service.Conf
 		Default(fmt.Sprintf("%v", defaults.SignupTokenTTL)).DurationVar(&c.ttl)
 	c.tokenAdd.Flag("app-name", "Name of the application to add").Default("example-app").StringVar(&c.appName)
 	c.tokenAdd.Flag("app-uri", "URI of the application to add").Default("http://localhost:8080").StringVar(&c.appURI)
-	c.tokenAdd.Flag("app-name", "Name of the application to add").Default("<Application Name>").StringVar(&c.appName)
-	c.tokenAdd.Flag("app-uri", "URI of the application to add").Default("<URI of Application>").StringVar(&c.appURI)
-	c.tokenAdd.Flag("app-public-addr", "Public address of the application to add").Default("<Public Address of Application>").StringVar(&c.appPublicAddr)
 	c.tokenAdd.Flag("db-name", "Name of the database to add").StringVar(&c.dbName)
 	// TODO(r0mant): Add supported protocols here.
 	c.tokenAdd.Flag("db-protocol", "Database protocol to use, e.g. postgresql or mysql").StringVar(&c.dbProtocol)

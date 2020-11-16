@@ -449,8 +449,10 @@ type certRequest struct {
 	appPublicAddr string
 	// appClusterName is the name of the cluster this application is in.
 	appClusterName string
-	// routeToDatabase specifies the name of the database to encode.
-	routeToDatabase string
+	// dbName specifies the name of the database instance to encode.
+	dbName string
+	// dbClusterName is the name of the cluster the database instance is in.
+	dbClusterName string
 }
 
 // GenerateUserTestCerts is used to generate user certificate, used internally for tests
@@ -614,6 +616,14 @@ func (a *Server) generateUserCert(req certRequest) (*certs, error) {
 			log.WithError(err).Warning("Failed setting default kubernetes cluster for user login (user did not provide a cluster); leaving KubernetesCluster extension in the TLS certificate empty")
 		}
 	}
+
+	// See which database names and users this user is allowed to use.
+	// TODO(r0mant): Should this fail on AccessDenied?
+	dbNames, dbUsers, err := req.checker.CheckDatabaseNamesAndUsers(sessionTTL, req.overrideRoleTTL)
+	if err != nil && !trace.IsNotFound(err) {
+		return nil, trace.Wrap(err)
+	}
+
 	// generate TLS certificate
 	tlsAuthority, err := ca.TLSCA()
 	if err != nil {
@@ -636,9 +646,11 @@ func (a *Server) generateUserCert(req certRequest) (*certs, error) {
 		},
 		TeleportCluster: clusterName,
 		RouteToDatabase: tlsca.RouteToDatabase{
-			DatabaseName: req.routeToDatabase,
+			DatabaseName: req.dbName,
 			ClusterName:  req.routeToCluster,
 		},
+		DatabaseNames: dbNames,
+		DatabaseUsers: dbUsers,
 	}
 	subject, err := identity.Subject()
 	if err != nil {

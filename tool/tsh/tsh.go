@@ -805,6 +805,9 @@ func onLogout(cf *CLIConf) {
 		fmt.Printf("Logged out %v from %v.\n", cf.Username, proxyHost)
 	// Remove all keys.
 	case proxyHost == "" && cf.Username == "":
+		// TODO(r0mant): Do via API instead.
+		onDatabaseLogout(cf)
+
 		// The makeClient function requires a proxy. However this value is not used
 		// because the user will be logged out from all proxies. Pass a dummy value
 		// to allow creation of the TeleportClient.

@@ -65,7 +65,7 @@ func showDatabases(servers []services.Server, activeDatabases []string, verbose 
 		for _, db := range server.GetDatabases() {
 			name := db.Name
 			if utils.SliceContainsStr(activeDatabases, db.Name) {
-				name += "*"
+				name = fmt.Sprintf("> %v", name)
 			}
 			t.AddRow([]string{name, db.Description, services.LabelsAsString(db.StaticLabels, db.DynamicLabels)})
 		}
@@ -100,6 +100,7 @@ func onDatabaseLogin(cf *CLIConf) {
 	// Obtain certificate with the database name encoded in it.
 	log.Debugf("Requesting TLS certificate for database %q on cluster %q.", cf.DatabaseName, profile.Cluster)
 	err = client.RetryWithRelogin(cf.Context, tc, func() error {
+		// TODO(r0mant): Preserve active role requests?
 		return tc.ReissueUserCerts(cf.Context, client.ReissueParams{
 			RouteToCluster:  profile.Cluster,
 			RouteToDatabase: cf.DatabaseName,
@@ -159,10 +160,15 @@ func onDatabaseLogout(cf *CLIConf) {
 	if err != nil {
 		utils.FatalError(err)
 	}
+	// Remove database access certificate from ~/.tsh/keys for the specified
+	// database.
 	err = tc.LogoutDatabase(cf.DatabaseName)
 	if err != nil {
 		utils.FatalError(err)
 	}
+	// Remove corresponding section from pg_service file.
+	// TODO(r0mant): This needs to become database specific when we add
+	// support for more databases.
 	pgProfile, err := pgConnectProfileFromProfile(*profile, cf.DatabaseName)
 	if err != nil {
 		utils.FatalError(err)

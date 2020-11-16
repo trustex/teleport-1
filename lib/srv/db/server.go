@@ -372,6 +372,7 @@ func (s *Server) authorize(ctx context.Context) (*sessionContext, error) {
 		return nil, trace.Wrap(err)
 	}
 	identity := authContext.Identity.GetIdentity()
+	s.Debugf("User identity: %#v.", identity)
 	// Fetch the requested database.
 	var db *services.Database
 	for _, d := range s.Server.GetDatabases() {
@@ -379,7 +380,7 @@ func (s *Server) authorize(ctx context.Context) (*sessionContext, error) {
 			db = d
 		}
 	}
-	s.Debugf("Will connect to database %q/%v.", db.Name, db.URI)
+	s.Debugf("Will connect to database %q at %v.", db.Name, db.URI)
 	// err = authContext.Checker.CheckAccessToDatabase(defaults.Namespace, "", "", db)
 	// if err != nil {
 	// 	return nil, trace.Wrap(err)
