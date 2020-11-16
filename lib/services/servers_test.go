@@ -36,7 +36,7 @@ var _ = testing.Verbose
 var _ = fmt.Printf
 
 func (s *ServerSuite) SetUpSuite(c *check.C) {
-	utils.InitLoggerForTests(c, testing.Verbose())
+	utils.InitLoggerForTests()
 }
 
 // TestServersCompare tests comparing two servers
