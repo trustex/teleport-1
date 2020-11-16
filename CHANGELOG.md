@@ -20,15 +20,17 @@ $ tctl tokens add --type=app
 
 A Teleport node can be used to route an application from the unified access plane.
 The application access service can be deployed alongside applications, enabling teams
-to setup access on a loopback address so only application access can provide ingress to
+to set up access on a loopback address so only application access can provide ingress to
 the app.
 
 Adding an application is as simple as starting Teleport with a few new flags.
+
 ```sh
 $ teleport start --roles=app --token=xyz --auth-server=proxy.example.com:3080 \
     --app-name="example-app" \
     --app-uri="http://localhost:8080"
 ```
+
 This start script will create an app server that proxies the application "example-app"
 running at http://localhost:8080.
 
@@ -51,13 +53,13 @@ proxy_service:
 app_service:
    # Teleport Application Access is enabled.
    enabled: yes
-   # We've a sample debugger app that'll check
+   # We've added a default sample app that will check
    # that Teleport Application Access is working
-   # and will output JWT tokens.
+   # and output JWT tokens.
    # https://dumper.teleport.example.com:3080/
    debug_app: true
    apps:
-   # Application Access can be used to proxy any HTTP Endpoint
+   # Application Access can be used to proxy any HTTP endpoint.
    # Note: Name can't include any spaces and should be DNS-compatible A-Za-z0-9-._
    - name: "internal-dashboard"
      uri: "http://10.0.1.27:8000"
@@ -65,7 +67,7 @@ app_service:
      # available on a sub-domain of your Teleport proxy's hostname
      # internal-dashboard.teleport.example.com
      # - thus the importance of setting up wilcard DNS.
-     # If you want, it's possible to setup a custom public url.
+     # If you want, it's possible to set up a custom public url.
      # DNS records should point to the proxy server.
      # internal-dashboard.teleport.example.com
      # Example Public URL for the internal-dashboard app.
@@ -170,14 +172,14 @@ and to list and modify Teleport users:
   verbs: [list,create,read,update,delete]
 ```
 
-Learn more about [Teleports RBAC Resources](https://gravitational.com/teleport/docs/enterprise/ssh-rbac/)
+Learn more about [Teleport's RBAC Resources](https://gravitational.com/teleport/docs/enterprise/ssh-rbac/)
 
 ##### Cluster Labels
 
 Teleport 5.0 adds the ability to set labels on Trusted Clusters. The labels
 are set when creating a trusted cluster invite token. This lets teams use the same
 RBAC controls to approve or deny access. This can be especially useful for MSPs that
-connect hundreds of customers' clusters, when combined with Access Workflows cluster
+connect hundreds of customers' clusters - when combined with Access Workflows, cluster
 access can easily be delegated.
 
 Creating a trusted cluster join token for a production environment:
@@ -202,23 +204,23 @@ TODO-Create content and deeplink for cluster labels.
 ##### Teleport UI Updates
 
 Teleport 5.0 iterates on the UI Refresh from 4.3. We've moved the cluster list into our
-sidebar and have added an Application launcher. For customer moving from 4.3 to 5.0, you'll notice that we moved session recordings back to their own dedicated section.
+sidebar and have added an Application launcher. For customers moving from 4.3 to 5.0, you'll notice that we moved session recordings back to their own dedicated section.
 
 Other updates:
- * We now provide local user management via `https://[cluster-url]/web/users. Providing the easy ability to edit, reset and delete local users.
- * Teleport Node & App Install scripts. Currently an enterprise only feature, but customers can get easy access to 'auto-magic' installer scripts. Enterprise customers can enable this feature by modifying the 'token' resource. See note above.
+ * We now provide local user management via `https://[cluster-url]/web/users`, providing the ability to easily edit, reset and delete local users.
+ * Teleport Node & App Install scripts. This is currently an Enterprise-only feature, but customers can get easy access to 'auto-magic' installer scripts. Enterprise customers can enable this feature by modifying the 'token' resource. See note above.
  * We've added a Waiting Room for customers using Access Workflows. [TODO-Learn more]
 
 ##### Signed RPM and Releases
-Starting with Teleport 5.0, we now provide an RPM repo for stable releases of Teleport.
+Starting with Teleport 5.0, we now provide an RPM repo for stable releases of Teleport. We've also started signing our RPMs to provide assurance that you're always using an official build of Teleport.
 
 See https://rpm.releases.teleport.dev/ for more details.
 
 #### Improvements
 * A `--format=json` playback option for `tsh`. e.g. `$ tsh play --format=json ~/play/0c0b81ed-91a9-4a2a-8d7c-7495891a6ca0.tar | jq '.event` [#4578](https://github.com/gravitational/teleport/issues/4578)
-* Teleport can setup continuous backups and auto scaling for DynamoDB [#4780](https://github.com/gravitational/teleport/issues/4780)
+* Teleport can set up continuous backups and auto scaling for DynamoDB [#4780](https://github.com/gravitational/teleport/issues/4780)
 * Linux ARM64/ARMv8 (64-bit) Release [#3383](https://github.com/gravitational/teleport/issues/3383)
-* `https_keypairs:` replaces `https_key_file: & https_cert_file`. Letting customers load multiple https certs to support Teleport Application Access. Teleport 5.0 is backwards compatible with the old format but we recommend upgrading.
+* `https_keypairs` replaces `https_key_file` and `https_cert_file`, letting customers load multiple HTTPS certs to support Teleport Application Access. Teleport 5.0 is backwards compatible with the old format, but we recommend updating your config.
 
 Enterprise Only:
 * `tctl` can load credentials from `~/.tsh` [#4678](https://github.com/gravitational/teleport/pull/4678)
