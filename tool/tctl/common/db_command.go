@@ -30,8 +30,8 @@ import (
 	"github.com/gravitational/trace"
 )
 
-// DBCommand implements "tctl db" group of commands.
-type DBCommand struct {
+// DbCommand implements "tctl db" group of commands.
+type DbCommand struct {
 	config *service.Config
 
 	// format is the output format (text, json, or yaml).
@@ -42,7 +42,7 @@ type DBCommand struct {
 }
 
 // Initialize allows DBCommand to plug itself into the CLI parser.
-func (c *DBCommand) Initialize(app *kingpin.Application, config *service.Config) {
+func (c *DbCommand) Initialize(app *kingpin.Application, config *service.Config) {
 	c.config = config
 
 	db := app.Command("db", "Operate on databases registered with the cluster.")
@@ -51,7 +51,7 @@ func (c *DBCommand) Initialize(app *kingpin.Application, config *service.Config)
 }
 
 // TryRun attempts to run subcommands like "apps ls".
-func (c *DBCommand) TryRun(cmd string, client auth.ClientI) (match bool, err error) {
+func (c *DbCommand) TryRun(cmd string, client auth.ClientI) (match bool, err error) {
 	switch cmd {
 	case c.dbList.FullCommand():
 		err = c.ListDatabases(client)
@@ -63,7 +63,7 @@ func (c *DBCommand) TryRun(cmd string, client auth.ClientI) (match bool, err err
 
 // ListDatabases prints the list of database proxies that have recently sent
 // heartbeats to the cluster.
-func (c *DBCommand) ListDatabases(client auth.ClientI) error {
+func (c *DbCommand) ListDatabases(client auth.ClientI) error {
 	servers, err := client.GetDatabaseServers(context.TODO(), defaults.Namespace, services.SkipValidation())
 	if err != nil {
 		return trace.Wrap(err)
@@ -85,10 +85,10 @@ func (c *DBCommand) ListDatabases(client auth.ClientI) error {
 	return nil
 }
 
-const dbMessage = `The invite token: %v
-This token will expire in %d minutes
+const dbMessage = `The invite token: %v.
+This token will expire in %d minutes.
 
-Fill out and run this command on a node to make the application available:
+Fill out and run this command on a node to start proxying the database:
 
 > teleport start \
    --roles=%v \
@@ -97,10 +97,10 @@ Fill out and run this command on a node to make the application available:
    --auth-server=%v \
    --db-name=%v \
    --db-protocol=%v \
-   --db-address=%v 
+   --db-uri=%v 
 
 Please note:
 
-  - This invitation token will expire in %d minutes
-  - %v must be reachable from the new database service
+  - This invitation token will expire in %d minutes.
+  - %v must be reachable from the new database service.
 `

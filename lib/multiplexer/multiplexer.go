@@ -332,6 +332,8 @@ var (
 	sshPrefix   = []byte{'S', 'S', 'H'}
 	tlsPrefix   = []byte{0x16}
 	psqlPrefix  = []byte{0x0, 0x0, 0x0, 0x8, 0x4, 0xd2, 0x16, 0x2f}
+	// cancel request
+	psqlPrefix2 = []byte{0x0, 0x0, 0x0, 0x10, 0x4, 0xd2, 0x16, 0x2e}
 )
 
 // isHTTP returns true if the first 3 bytes of the prefix indicate
@@ -368,9 +370,9 @@ func detectProto(in []byte) (int, error) {
 		return ProtoTLS, nil
 	case isHTTP(in):
 		return ProtoHTTP, nil
-	case bytes.HasPrefix(in, psqlPrefix):
+	case bytes.HasPrefix(in, psqlPrefix), bytes.HasPrefix(in, psqlPrefix2):
 		return ProtoPostgres, nil
 	default:
-		return ProtoUnknown, trace.BadParameter("failed to detect protocol by prefix: %v", in)
+		return ProtoUnknown, trace.BadParameter("failed to detect protocol by prefix: %#v", in)
 	}
 }

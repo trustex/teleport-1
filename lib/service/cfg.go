@@ -539,6 +539,22 @@ type DatabaseAWS struct {
 	Region string
 }
 
+// Check validates the database proxy configuration.
+func (d *Database) Check() error {
+	if d.Name == "" {
+		return trace.BadParameter("empty database name")
+	}
+	if !utils.SliceContainsStr(defaults.DatabaseProtocols, d.Protocol) {
+		return trace.BadParameter("unsupported database %q protocol %q, supported are: %v",
+			d.Name, d.Protocol, defaults.DatabaseProtocols)
+	}
+	if _, _, err := net.SplitHostPort(d.URI); err != nil {
+		return trace.BadParameter("invalid database %q address %q: %v",
+			d.Name, d.URI, err)
+	}
+	return nil
+}
+
 // AppsConfig configures application proxy service.
 type AppsConfig struct {
 	// Enabled enables application proxying service.

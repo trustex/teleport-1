@@ -65,8 +65,8 @@ type TokenCommand struct {
 	dbName string
 	// dbProtocol is the database protocol.
 	dbProtocol string
-	// dbAddress is the address the databaes is reachable at.
-	dbAddress string
+	// dbURI is the address the databaes is reachable at.
+	dbURI string
 
 	// ttl is how long the token will live for.
 	ttl time.Duration
@@ -101,9 +101,8 @@ func (c *TokenCommand) Initialize(app *kingpin.Application, config *service.Conf
 	c.tokenAdd.Flag("app-name", "Name of the application to add").Default("example-app").StringVar(&c.appName)
 	c.tokenAdd.Flag("app-uri", "URI of the application to add").Default("http://localhost:8080").StringVar(&c.appURI)
 	c.tokenAdd.Flag("db-name", "Name of the database to add").StringVar(&c.dbName)
-	// TODO(r0mant): Add supported protocols here.
-	c.tokenAdd.Flag("db-protocol", "Database protocol to use, e.g. postgresql or mysql").StringVar(&c.dbProtocol)
-	c.tokenAdd.Flag("db-address", "Address the database is reachable at").StringVar(&c.dbAddress)
+	c.tokenAdd.Flag("db-protocol", fmt.Sprintf("Database protocol to use. Supported are: %v", defaults.DatabaseProtocols)).StringVar(&c.dbProtocol)
+	c.tokenAdd.Flag("db-uri", "Address the database is reachable at").StringVar(&c.dbURI)
 
 	// "tctl tokens rm ..."
 	c.tokenDel = tokens.Command("rm", "Delete/revoke an invitation token").Alias("del")
@@ -201,18 +200,25 @@ func (c *TokenCommand) Add(client auth.ClientI) error {
 			appPublicAddr,
 			appPublicAddr)
 	case roles.Include(teleport.RoleDatabase):
+		proxies, err := client.GetProxies()
+		if err != nil {
+			return trace.Wrap(err)
+		}
+		if len(proxies) == 0 {
+			return trace.NotFound("cluster has no proxies")
+		}
 		fmt.Printf(dbMessage,
 			token,
 			int(c.ttl.Minutes()),
 			strings.ToLower(roles.String()),
 			token,
 			caPin,
-			authServers[0].GetAddr(),
+			proxies[0].GetAddr(),
 			c.dbName,
 			c.dbProtocol,
-			c.dbAddress,
+			c.dbURI,
 			int(c.ttl.Minutes()),
-			c.dbAddress)
+			c.dbURI)
 	case roles.Include(teleport.RoleTrustedCluster), roles.Include(teleport.LegacyClusterTokenType):
 		fmt.Printf(trustedClusterMessage,
 			token,

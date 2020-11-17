@@ -354,6 +354,31 @@ func (p *ProfileStatus) IsExpired(clock clockwork.Clock) bool {
 	return p.ValidUntil.Sub(clock.Now()) <= 0
 }
 
+// CACertPath returns path to the CA certificate for this profile.
+//
+// It's kept in ~/.tsh/keys/<proxy>/certs.pem.
+func (p *ProfileStatus) CACertPath() string {
+	return filepath.Join(p.Dir, sessionKeyDir, p.Name, fileNameTLSCerts)
+}
+
+// KeyPath returns path to the private key for this profile.
+//
+// It's kept in ~/.tsh/keys/<proxy>/<user>.
+func (p *ProfileStatus) KeyPath() string {
+	return filepath.Join(p.Dir, sessionKeyDir, p.Name, p.Username)
+}
+
+// DatabaseCertPath returns path to the specified database access certificate
+// for this profile.
+//
+// It's kept in ~/.tsh/keys/<proxy>/<user>-db/<cluster>/<name>-x509.pem
+func (p *ProfileStatus) DatabaseCertPath(name string) string {
+	return filepath.Join(p.Dir, sessionKeyDir, p.Name,
+		fmt.Sprintf("%v%v", p.Username, dbDirSuffix),
+		p.Cluster,
+		fmt.Sprintf("%v%v", name, fileExtTLSCert))
+}
+
 // RetryWithRelogin is a helper error handling method,
 // attempts to relogin and retry the function once
 func RetryWithRelogin(ctx context.Context, tc *TeleportClient, fn func() error) error {

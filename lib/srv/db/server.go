@@ -48,7 +48,6 @@ type Config struct {
 	// Clock used to control time.
 	Clock clockwork.Clock
 	// DataDir is the path to the data directory for the server.
-	// TODO(r0mant): This is where sessions are stored?
 	DataDir string
 	// AuthClient is a client directly connected to the Auth server.
 	AuthClient *auth.Client
@@ -372,7 +371,7 @@ func (s *Server) authorize(ctx context.Context) (*sessionContext, error) {
 		return nil, trace.Wrap(err)
 	}
 	identity := authContext.Identity.GetIdentity()
-	s.Debugf("User identity: %#v.", identity)
+	s.Debugf("Client identity: %#v.", identity)
 	// Fetch the requested database.
 	var db *services.Database
 	for _, d := range s.Server.GetDatabases() {

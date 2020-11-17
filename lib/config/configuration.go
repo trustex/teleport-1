@@ -113,8 +113,6 @@ type CommandLineFlags struct {
 
 	// DatabaseName is the name of the database to proxy.
 	DatabaseName string
-	// DatabaseDescription is an optional free-form database description.
-	DatabaseDescription string
 	// DatabaseProtocol is the type of the proxied database e.g. postgres or mysql.
 	DatabaseProtocol string
 	// DatabaseURI is the address to connect to the proxied database.
@@ -766,10 +764,6 @@ func applyKubeConfig(fc *FileConfig, cfg *service.Config) error {
 func applyDatabasesConfig(fc *FileConfig, cfg *service.Config) error {
 	cfg.Databases.Enabled = true
 	for _, database := range fc.Databases.Databases {
-		err := database.Check()
-		if err != nil {
-			return trace.Wrap(err)
-		}
 		staticLabels := make(map[string]string)
 		if database.StaticLabels != nil {
 			staticLabels = database.StaticLabels
@@ -785,25 +779,29 @@ func applyDatabasesConfig(fc *FileConfig, cfg *service.Config) error {
 			}
 		}
 		var caBytes []byte
+		var err error
 		if database.CACertFile != "" {
 			caBytes, err = ioutil.ReadFile(database.CACertFile)
 			if err != nil {
 				return trace.Wrap(err)
 			}
 		}
-		cfg.Databases.Databases = append(cfg.Databases.Databases,
-			service.Database{
-				Name:          database.Name,
-				Description:   database.Description,
-				Protocol:      database.Protocol,
-				URI:           database.URI,
-				StaticLabels:  staticLabels,
-				DynamicLabels: dynamicLabels,
-				CACert:        caBytes,
-				AWS: service.DatabaseAWS{
-					Region: database.AWS.Region,
-				},
-			})
+		db := service.Database{
+			Name:          database.Name,
+			Description:   database.Description,
+			Protocol:      database.Protocol,
+			URI:           database.URI,
+			StaticLabels:  staticLabels,
+			DynamicLabels: dynamicLabels,
+			CACert:        caBytes,
+			AWS: service.DatabaseAWS{
+				Region: database.AWS.Region,
+			},
+		}
+		if err := db.Check(); err != nil {
+			return trace.Wrap(err)
+		}
+		cfg.Databases.Databases = append(cfg.Databases.Databases, db)
 	}
 	return nil
 }
@@ -1110,24 +1108,35 @@ func Configure(clf *CommandLineFlags, cfg *service.Config) error {
 	}
 
 	// If database name was specified on the command line, add to configuration.
+	// TODO(r0mant): Unit test this.
 	if clf.DatabaseName != "" {
-		fileConf.Databases = Databases{
-			Service: Service{
-				EnabledFlag: "yes",
-			},
-			Databases: []*Database{
-				{
-					Name:        clf.DatabaseName,
-					Description: clf.DatabaseDescription,
-					Protocol:    clf.DatabaseProtocol,
-					URI:         clf.DatabaseURI,
-					CACertFile:  clf.DatabaseCACertFile,
-					AWS: DatabaseAWS{
-						Region: clf.DatabaseAWSRegion,
-					},
-				},
+		cfg.Databases.Enabled = true
+		staticLabels, dynamicLabels, err := parseLabels(clf.Labels)
+		if err != nil {
+			return trace.Wrap(err)
+		}
+		var caBytes []byte
+		if clf.DatabaseCACertFile != "" {
+			caBytes, err = ioutil.ReadFile(clf.DatabaseCACertFile)
+			if err != nil {
+				return trace.Wrap(err)
+			}
+		}
+		db := service.Database{
+			Name:          clf.DatabaseName,
+			Protocol:      clf.DatabaseProtocol,
+			URI:           clf.DatabaseURI,
+			StaticLabels:  staticLabels,
+			DynamicLabels: dynamicLabels,
+			CACert:        caBytes,
+			AWS: service.DatabaseAWS{
+				Region: clf.DatabaseAWSRegion,
 			},
 		}
+		if err := db.Check(); err != nil {
+			return trace.Wrap(err)
+		}
+		cfg.Databases.Databases = append(cfg.Databases.Databases, db)
 	}
 
 	if err = ApplyFileConfig(fileConf, cfg); err != nil {

@@ -291,6 +291,10 @@ func (e *postgresEngine) makeClientReady(backend *pgproto3.Backend, frontendConn
 	if err := backend.Send(&pgproto3.AuthenticationOk{}); err != nil {
 		return trace.Wrap(err)
 	}
+	e.Debug("Sending BackendKeyData.")
+	if err := backend.Send(&pgproto3.BackendKeyData{ProcessID: 123, SecretKey: 456}); err != nil {
+		return trace.Wrap(err)
+	}
 	// ParameterStatuses contains parameters reported by the server such as
 	// server version, relay them back to the client.
 	e.Debugf("Sending ParameterStatuses: %v.", frontendConn.ParameterStatuses)

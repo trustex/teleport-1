@@ -137,9 +137,8 @@ func Run(options Options) (executedCommand string, conf *service.Config) {
 	start.Flag("db-name",
 		"Name of the proxied database.").
 		StringVar(&ccf.DatabaseName)
-	// TODO(r0mant): Add supported protocols.
 	start.Flag("db-protocol",
-		"Proxied database protocol, e.g. postgresql or mysql.").
+		fmt.Sprintf("Proxied database protocol. Supported are: %v.", defaults.DatabaseProtocols)).
 		StringVar(&ccf.DatabaseProtocol)
 	start.Flag("db-uri",
 		"Address proxied database is reachable at.").
