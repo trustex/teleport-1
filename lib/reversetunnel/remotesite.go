@@ -508,7 +508,8 @@ func (s *remoteSite) Dial(params DialParams) (net.Conn, error) {
 
 	// If the proxy is in recording mode use the agent to dial and build a
 	// in-memory forwarding server.
-	if services.IsRecordAtProxy(clusterConfig.GetSessionRecording()) {
+	if params.ConnType == services.NodeTunnel &&
+		services.IsRecordAtProxy(clusterConfig.GetSessionRecording()) {
 		return s.dialWithAgent(params)
 	}
 	return s.DialTCP(params)
