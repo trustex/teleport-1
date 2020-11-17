@@ -539,6 +539,8 @@ func hostCAFormat(ca services.CertAuthority, keyBytes []byte, client auth.Client
 	if err != nil {
 		return "", trace.Wrap(err)
 	}
-	allowedLogins, _ := roles.CheckLoginDuration(defaults.MinCertDuration + time.Second)
+	// RiskyPermitEmptyLogins is OK here because we aren't using CheckLoginDuration to calculate
+	// certificate generation parameters.
+	allowedLogins, _ := roles.CheckLoginDuration(defaults.MinCertDuration+time.Second, services.RiskyPermitEmptyLogins(true))
 	return sshutils.MarshalAuthorizedHostsFormat(ca.GetClusterName(), keyBytes, allowedLogins)
 }

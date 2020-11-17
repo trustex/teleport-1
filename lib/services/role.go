@@ -1218,7 +1218,7 @@ type AccessChecker interface {
 
 	// CheckLoginDuration checks if role set can login up to given duration and
 	// returns a combined list of allowed logins.
-	CheckLoginDuration(ttl time.Duration) ([]string, error)
+	CheckLoginDuration(ttl time.Duration, opts ...LoginCheckOption) ([]string, error)
 
 	// CheckKubeGroupsAndUsers check if role can login into kubernetes
 	// and returns two lists of combined allowed groups and users
@@ -1631,9 +1631,31 @@ func (set RoleSet) CheckKubeGroupsAndUsers(ttl time.Duration, overrideTTL bool) 
 	return utils.StringsSliceFromSet(groups), utils.StringsSliceFromSet(users), nil
 }
 
+type LoginCheckOption func(*loginCheckConfig)
+
+// RiskyPermitEmptyLogins will permit the login array returned by
+// CheckLoginDuration to be empty.  This is risky because an empty
+// login array as part of a client cert is treated as being valid for
+// all possible logins by some SSH implementations.  This option defaults
+// to false and should always be false when being used to calculate
+// the logins to be applied to a certificate.
+func RiskyPermitEmptyLogins(allow bool) LoginCheckOption {
+	return LoginCheckOption(func(cfg *loginCheckConfig) {
+		cfg.RiskyPermitEmptyLogins = allow
+	})
+}
+
+type loginCheckConfig struct {
+	RiskyPermitEmptyLogins bool
+}
+
 // CheckLoginDuration checks if role set can login up to given duration and
 // returns a combined list of allowed logins.
-func (set RoleSet) CheckLoginDuration(ttl time.Duration) ([]string, error) {
+func (set RoleSet) CheckLoginDuration(ttl time.Duration, opts ...LoginCheckOption) ([]string, error) {
+	var cfg loginCheckConfig
+	for _, opt := range opts {
+		opt(&cfg)
+	}
 	logins := make(map[string]bool)
 	var matchedTTL bool
 	for _, role := range set {
@@ -1649,17 +1671,21 @@ func (set RoleSet) CheckLoginDuration(ttl time.Duration) ([]string, error) {
 	if !matchedTTL {
 		return nil, trace.AccessDenied("this user cannot request a certificate for %v", ttl)
 	}
-	if len(logins) == 0 && !set.hasPossibleLogins() {
-		// user was deliberately configured to have no login capability,
-		// but ssh certificates must contain at least one valid principal.
-		// we add a single distinctive value which should be unique, and
-		// will never be a valid unix login (due to leading '-').
-		logins["-teleport-nologin-"+uuid.New()] = true
+
+	if !cfg.RiskyPermitEmptyLogins {
+		if len(logins) == 0 && !set.hasPossibleLogins() {
+			// user was deliberately configured to have no login capability,
+			// but ssh certificates must contain at least one valid principal.
+			// we add a single distinctive value which should be unique, and
+			// will never be a valid unix login (due to leading '-').
+			logins["-teleport-nologin-"+uuid.New()] = true
+		}
+
+		if len(logins) == 0 {
+			return nil, trace.AccessDenied("this user cannot create SSH sessions, has no allowed logins")
+		}
 	}
 
-	if len(logins) == 0 {
-		return nil, trace.AccessDenied("this user cannot create SSH sessions, has no allowed logins")
-	}
 	out := make([]string, 0, len(logins))
 	for login := range logins {
 		out = append(out, login)
