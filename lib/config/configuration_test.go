@@ -1130,3 +1130,48 @@ app_service:
 		c.Assert(err != nil, check.Equals, tt.outError, tt.inComment)
 	}
 }
+
+// TestAppsCLF checks that validation runs on application configuration passed
+// in on the command line.
+func (s *ConfigTestSuite) TestAppsCLF(c *check.C) {
+	tests := []struct {
+		desc      check.CommentInterface
+		inAppName string
+		inAppURI  string
+		outError  bool
+	}{
+		{
+			desc:      check.Commentf("valid name and uri"),
+			inAppName: "foo",
+			inAppURI:  "http://localhost:8080",
+			outError:  false,
+		},
+		{
+			desc:      check.Commentf("invalid name"),
+			inAppName: "-foo",
+			inAppURI:  "http://localhost:8080",
+			outError:  true,
+		},
+		{
+			desc:      check.Commentf("missing uri"),
+			inAppName: "foo",
+			outError:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		clf := CommandLineFlags{
+			AppName: tt.inAppName,
+			AppURI:  tt.inAppURI,
+		}
+		cfg := service.MakeDefaultConfig()
+
+		err := Configure(&clf, cfg)
+		c.Assert(err != nil, check.Equals, tt.outError, tt.desc)
+		if tt.outError {
+			continue
+		}
+		c.Assert(cfg.Apps.Enabled, check.Equals, true)
+		c.Assert(cfg.Apps.Apps, check.HasLen, 1)
+	}
+}
